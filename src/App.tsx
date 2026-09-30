@@ -104,9 +104,9 @@ function VUMeter({player,active,side,chipSource,position,label,master,calibratio
       
 
       const a=ang(-20+level*23);
-      ctx.strokeStyle='#ffe9b8';ctx.lineWidth=1.8*dpr;ctx.shadowColor='rgba(0,0,0,.72)';ctx.shadowBlur=2*dpr;ctx.shadowOffsetX=2*dpr;ctx.shadowOffsetY=3*dpr;
+      ctx.strokeStyle='#ffe9b8';ctx.lineWidth=(showSecond?1.5:1.8)*dpr;ctx.shadowColor='rgba(0,0,0,.72)';ctx.shadowBlur=2*dpr;ctx.shadowOffsetX=2*dpr;ctx.shadowOffsetY=3*dpr;
       ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.sin(a)*R*.94,cy-Math.cos(a)*R*.94);ctx.stroke();ctx.shadowBlur=0;
-      if(showSecond){const a2=ang(-20+level2*23);ctx.strokeStyle='#6ee3e7';ctx.lineWidth=1.8*dpr;ctx.shadowColor='rgba(0,0,0,.72)';ctx.shadowBlur=2*dpr;ctx.shadowOffsetX=2*dpr;ctx.shadowOffsetY=3*dpr;ctx.beginPath();ctx.moveTo(cx-2*dpr,cy);ctx.lineTo(cx-2*dpr+Math.sin(a2)*R*.89,cy-Math.cos(a2)*R*.89);ctx.stroke();ctx.shadowBlur=0;}
+      if(showSecond){const a2=ang(-20+level2*23);ctx.strokeStyle='#6ee3e7';ctx.lineWidth=2.6*dpr;ctx.shadowColor='rgba(0,0,0,.72)';ctx.shadowBlur=2*dpr;ctx.shadowOffsetX=2*dpr;ctx.shadowOffsetY=3*dpr;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.sin(a2)*R*.76,cy-Math.cos(a2)*R*.76);ctx.stroke();ctx.shadowBlur=0;}
       ctx.shadowColor='rgba(0,0,0,.72)';ctx.shadowBlur=2*dpr;ctx.shadowOffsetX=2*dpr;ctx.shadowOffsetY=3*dpr;ctx.fillStyle='#0c0a06';ctx.beginPath();ctx.arc(cx,cy,5*dpr,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#3a3226';ctx.lineWidth=1*dpr;ctx.stroke();ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
       if(s.master){const px=w*.9,py=cy-R*.89,lit=s.active&&now<clipUntil;ctx.fillStyle='#27382d';ctx.beginPath();ctx.arc(px,py,3.5*dpr,0,Math.PI*2);ctx.fill();ctx.fillStyle=lit?'#cf4640':'#8b9688';ctx.beginPath();ctx.arc(px,py,2.3*dpr,0,Math.PI*2);ctx.fill();ctx.strokeStyle=lit?'#f5aaa1':'#ced5c8';ctx.lineWidth=.7*dpr;ctx.beginPath();ctx.arc(px,py,2.3*dpr,Math.PI,Math.PI*1.65);ctx.stroke();canvas.dataset.clip=String(lit)}
       raf=requestAnimationFrame(draw)};raf=requestAnimationFrame(draw);return()=>cancelAnimationFrame(raf)},[]);

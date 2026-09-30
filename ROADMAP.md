@@ -23,6 +23,8 @@ Sync the playlist and playhead with other clients in a room.
 
 Suggested start: option 1, single host, timestamped events, `tapeRate` drift correction.
 
-## Share links and catalog updates
+## Share links and catalog updates (done)
 
-Share links use a 48-bit hash of the HVSC path (`?t=<id>`, plus `v`, `f`, `s` only when non-default). Old `?tune=<path>` links still open. When the catalog snapshot is updated, merge the new path list into the old one and keep removed or moved paths as retired entries instead of deleting them, so old IDs keep resolving to a name. If a retired tune fails to load, show its title and composer and prefill the search with them.
+Share links use a 48-bit hash of the HVSC path (`?t=<id>`, plus `v`, `f`, `s` only when non-default). Old `?tune=<path>` links still open.
+
+To update the catalog snapshot run `npm run merge-catalog -- new-paths.json`. It writes the new list to `src/hvsc-index.json` and moves vanished paths to `src/hvsc-retired.json`, so old share IDs keep resolving to a name. If a shared tune is retired or fails to load, the browser opens with a search prefilled with its title and a message naming the composer.

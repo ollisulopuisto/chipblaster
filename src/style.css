@@ -1862,3 +1862,6 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .meters-row.advanced-panel{align-items:stretch!important}
 .c64-shell.unfolded .meters-row .spectrum{height:100%!important;min-height:0!important;max-height:none!important}
 }
+
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block .saved-heart{display:inline-grid;place-items:center;line-height:1}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block .saved-heart .deck-icon{width:20px;height:20px}

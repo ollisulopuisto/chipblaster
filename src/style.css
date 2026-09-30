@@ -1727,3 +1727,8 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .wave-apertures.dual .wave-aperture.sid-one .aperture-light,.c64-shell .wave-apertures.dual .wave-aperture.both .aperture-light{stroke:#ffb347;filter:drop-shadow(0 0 1px #ffb34788)}
 .c64-shell .wave-apertures.dual .wave-aperture.sid-two .aperture-light{stroke:#4fd6ff;filter:drop-shadow(0 0 1px #4fd6ff88)}
 .c64-shell .wave-apertures.dual .wave-aperture .aperture-second-edge{stroke:#4fd6ff;stroke-width:1.6;filter:drop-shadow(0 0 1px #4fd6ff88)}
+
+/* The SID bank stays inside its own column: wrap SID 2 under SID 1 instead of spilling over the tone controls. */
+.c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{flex:0 1 auto!important;min-width:0!important;max-width:44%!important;box-sizing:border-box;overflow:hidden}
+.c64-shell .control-top .sid-model-pair{flex-wrap:wrap!important;justify-content:center!important;max-width:100%}
+.c64-shell .control-top .sid-model-pair fieldset{min-width:0!important;max-width:100%!important}

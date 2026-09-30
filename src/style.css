@@ -1809,14 +1809,14 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .console>.controls.transport-controls>button.radio-button:disabled::after{background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da;opacity:.6}
 
 /* Tune browser: the grey control lid swings open on a top hinge and reveals the browser beneath it; closing plays the same motion in reverse. */
-.c64-shell .flip-stage.flipped .flip-front>.console{transform-origin:50% calc(var(--lid-h,0px) / 2);backface-visibility:hidden;animation:lid-hinge .7s ease-in-out both;pointer-events:none}
+.c64-shell .flip-stage.flipped .flip-front>.console{transform-origin:50% var(--axis,50%);backface-visibility:hidden;animation:lid-hinge .7s ease-in-out both;pointer-events:none}
 .c64-shell .flip-stage.flipped.is-closing .flip-front>.console{animation:lid-hinge .7s ease-in-out reverse both}
 @keyframes lid-hinge{0%,49%{visibility:visible}0%{rotate:1 0 0 0deg}51%,100%{visibility:hidden}100%{rotate:1 0 0 -180deg}}
 @keyframes browser-reveal{from{opacity:0}to{opacity:1}}
 @keyframes browser-flip{0%,49%{visibility:hidden}0%{rotate:1 0 0 180deg}51%,100%{visibility:visible}100%{rotate:1 0 0 0deg}}
 @keyframes browser-reveal-full{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
 @media(min-width:701px){
-.c64-shell .flip-stage.flipped .flip-back{position:absolute!important;inset:auto!important;left:var(--lid-left,0)!important;top:var(--lid-top,0)!important;width:var(--lid-w,100%)!important;height:var(--lid-h,auto)!important;z-index:1!important;box-shadow:inset 0 3px 8px #0008!important;border-radius:6px!important;transform:none!important;transform-origin:50% 50%;backface-visibility:hidden;animation:browser-flip .7s ease-in-out both}
+.c64-shell .flip-stage.flipped .flip-back{position:absolute!important;inset:auto!important;left:var(--lid-left,0)!important;top:var(--lid-top,0)!important;width:var(--lid-w,100%)!important;height:var(--lid-h,auto)!important;z-index:1!important;box-shadow:inset 0 3px 8px #0008!important;border-radius:6px!important;transform:none!important;transform-origin:50% var(--axis,50%);backface-visibility:hidden;animation:browser-flip .7s ease-in-out both}
 .c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-flip .7s ease-in-out reverse both}
 }
 @media(max-width:700px){
@@ -1825,7 +1825,7 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 }
 @media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped .flip-front>.console,.c64-shell .flip-stage.flipped .flip-back{animation:none!important}.c64-shell .flip-stage.flipped .flip-front>.console{opacity:0}}
 
-.c64-shell .flip-stage.flipped .flip-front,.c64-shell .flip-stage.flipped{perspective:1300px;perspective-origin:50% calc(var(--lid-top,0px) + var(--lid-h,0px) / 2)}
+.c64-shell .flip-stage.flipped .flip-front,.c64-shell .flip-stage.flipped{perspective:1300px;perspective-origin:50% calc(var(--lid-top,0px) + var(--axis,0px))}
 .c64-shell .flip-stage.flipped .flip-front{position:relative;z-index:2}
 
 /* The panel flips inside a dark recess in the case, so the empty slot reads as a cavity. */
@@ -1868,8 +1868,8 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 
 /* Desktop: the flip takes the speaker plate too, so the browser gets the console and base plate area. Both halves share one axis. */
 @media(min-width:701px){
-.c64-shell .player-body:has(.flip-stage.flipped){perspective:1300px;perspective-origin:50% calc(var(--pb-console-top,0px) + var(--lid-h,0px) / 2)}
-.c64-shell .flip-stage.flipped~.base-plate{z-index:2147482001!important;transform-origin:50% calc(var(--lid-h,0px) / 2 - var(--base-dy,0px));backface-visibility:hidden;animation:lid-hinge .7s ease-in-out both;pointer-events:none}
+.c64-shell .player-body:has(.flip-stage.flipped){perspective:1300px;perspective-origin:50% calc(var(--pb-console-top,0px) + var(--axis,0px))}
+.c64-shell .flip-stage.flipped~.base-plate{z-index:2147482001!important;transform-origin:50% calc(var(--axis,0px) - var(--base-dy,0px));backface-visibility:hidden;animation:lid-hinge .7s ease-in-out both;pointer-events:none}
 .c64-shell .flip-stage.flipped.is-closing~.base-plate{animation:lid-hinge .7s ease-in-out reverse both}
 }
 @media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped~.base-plate{animation:none!important;visibility:hidden}}
@@ -1887,3 +1887,15 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .speaker-recess .speaker-cone>.speaker-mid{scale:calc(.8 + var(--mid,0) * .36)}
 .speaker-recess .speaker-cone>.speaker-tweeter{scale:calc(.7 + var(--treble,0) * .6)}
 @media(prefers-reduced-motion:reduce){.speaker-recess,.speaker-recess .speaker-cone>*{scale:none}}
+
+/* Base plate: two equal speaker bays, and a hinge seam between the control panel and the speakers that the whole card flips around. */
+.c64-shell .player-body>.base-plate{grid-template-columns:minmax(0,1fr) minmax(180px,auto) minmax(0,1fr)}
+.c64-shell .base-plate .speaker-recess.left{justify-self:center}.c64-shell .base-plate .speaker-recess.right{justify-self:center}
+@media(min-width:701px){
+.c64-shell .player-body>.base-plate::before{content:"";position:absolute;left:-16px;right:-16px;top:-19px;height:12px;pointer-events:none;background:radial-gradient(circle at 8px 50%,#f0ecdc 0 2px,#8b8168 3px 4px,#4c4434 5px 6px,transparent 6.5px),radial-gradient(circle at calc(100% - 8px) 50%,#f0ecdc 0 2px,#8b8168 3px 4px,#4c4434 5px 6px,transparent 6.5px),linear-gradient(#0000 4px,#6d634d 4px 5px,#3b3427 5px 7px,#f2ecd6 7px 8px,#0000 8px)}
+}
+@media(max-width:560px){.c64-shell .player-body>.base-plate{grid-template-columns:1fr 1fr}}
+/* The perforated grille buzzes when bass is hard: amplitude follows the bass level squared past a threshold. */
+.speaker-recess .speaker-grille{inset:-3px;--buzz:calc(max(0, var(--bass,0) - .42) * 2.4);animation:grille-buzz .055s linear infinite alternate}
+@keyframes grille-buzz{from{translate:calc(var(--buzz) * -1.6px) calc(var(--buzz) * .6px)}to{translate:calc(var(--buzz) * 1.6px) calc(var(--buzz) * -.6px)}}
+@media(prefers-reduced-motion:reduce){.speaker-recess .speaker-grille{animation:none}}

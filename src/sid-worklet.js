@@ -55,7 +55,7 @@ class SidProcessor extends AudioWorkletProcessor {
       return true;
     }
     if (c.isRunning() && out) {
-      if (this.spread > 0 && outR && c.stereoActive()) c.processStereo(out, outR, out.length, this.spread);
+      if (this.spread > 0 && outR) (c.stereoActive() ? c.processStereo : c.processWide)(out, outR, out.length, this.spread);
       else { c.process(out, out.length); if (outR) outR.set(out); }
       this.frames += out.length;
       if (this.frames >= METER_FRAMES) {

@@ -1873,3 +1873,17 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .flip-stage.flipped.is-closing~.base-plate{animation:lid-hinge .7s ease-in-out reverse both}
 }
 @media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped~.base-plate{animation:none!important;visibility:hidden}}
+
+/* Headphone Space: a fourth knob in the tone bank, set apart by a divider. Its value reads on a segmented display. */
+.c64-shell .eq-deck .eq-bands{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-column:1/-1}
+.c64-shell .eq-deck .eq-band.space-band{border-left:1px solid #a5afa5}
+.c64-shell .eq-deck .space-readout{display:inline-flex;align-items:center;justify-content:center;min-width:34px;margin-top:3px;padding:2px 5px;background:#06191e;border:1px solid #42694b;border-radius:2px;box-shadow:inset 0 1px 3px #000}
+.c64-shell .eq-deck .space-readout .segment-text{gap:1px;overflow:visible}
+.c64-shell .eq-deck .space-readout svg{width:6px;height:11px}
+
+/* Speakers as visualizer elements: exaggerated excursion per band. Individual scale properties, because older rules pin transform. */
+.speaker-recess{scale:calc(1 + var(--bass,0) * .1);box-shadow:inset 0 4px 12px #000,0 1px 1px #fff9,0 0 0 2px #91866e,0 0 calc(var(--bass,0) * 26px) calc(var(--bass,0) * 4px) #f5a94270}
+.speaker-recess .speaker-cone>.speaker-diaphragm{scale:calc(.72 + var(--bass,0) * .42)}
+.speaker-recess .speaker-cone>.speaker-mid{scale:calc(.8 + var(--mid,0) * .36)}
+.speaker-recess .speaker-cone>.speaker-tweeter{scale:calc(.7 + var(--treble,0) * .6)}
+@media(prefers-reduced-motion:reduce){.speaker-recess,.speaker-recess .speaker-cone>*{scale:none}}

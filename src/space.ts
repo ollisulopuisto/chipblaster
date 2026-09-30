@@ -1,9 +1,9 @@
 /** Headphone space: centered dry + equal/opposite filtered delayed Side.
- * Shared 0.75 gain reserves headroom in both Original and Space for fair A/B.
+ * Shared 0.66 gain reserves headroom in both Original and Space for fair A/B.
  * No limiter: clipping would break the mono-sum guarantee.
  */
-export const SPACE_HEADROOM = 0.75;
-export const SPACE_MAX_SIDE = 0.1;
+export const SPACE_HEADROOM = 0.66;
+export const SPACE_MAX_SIDE = 0.5;
 export function createSpace(context: BaseAudioContext, input: AudioNode, amount = 0) {
   const dry = context.createGain(), highpass = context.createBiquadFilter();
   const delay = context.createDelay(0.05), side = context.createGain();

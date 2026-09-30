@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.local
+.env*
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup and temporary files
+*~
+*.bak
+*.backup
+*.swp
+*.swo

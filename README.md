@@ -46,12 +46,12 @@ No server component is needed. The player fetches individual SID files from the 
 
 ## Limitations
 
-- SID only. There is no local file picker or drag-and-drop, and no MP3 export in the interface.
+- SID only. There is no local file picker, drag-and-drop or audio export.
 - The emulator is lightweight: RSID tunes need full C64 emulation, and some digi effects or unusual players may sound different.
 - The catalog is a snapshot, not a live index; the mirror can lag or be unavailable.
 
 ## Sources and rights
 
-The UI code in `src/App.tsx` and `src/style.css` was written for this project. Bundled third-party code: Hermit's jsSID emulator (`src/vendor/hermit-jsSID.js`, permissive use with credit: https://github.com/og2t/jsSID/blob/master/README.txt), the lamejs MP3 encoder (`src/vendor/lame.all.js`, LGPL, notice in `src/vendor/LAME-LICENSE.txt`) and 16-segment glyphs based on David Madison's MIT-licensed [LED-Segment-ASCII](https://github.com/dmadison/LED-Segment-ASCII) (`src/vendor/LED-SEGMENT-ASCII-LICENSE.txt`). This repository makes no blanket license claim over third-party code or the HVSC metadata.
+The UI code in `src/App.tsx` and `src/style.css` was written for this project. Bundled third-party code: Hermit's jsSID emulator (`src/vendor/hermit-jsSID.js`, permissive use with credit: https://github.com/og2t/jsSID/blob/master/README.txt), and 16-segment glyphs based on David Madison's MIT-licensed [LED-Segment-ASCII](https://github.com/dmadison/LED-Segment-ASCII) (`src/vendor/LED-SEGMENT-ASCII-LICENSE.txt`). This repository makes no blanket license claim over third-party code or the HVSC metadata.
 
 HVSC tunes are copyrighted and are not included; see https://hvsc.c64.org/download/C64Music/DOCUMENTS/HVSC.txt. This is an independent fan project, not affiliated with HVSC or the library authors.

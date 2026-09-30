@@ -2018,13 +2018,21 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 @media(max-width:700px){.c64-shell .eq-deck .space-band{top:3px}}
 @media(max-width:700px){.c64-shell .eq-deck .wide-key{min-width:0;padding:5px 9px 5px 5px;font-size:7px;letter-spacing:.04em}.c64-shell .eq-deck .wide-key::after{top:3px;right:3px;width:6px;height:6px}}
 
-/* Stereo enhance off: the bottom plate shows one wide oval driver centred with the nameplate below, as on phones. On: the pair.
-   Toggling flips the plate about its horizontal axis; the layout swaps while it is edge-on. Clicking a speaker toggles too. */
-.c64-shell .player-body>.base-plate.plate-mono{grid-template-columns:1fr;justify-items:center;row-gap:14px}
-.c64-shell .base-plate.plate-mono .speaker-recess.right{display:none}
-.c64-shell .base-plate.plate-mono .speaker-recess.left{width:min(82%,340px)!important;height:min(30vw,168px)!important;border-radius:50%;justify-self:center}
-.c64-shell .base-plate.plate-mono .base-center{grid-column:1;grid-row:2}
+/* Stereo enhance: off shows one speaker centred; on, that speaker lifts and slides left while a second slides out from behind it to the right
+   (a motorised changer). Phones keep their single oval. Clicking a speaker toggles too. */
 .c64-shell .base-plate .speaker-recess{cursor:pointer}
-@keyframes plate-flip{0%{transform:perspective(1400px) rotateX(0)}50%{transform:perspective(1400px) rotateX(90deg)}50.1%{transform:perspective(1400px) rotateX(-90deg)}100%{transform:perspective(1400px) rotateX(0)}}
-.c64-shell .player-body>.base-plate.plate-flipping{animation:plate-flip .72s ease-in-out}
-@media(max-width:560px),(prefers-reduced-motion:reduce){.c64-shell .player-body>.base-plate.plate-flipping{animation:none}}
+@media(min-width:561px){
+.c64-shell .player-body>.base-plate.plate-slide{container-type:inline-size;grid-template-columns:1fr;grid-template-rows:auto auto;justify-items:center;row-gap:8px}
+.c64-shell .plate-slide .base-center{display:contents}
+.c64-shell .plate-slide .speaker-recess{grid-area:1/1;display:block!important;justify-self:center!important;transition:transform .64s cubic-bezier(.55,0,.25,1) .16s,filter .4s ease .2s}
+.c64-shell .plate-slide .speaker-recess.left{transform:translateX(calc(-25cqw - 45px));z-index:2}
+.c64-shell .plate-slide .speaker-recess.right{transform:translateX(calc(25cqw + 45px));z-index:1}
+.c64-shell .plate-slide.plate-mono .speaker-recess.left,.c64-shell .plate-slide.plate-mono .speaker-recess.right{transform:none}
+.c64-shell .plate-slide.plate-mono .speaker-recess.right{filter:brightness(.8)}
+.c64-shell .plate-slide .base-nameplate{grid-area:1/1;align-self:center;justify-self:center;opacity:1;transition:opacity .35s ease .55s}
+.c64-shell .plate-slide.plate-mono .base-nameplate{opacity:0;pointer-events:none;transition:opacity .15s ease 0s}
+.c64-shell .plate-slide .manual-key{grid-row:2;grid-column:1;justify-self:center}
+.c64-shell .plate-slide.plate-moving .speaker-recess.left{animation:speaker-lift .82s ease-in-out}
+@keyframes speaker-lift{0%,100%{translate:0 0}22%,68%{translate:0 -9px}}
+}
+@media(prefers-reduced-motion:reduce){.c64-shell .plate-slide .speaker-recess,.c64-shell .plate-slide .base-nameplate{transition:none!important}.c64-shell .plate-slide.plate-moving .speaker-recess.left{animation:none}}

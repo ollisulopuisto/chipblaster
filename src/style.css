@@ -1787,11 +1787,6 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 @keyframes manual-unfold{from{opacity:0;transform:rotateX(-92deg);filter:brightness(.6)}60%{opacity:1}to{opacity:1;transform:none;filter:none}}
 @media(prefers-reduced-motion:reduce){.manual-overlay,.manual-overlay *{animation:none!important}}
 
-/* Tune browser: it lifts out of the EJECT key and settles; closing plays the same motion in reverse. */
-.c64-shell .flip-stage.flipped .flip-back{transform-origin:50% 100%;animation:eject-lift .38s cubic-bezier(.2,.75,.25,1) both}
-.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:eject-lift .38s cubic-bezier(.2,.75,.25,1) reverse both}
-@keyframes eject-lift{from{opacity:0;transform:perspective(1100px) translateY(36px) rotateX(-14deg) scale(.95)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped .flip-back{animation:none!important}}
 .manual-overlay .manual-plate.manual-sheet{overflow-x:hidden!important}
 
 /* SEARCH / PLAYLIST: a 1970s Japanese hi-fi slide switch. Ribbed satin knob in a black slot, engraved legends with a pilot lamp. */
@@ -1814,3 +1809,22 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .console>.controls.transport-controls>button.radio-button::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da}
 .c64-shell .console>.controls.transport-controls>button.radio-button.radio-on:not(:disabled)::after{background:#71c875;box-shadow:0 0 5px #6dbb6d,inset 0 1px #e0f5d7}
 .c64-shell .console>.controls.transport-controls>button.radio-button:disabled::after{background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da;opacity:.6}
+
+/* Tune browser: the grey control lid swings open on a top hinge and reveals the browser beneath it; closing plays the same motion in reverse. */
+.c64-shell .flip-stage.flipped .flip-front>.console{transform-origin:50% 0;backface-visibility:hidden;animation:lid-hinge .52s cubic-bezier(.45,.05,.3,1) both;pointer-events:none}
+.c64-shell .flip-stage.flipped.is-closing .flip-front>.console{animation:lid-hinge .52s cubic-bezier(.45,.05,.3,1) reverse both}
+@keyframes lid-hinge{0%{opacity:1;rotate:1 0 0 0deg}92%{opacity:1}100%{opacity:0;rotate:1 0 0 -96deg}}
+@keyframes browser-reveal{from{opacity:0}to{opacity:1}}
+@keyframes browser-reveal-full{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@media(min-width:701px){
+.c64-shell .flip-stage.flipped .flip-back{position:absolute!important;inset:auto!important;left:var(--lid-left,0)!important;top:var(--lid-top,0)!important;width:var(--lid-w,100%)!important;height:var(--lid-h,auto)!important;z-index:1!important;box-shadow:inset 0 3px 8px #0008!important;border-radius:6px!important;transform:none!important;transform-origin:50% 0;animation:browser-reveal .1s linear both}
+.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-reveal .1s linear .44s reverse both}
+}
+@media(max-width:700px){
+.c64-shell .flip-stage.flipped .flip-back{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;border-radius:0!important;animation:browser-reveal-full .34s ease-out .2s both}
+.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-reveal-full .34s ease-out reverse both}
+}
+@media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped .flip-front>.console,.c64-shell .flip-stage.flipped .flip-back{animation:none!important}.c64-shell .flip-stage.flipped .flip-front>.console{opacity:0}}
+
+.c64-shell .flip-stage.flipped .flip-front{perspective:1300px;perspective-origin:50% var(--lid-top,0)}
+.c64-shell .flip-stage.flipped .flip-front{position:relative;z-index:2}

@@ -1958,3 +1958,11 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-count{order:2;display:inline-flex}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{order:2}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.hifi-slide{order:3}
+
+/* Tone knobs: room above for the name and the centre tick, room below for the end labels, so the group sits centred in the deck. */
+.c64-shell .eq-deck .eq-band>label{margin:0 0 7px}
+.c64-shell .eq-deck .eq-band>.rotary-wrap{margin:0 auto 12px}
+.c64-shell .rotary-ends path{stroke-width:2.4}
+.c64-shell .control-top .eq-deck .eq-band>label,.c64-shell.folded .eq-deck .eq-band>label,.c64-shell.unfolded .eq-deck .eq-band>label{margin:0 0 7px!important}
+@media(max-width:700px){.c64-shell .control-top .eq-deck .eq-band>label,.c64-shell.folded .eq-deck .eq-band>label,.c64-shell.unfolded .eq-deck .eq-band>label{margin:0 0 5px!important}.c64-shell .eq-deck .eq-band>.rotary-wrap{margin:0 auto 9px}}
+@media(max-width:700px){.c64-shell .rotary-ends text{display:none}}

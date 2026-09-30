@@ -21,7 +21,7 @@ A portable SID station in the browser: browse and play the High Voltage SID Coll
 - Infinite play chooses random tunes using catalog duration estimates (three minutes when unknown), not detected loop points. A dice key loads one random tune.
 - Three voice meters with waveform lamps (SID 1 amber, SID 2 cyan), a master meter, a frequency spectrum and audio-driven speaker cones.
 - Bass, mid and treble tone knobs with optional parametric frequency/Q (right-click or long-press a knob; double-click resets), plus volume on `+` / `-`.
-- SPACE knob for headphones: a mono-safe stereo widener on one-SID tunes, and a chip spread (SID 1 left, SID 2 right) on multi-SID tunes.
+- WIDE knob for headphones: a mono-safe stereo widener on one-SID tunes, and a chip spread (SID 1 left, SID 2 right) on multi-SID tunes.
 - Cycle visualizer presets with the thumbwheel; fold the case to hide the visualizer while music keeps playing.
 - Share a link to the current tune, and save favorites in this browser.
 - An in-app manual (MANUAL key on the base plate) lists the controls and shortcuts.

@@ -31,12 +31,14 @@ export class WorkletPlayer {
     this.outputGain = ctx.createGain();
     this.analyser.connect(this.outputGain);
     this.outputGain.connect(ctx.destination);
+    // The app later re-points `analyser` at the post-EQ tap; the worklet must keep feeding the original entry node.
+    const entry = this.analyser;
     this.core = new (SidCore as any)(ctx.sampleRate, 0);
     if (import.meta.env.DEV) (window as any).__sidPlayer = this;
     this.ready = ctx.audioWorklet.addModule(workletUrl).then(() => {
       const node = new AudioWorkletNode(ctx, 'sid-processor', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
       node.port.onmessage = e => this.onMessage(e.data);
-      node.connect(this.analyser);
+      node.connect(entry);
       this.node = node;
       for (const m of this.queue) node.port.postMessage(m);
       this.queue = [];

@@ -1927,3 +1927,7 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .title-subtune .subtune-half:hover{background:#78d3ea1f}
 .c64-shell .title-subtune .subtune-half:active{background:#78d3ea3a}
 .c64-shell .title-subtune .subtune-half:focus-visible{outline:2px solid #f5cd80;outline-offset:1px}
+
+/* Old side-flip transitions must not run when the flipped class comes off: the panel goes straight to its resting, hidden state. */
+.c64-shell .flip-stage .flip-front,.c64-shell .flip-stage .flip-back{transition:none!important}
+.c64-shell .flip-stage:not(.flipped) .flip-back{visibility:hidden;opacity:0}

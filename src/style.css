@@ -1908,3 +1908,11 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{min-width:46px;width:46px;padding:0}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.hifi-slide{flex:1 1 auto!important;gap:0!important}
 }
+
+/* Phones: one large oval driver, like a car door speaker. Tablet and desktop keep the pair. */
+@media(max-width:560px){
+.c64-shell .player-body>.base-plate{grid-template-columns:1fr;justify-items:center;row-gap:14px}
+.c64-shell .base-plate .speaker-recess.right{display:none}
+.c64-shell .base-plate .speaker-recess.left{width:min(82%,300px)!important;height:min(56vw,208px)!important;border-radius:50%;justify-self:center}
+.c64-shell .base-center{grid-column:1;grid-row:2}
+}

@@ -1,0 +1,16 @@
+{
+  "name": "CHIPBLASTER",
+  "short_name": "CHIPBLASTER",
+  "description": "A portable SID station: browse and play the High Voltage SID Collection.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#b7aa86",
+  "theme_color": "#b7aa86",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

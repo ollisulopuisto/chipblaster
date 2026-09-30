@@ -4,6 +4,16 @@ A portable SID station in the browser: browse and play the High Voltage SID Coll
 
 **Live site**: https://chipblaster.sulopuis.to/ (mirror: https://ollisulopuisto.github.io/chipblaster/)
 
+## Screenshots
+
+| Desktop | Tune browser (control lid hinged open) |
+| --- | --- |
+| ![CHIPBLASTER on desktop](docs/screenshots/desktop.png) | ![Tune browser on desktop](docs/screenshots/desktop-browser.png) |
+
+| Phone (folded case) | Phone tune browser |
+| --- | --- |
+| <img src="docs/screenshots/phone.png" width="260" alt="CHIPBLASTER on a phone"> | <img src="docs/screenshots/phone-browser.png" width="260" alt="Tune browser on a phone"> |
+
 ## Features
 
 - Search a snapshot of the HVSC #85 catalog (June 2026), filter to saved tunes, queue tunes and build a playlist.

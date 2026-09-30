@@ -1769,3 +1769,27 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .base-center{grid-column:1/-1;grid-row:2}
 }
 .c64-shell .player-body>.base-plate{margin:14px 16px 16px;width:auto;border:1px solid #a29676;border-radius:6px}
+
+/* Manual: the leaflet unfolds panel by panel from its top edge, and folds back the same way in reverse. */
+.manual-overlay{animation:manual-fade .3s ease-out both}
+.manual-overlay.is-closing{animation:manual-fade .3s ease-in .3s reverse both}
+.manual-overlay .manual-head{animation:manual-head .28s ease-out both;transform-origin:50% 0}
+.manual-overlay.is-closing .manual-head{animation:manual-head .28s ease-in .34s reverse both}
+.manual-overlay .manual-panels{perspective:1100px}
+.manual-overlay .manual-panels section{transform-origin:50% 0;backface-visibility:hidden;animation:manual-unfold .42s cubic-bezier(.2,.7,.25,1) both;animation-delay:calc(.16s + var(--n,0)*.045s)}
+.manual-overlay.is-closing .manual-panels section{animation:manual-unfold .32s cubic-bezier(.5,0,.8,.4) reverse both;animation-delay:calc((8 - var(--n,0))*.03s)}
+.manual-overlay .manual-panels section:nth-child(1){--n:0}.manual-overlay .manual-panels section:nth-child(2){--n:1}.manual-overlay .manual-panels section:nth-child(3){--n:2}.manual-overlay .manual-panels section:nth-child(4){--n:3}
+.manual-overlay .manual-panels section:nth-child(5){--n:4}.manual-overlay .manual-panels section:nth-child(6){--n:5}.manual-overlay .manual-panels section:nth-child(7){--n:6}.manual-overlay .manual-panels section:nth-child(8){--n:7}
+.manual-overlay .manual-foot{animation:manual-fade .3s ease-out .55s both}
+.manual-overlay.is-closing .manual-foot{animation:manual-fade .2s ease-in reverse both}
+@keyframes manual-fade{from{opacity:0}to{opacity:1}}
+@keyframes manual-head{from{opacity:0;transform:scaleY(.2)}to{opacity:1;transform:none}}
+@keyframes manual-unfold{from{opacity:0;transform:rotateX(-92deg);filter:brightness(.6)}60%{opacity:1}to{opacity:1;transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){.manual-overlay,.manual-overlay *{animation:none!important}}
+
+/* Tune browser: it lifts out of the EJECT key and settles; closing plays the same motion in reverse. */
+.c64-shell .flip-stage.flipped .flip-back{transform-origin:50% 100%;animation:eject-lift .38s cubic-bezier(.2,.75,.25,1) both}
+.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:eject-lift .38s cubic-bezier(.2,.75,.25,1) reverse both}
+@keyframes eject-lift{from{opacity:0;transform:perspective(1100px) translateY(36px) rotateX(-14deg) scale(.95)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped .flip-back{animation:none!important}}
+.manual-overlay .manual-plate.manual-sheet{overflow-x:hidden!important}

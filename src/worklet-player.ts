@@ -34,7 +34,7 @@ export class WorkletPlayer {
     this.core = new (SidCore as any)(ctx.sampleRate, 0);
     if (import.meta.env.DEV) (window as any).__sidPlayer = this;
     this.ready = ctx.audioWorklet.addModule(workletUrl).then(() => {
-      const node = new AudioWorkletNode(ctx, 'sid-processor', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [1] });
+      const node = new AudioWorkletNode(ctx, 'sid-processor', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
       node.port.onmessage = e => this.onMessage(e.data);
       node.connect(this.analyser);
       this.node = node;
@@ -71,6 +71,8 @@ export class WorkletPlayer {
     this.core.loadbuffer(bytes, subtune);
     this.send({ type: 'load', bytes: bytes.slice(), subtune });
   }
+  /** Multi-SID tunes: 0 keeps both chips centred, 1 puts SID 1 fully left and SID 2 fully right. */
+  setChipSpread(value: number) { this.send({ type: 'spread', value }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
   start(subtune: number) { this.cancelSeeks(); this.time = 0; this.core.start(subtune); this.send({ type: 'start', subtune }); }
   stop() { this.cancelSeeks(); this.time = 0; this.core.stop(); this.send({ type: 'stop' }); }

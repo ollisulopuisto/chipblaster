@@ -11,6 +11,7 @@ class SidProcessor extends AudioWorkletProcessor {
     this.frames = 0;
     this.seek = null;
     this.seekTicks = 0;
+    this.spread = 0;
     this.port.onmessage = e => this.onMessage(e.data);
   }
   state() {
@@ -27,13 +28,14 @@ class SidProcessor extends AudioWorkletProcessor {
       case 'start': this.seek = null; c.start(m.subtune); break;
       case 'models': c.setSIDModels(m.primary, m.secondary); break;
       case 'tape': c.tapeRate = m.rate; break;
+      case 'spread': this.spread = Math.max(0, Math.min(1, m.value)); break;
       case 'seek': this.seek = { id: m.id, target: m.seconds, remaining: null }; break;
       case 'cancelSeek': this.seek = null; break;
     }
     this.state();
   }
   process(inputs, outputs) {
-    const out = outputs[0][0], c = this.core, s = this.seek;
+    const out = outputs[0][0], outR = outputs[0][1], c = this.core, s = this.seek;
     if (s) {
       if (s.remaining === null) {
         c.pause();
@@ -53,7 +55,8 @@ class SidProcessor extends AudioWorkletProcessor {
       return true;
     }
     if (c.isRunning() && out) {
-      c.process(out, out.length);
+      if (this.spread > 0 && outR && c.stereoActive()) c.processStereo(out, outR, out.length, this.spread);
+      else { c.process(out, out.length); if (outR) outR.set(out); }
       this.frames += out.length;
       if (this.frames >= METER_FRAMES) {
         c.finishMeters(this.frames);

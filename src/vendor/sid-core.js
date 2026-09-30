@@ -36,6 +36,32 @@ function SidCore(samplerate, background_noise)
     this.isRunning = function() { return running; }
     this.getplaytimeExact = function() { return playtime; }
 
+    // Per-chip outputs of the latest play() call, for channel spread on multi-SID tunes.
+    var chips = [0, 0, 0];
+    var tapePrev3 = [0, 0, 0], tapeNext3 = [0, 0, 0], tapePhase3 = 0, tapeReady3 = false, outChips = [0, 0, 0];
+    function playAtRate3() {
+        var rate = Math.max(0.28, Math.min(2, selfPlayer.tapeRate)), i;
+        if (rate === 1) { tapeReady3 = false; tapePhase3 = 0; play(); outChips[0] = chips[0]; outChips[1] = chips[1]; outChips[2] = chips[2]; return; }
+        if (!tapeReady3) { play(); for (i = 0; i < 3; i++) tapePrev3[i] = chips[i]; play(); for (i = 0; i < 3; i++) tapeNext3[i] = chips[i]; tapePhase3 = 0; tapeReady3 = true; }
+        for (i = 0; i < 3; i++) outChips[i] = tapePrev3[i] + (tapeNext3[i] - tapePrev3[i]) * tapePhase3;
+        tapePhase3 += rate;
+        while (tapePhase3 >= 1) { tapePhase3 -= 1; for (i = 0; i < 3; i++) tapePrev3[i] = tapeNext3[i]; play(); for (i = 0; i < 3; i++) tapeNext3[i] = chips[i]; }
+    }
+    // True when a second (or third) SID is actually sounding, so the chips can be spread across the stereo field.
+    this.stereoActive = function() { return SIDamount >= 2 && !!secondary_SID_model; }
+    // Stereo render: SID 1 leans left, SID 2 leans right, SID 3 stays centred. spread 0..1 attenuates the far channel.
+    this.processStereo = function(left, right, count, spread) {
+        var far = 1 - Math.max(0, Math.min(1, spread));
+        for (var s = 0; s < count; s++) {
+            playAtRate3();
+            var a = outChips[0], b = outChips[1], c = outChips[2];
+            left[s] = a + b * far + c;
+            right[s] = a * far + b + c;
+            var m = a + b + c;
+            meterEnergy[3] += m * m;
+        }
+    }
+
     // Smooth low-rate resampling gives the cassette-style spool a soft pitch bend.
     // The normal 1.0 rate uses the original sample path unchanged.
     var tapePhase = 0, tapePrevious = 0, tapeNext = 0, tapeReady = false;
@@ -332,15 +358,20 @@ function SidCore(samplerate, background_noise)
             ended = 1;
             endcallback();
         }
-        mix = SID(0, 0xD400);
+        var first = SID(0, 0xD400), second = 0, third = 0;
+        mix = first;
         if (SID_address[1]) {
-            var second = SID(1, SID_address[1]);
+            second = SID(1, SID_address[1]);
             if (secondary_SID_model) mix += second;
         }
         if (SID_address[2]) {
-            var third = SID(2, SID_address[2]);
+            third = SID(2, SID_address[2]);
             if (secondary_SID_model) mix += third;
         }
+        var chipGain = volume * SIDamount_vol[secondary_SID_model ? SIDamount : 1];
+        chips[0] = first * chipGain;
+        chips[1] = secondary_SID_model ? second * chipGain : 0;
+        chips[2] = secondary_SID_model ? third * chipGain : 0;
 
         return mix * volume * SIDamount_vol[secondary_SID_model ? SIDamount : 1] + (Math.random() * background_noise - background_noise / 2);
     }

@@ -9,13 +9,15 @@ export function createSpace(context: BaseAudioContext, input: AudioNode, amount 
   const delay = context.createDelay(0.05), side = context.createGain();
   const invert = context.createGain(), merge = context.createChannelMerger(2);
   const output = context.createGain();
-  dry.channelCount = highpass.channelCount = 1;
-  dry.channelCountMode = highpass.channelCountMode = 'explicit';
+  // Dry keeps its stereo image (mono input is up-mixed); the Side path listens to the mono sum.
+  dry.channelCount = 2; dry.channelCountMode = 'explicit'; dry.channelInterpretation = 'speakers';
+  highpass.channelCount = 1; highpass.channelCountMode = 'explicit';
+  output.channelCount = 2; output.channelCountMode = 'explicit';
   highpass.type = 'highpass'; highpass.frequency.value = 150;
   highpass.Q.value = Math.SQRT1_2; delay.delayTime.value = 0.008;
   side.gain.value = Math.max(0, Math.min(100, amount)) / 100 * SPACE_MAX_SIDE;
   invert.gain.value = -1; output.gain.value = SPACE_HEADROOM;
-  input.connect(dry); dry.connect(merge, 0, 0); dry.connect(merge, 0, 1);
+  input.connect(dry); dry.connect(output);
   input.connect(highpass); highpass.connect(delay); delay.connect(side);
   side.connect(merge, 0, 0); side.connect(invert); invert.connect(merge, 0, 1);
   merge.connect(output);

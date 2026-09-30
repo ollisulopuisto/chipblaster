@@ -1,19 +1,19 @@
 # CHIPBLASTER
 
+**Live Site**: [https://ollisulopuisto.github.io/chipblaster/](https://ollisulopuisto.github.io/chipblaster/)
+
 A browser-based SID/HVSC player in a portable hi-fi interface. Browse a catalog snapshot, play PSID files, choose subtunes, view live voice meters and waveforms, export MP3, and save favorite archive paths in this browser. The player loads SID audio files one at a time from the Modland HVSC mirror; this repository does **not** bundle the copyrighted HVSC tunes. Previously played tunes are cached in the browser (up to 100 entries), subject to storage availability and browser eviction. Local uploads and favorited paths are not synchronized between devices.
 
 ## Run locally
 
 Node 22.12 or newer: run `npm ci`, then `npm run dev`. Open the URL printed by Vite. `npm run build` creates `dist/`; `npm run preview` checks that build. No server-side component is required. HTTPS is required for some browser storage features. A cross-origin mirror must allow browser CORS access, or wait for the mirror to return. Some SIDs (RSID) require full C64 emulation and are not supported by this lightweight player.
 
-## Publish on GitHub Pages
+## GitHub Pages
 
-This project uses Vite's relative asset base (`./`). The included `.github/workflows/pages.yml` builds and deploys on pushes to `main`, or on manual dispatch.
+The application is deployed on GitHub Pages via GitHub Actions:
+- **Live URL**: [https://ollisulopuisto.github.io/chipblaster/](https://ollisulopuisto.github.io/chipblaster/)
 
-1. Create a public GitHub repository, e.g. `chipblaster` under your account. Do not initialize it with another README if pushing this folder.
-2. In repository **Settings → Pages**, select **GitHub Actions** as the build/deploy source.
-3. Initialize this directory as a Git repository, stage and commit its source files, connect it to the repository you created, and push the `main` branch using your own Git client. Do not include `node_modules` or `dist` in the commit (the `.gitignore` excludes them). GitHub may ask you to authenticate on your own machine; use your own credential manager. Do not paste a password or token into a shared chat or repository.
-4. After the workflow succeeds, GitHub shows the actual site URL in **Settings → Pages** and the deployment job. Do not assume the URL before checking it.
+This project uses Vite's relative asset base (`./`). The included `.github/workflows/pages.yml` builds and deploys automatically on pushes to `main`, or on manual workflow dispatch.
 
 ## Source and rights
 

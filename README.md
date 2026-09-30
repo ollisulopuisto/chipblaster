@@ -1,6 +1,6 @@
 # CHIPBLASTER
 
-**Live Site**: [https://ollisulopuisto.github.io/chipblaster/](https://ollisulopuisto.github.io/chipblaster/)
+**Live Site**: [https://chipblaster.sulopuis.to/](https://chipblaster.sulopuis.to/) (or [GitHub Pages mirror](https://ollisulopuisto.github.io/chipblaster/))
 
 A browser-based SID/HVSC player in a portable hi-fi interface. Browse a catalog snapshot, play PSID files, choose subtunes, view live voice meters and waveforms, export MP3, and save favorite archive paths in this browser. The player loads SID audio files one at a time from the Modland HVSC mirror; this repository does **not** bundle the copyrighted HVSC tunes. Previously played tunes are cached in the browser (up to 100 entries), subject to storage availability and browser eviction. Local uploads and favorited paths are not synchronized between devices.
 
@@ -11,7 +11,8 @@ Node 22.12 or newer: run `npm ci`, then `npm run dev`. Open the URL printed by V
 ## GitHub Pages
 
 The application is deployed on GitHub Pages via GitHub Actions:
-- **Live URL**: [https://ollisulopuisto.github.io/chipblaster/](https://ollisulopuisto.github.io/chipblaster/)
+- **Custom Domain**: [https://chipblaster.sulopuis.to/](https://chipblaster.sulopuis.to/)
+- **Default Pages URL**: [https://ollisulopuisto.github.io/chipblaster/](https://ollisulopuisto.github.io/chipblaster/)
 
 This project uses Vite's relative asset base (`./`). The included `.github/workflows/pages.yml` builds and deploys automatically on pushes to `main`, or on manual workflow dispatch.
 

@@ -2017,3 +2017,14 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .eq-deck .space-band{position:relative;top:-7px}
 @media(max-width:700px){.c64-shell .eq-deck .space-band{top:3px}}
 @media(max-width:700px){.c64-shell .eq-deck .wide-key{min-width:0;padding:5px 9px 5px 5px;font-size:7px;letter-spacing:.04em}.c64-shell .eq-deck .wide-key::after{top:3px;right:3px;width:6px;height:6px}}
+
+/* Stereo enhance off: the bottom plate shows one wide oval driver centred with the nameplate below, as on phones. On: the pair.
+   Toggling flips the plate about its horizontal axis; the layout swaps while it is edge-on. Clicking a speaker toggles too. */
+.c64-shell .player-body>.base-plate.plate-mono{grid-template-columns:1fr;justify-items:center;row-gap:14px}
+.c64-shell .base-plate.plate-mono .speaker-recess.right{display:none}
+.c64-shell .base-plate.plate-mono .speaker-recess.left{width:min(82%,340px)!important;height:min(30vw,168px)!important;border-radius:50%;justify-self:center}
+.c64-shell .base-plate.plate-mono .base-center{grid-column:1;grid-row:2}
+.c64-shell .base-plate .speaker-recess{cursor:pointer}
+@keyframes plate-flip{0%{transform:perspective(1400px) rotateX(0)}50%{transform:perspective(1400px) rotateX(90deg)}50.1%{transform:perspective(1400px) rotateX(-90deg)}100%{transform:perspective(1400px) rotateX(0)}}
+.c64-shell .player-body>.base-plate.plate-flipping{animation:plate-flip .72s ease-in-out}
+@media(max-width:560px),(prefers-reduced-motion:reduce){.c64-shell .player-body>.base-plate.plate-flipping{animation:none}}

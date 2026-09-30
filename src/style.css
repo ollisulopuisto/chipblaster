@@ -1832,7 +1832,7 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 @media(min-width:701px){.c64-shell .flip-stage.flipped::before{content:"";position:absolute;left:var(--lid-left,0);top:var(--lid-top,0);width:var(--lid-w,0);height:var(--lid-h,0);border-radius:6px;background:linear-gradient(#141b17,#222c26);box-shadow:inset 0 4px 12px #000,0 1px 0 #ffffff55;z-index:0;pointer-events:none}}
 
 /* Browser header: identical keys in Search and Playlist views; only the switch and the list beneath change. */
-.c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view .selector-button-block .random-sid,.c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view .selector-button-block>.saved-key{display:grid!important}
+.c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view .selector-button-block .random-sid,.c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view .selector-button-block>.saved-key{display:flex!important}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{margin-left:0;min-width:49px;min-height:44px;border:1px solid #718078;border-bottom:2px solid #52655b;border-radius:2px;background:#c8ccc5;color:#27352f;box-shadow:inset 1px 1px 1px #f8f9ee,2px 3px 2px #26332b66;cursor:pointer}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key:disabled{opacity:.45;cursor:default}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.catalog-mobile-close{order:0}
@@ -1842,3 +1842,15 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-total{order:4}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-infinite-toggle{order:5;margin-left:0!important}
 .c64-shell .hvsc.search-view .selector-button-block>.playlist-infinite-toggle{display:grid!important}
+
+/* Changing values are segmented displays; button and key labels never change. */
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{display:inline-flex!important;align-items:center;justify-content:center;gap:5px}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.random-sid{display:grid!important;place-items:center}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block .saved-count{display:inline-flex;align-items:center;justify-content:center;min-width:16px;min-height:18px;margin:0;padding:1px 3px;box-sizing:border-box;background:#06191e;border:1px solid #42694b;border-radius:2px;box-shadow:inset 0 1px 3px #000}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block .saved-count svg{width:5px;height:10px}
+.c64-shell .flip-stage.flipped .flip-back .queue-track-time{margin-top:4px}
+.c64-shell .flip-stage.flipped .flip-back .queue-track-time .segment-count{display:inline-flex;padding:2px 4px;background:#06191e;border:1px solid #42694b;border-radius:2px;box-shadow:inset 0 1px 3px #000}
+.c64-shell .flip-stage.flipped .flip-back .queue-track-time .segment-count svg{width:5px;height:9px}
+.c64-shell .peq-details output,.c64-shell .subtune-key .subtune-readout{display:inline-flex;align-items:center;padding:2px 4px;background:#06191e;border:1px solid #42694b;border-radius:2px;box-shadow:inset 0 1px 3px #000}
+.c64-shell .peq-details output .segment-text,.c64-shell .subtune-key .segment-text{gap:1px;overflow:visible}
+.c64-shell .peq-details output svg,.c64-shell .subtune-key .segment-text svg{width:6px;height:11px}

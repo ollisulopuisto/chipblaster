@@ -1808,3 +1808,19 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .hifi-slide-switch:active .hifi-slide-knob{box-shadow:1px 1px 2px #000b,inset 0 1px #fff9}
 .hifi-slide-switch:focus-visible{outline:2px solid #f5cd80;outline-offset:3px}
 @media(max-width:480px){.hifi-slide-legend{font-size:8px;letter-spacing:.08em}.hifi-slide-switch{width:48px}.hifi-slide-knob{width:22px}.hifi-slide-switch.thrown .hifi-slide-knob{transform:translateX(24px)}}
+
+/* Akai GX-77 reference: short wedge lever tilting in a small rectangular opening, tiny printed legends. */
+.hifi-slide-switch{width:40px;height:30px}
+.hifi-slide-slot{left:0;right:0;top:3px;bottom:3px;border:1px solid #a4aea6;border-radius:2px;background:linear-gradient(#010202,#0e1210);box-shadow:inset 0 2px 5px #000,inset 0 -1px #ffffff1f,0 1px 0 #ffffff66}
+.hifi-slide-slot::after{display:none}
+.hifi-slide-knob{left:5px;top:6px;width:14px;height:18px;border:1px solid #2a2f2b;border-radius:2px 2px 1px 1px;background:linear-gradient(#f4f5f0,#b7bcb7 35%,#6c716d),repeating-linear-gradient(0deg,#0000 0 3px,#0003 3px 4px);background-blend-mode:multiply;box-shadow:2px 1px 3px #000b,inset 0 1px #fff;transform-origin:50% 100%;transform:skewX(-16deg);transition:transform .16s cubic-bezier(.3,.7,.3,1)}
+.hifi-slide-knob::after{content:"";position:absolute;left:1px;right:1px;top:1px;height:5px;border-radius:1px;background:linear-gradient(#fff,#d5d9d3)}
+.hifi-slide-switch.thrown .hifi-slide-knob{transform:translateX(14px) skewX(16deg);box-shadow:-2px 1px 3px #000b,inset 0 1px #fff}
+.hifi-slide-legend{font:700 8px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.16em}
+@media(max-width:480px){.hifi-slide-switch{width:36px}.hifi-slide-knob{left:4px;width:13px}.hifi-slide-switch.thrown .hifi-slide-knob{transform:translateX(12px) skewX(16deg)}}
+
+/* Infinite play key: same pilot lamp as play/pause and favorite (grey off or disabled, green on). */
+.c64-shell .console>.controls.transport-controls>button.radio-button{position:relative}
+.c64-shell .console>.controls.transport-controls>button.radio-button::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da}
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on:not(:disabled)::after{background:#71c875;box-shadow:0 0 5px #6dbb6d,inset 0 1px #e0f5d7}
+.c64-shell .console>.controls.transport-controls>button.radio-button:disabled::after{background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da;opacity:.6}

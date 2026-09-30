@@ -26,7 +26,7 @@ A portable SID station in the browser: browse and play the High Voltage SID Coll
 - Share a link to the current tune, and save favorites in this browser.
 - An in-app manual (MANUAL key on the base plate) lists the controls and shortcuts.
 
-Keyboard: `Space` play/pause, `S` stop, `←`/`→` previous/next song, `+`/`-` volume, `F` favorite, `E` eject (open the browser), `1` saved tunes, `2`–`4` catalog browser. Shortcuts pause while typing.
+Keyboard: `Space` play/pause, `S` stop, `←`/`→` previous/next song, `+`/`-` volume, `F` favorite, `E` eject (open the browser), `[` `]` previous/next subtune, `1` saved tunes, `2`–`4` catalog browser. Shortcuts pause while typing.
 
 ## Run locally
 

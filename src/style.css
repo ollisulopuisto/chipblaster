@@ -1917,10 +1917,13 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .base-center{grid-column:1;grid-row:2}
 }
 
-/* Subtune selector: prev / next keys around a segmented n/N readout. */
-.c64-shell .console>.subtune-group{display:inline-flex;align-items:center;gap:6px;cursor:default}
-.c64-shell .subtune-group .subtune-title{margin:0;font:700 9px "Arial Narrow",Arial,sans-serif;letter-spacing:.08em}
-.c64-shell .subtune-group .subtune-step{display:grid;place-items:center;width:30px;height:26px;padding:0;border:1px solid #718078;border-bottom:2px solid #52655b;border-radius:2px;background:linear-gradient(#e6e8e0,#b4bbb1);color:#27352f;box-shadow:inset 1px 1px 1px #f8f9ee,1px 2px 2px #26332b55;cursor:pointer}
-.c64-shell .subtune-group .subtune-step:active{transform:translateY(1px);border-bottom-width:1px}
-.c64-shell .subtune-group .subtune-step .deck-icon{width:15px;height:15px}
-.c64-shell .subtune-group .subtune-step:focus-visible{outline:2px solid #f5cd80;outline-offset:1px}
+/* Subtune: the n/N cell in the title display. Left half steps back, right half steps forward. */
+.c64-shell .title-subtune.is-selectable{position:relative;cursor:pointer;padding-left:9px;padding-right:9px}
+.c64-shell .title-subtune.is-selectable::before,.c64-shell .title-subtune.is-selectable::after{content:"";position:absolute;top:50%;width:0;height:0;border:4px solid transparent;transform:translateY(-50%);opacity:.55;pointer-events:none}
+.c64-shell .title-subtune.is-selectable::before{left:0;border-right-color:#78d3ea;border-left-width:0}
+.c64-shell .title-subtune.is-selectable::after{right:0;border-left-color:#78d3ea;border-right-width:0}
+.c64-shell .title-subtune .subtune-half{position:absolute;top:-6px;bottom:-6px;width:50%;padding:0;border:0;background:transparent;cursor:pointer}
+.c64-shell .title-subtune .subtune-half.prev{left:-4px}.c64-shell .title-subtune .subtune-half.next{right:-4px}
+.c64-shell .title-subtune .subtune-half:hover{background:#78d3ea1f}
+.c64-shell .title-subtune .subtune-half:active{background:#78d3ea3a}
+.c64-shell .title-subtune .subtune-half:focus-visible{outline:2px solid #f5cd80;outline-offset:1px}

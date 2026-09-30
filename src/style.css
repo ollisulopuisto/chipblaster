@@ -1991,13 +1991,15 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 /* Pilot LEDs ease on and off: a registered --led number (0 off, 1 lit) drives the lens colour and the glow, so both fade together.
    On is fast (a LED has no warm-up); off trails a little. After power-up the lit ones come on in a short stagger. */
 @property --led{syntax:'<number>';inherits:false;initial-value:0}
+/* Green means active (stereo enhance, favorite, infinite play); red is kept for paused/stopped. */
+.c64-shell{--led-c1:#e8ffea;--led-c2:#64f078;--led-c3:#1fb63a;--led-c4:#0c6a1f;--led-glow:70 255 105}
 .c64-shell .console>.controls.transport-controls>button.favorite-key::after,
 .c64-shell .console>.controls.transport-controls>button.radio-button::after,
 .c64-shell .console>.controls.transport-controls>button.radio-button:not(:disabled)::after,
 .c64-shell .eq-deck .wide-key::after,
 .c64-shell .playlist-infinite-toggle .playlist-infinite-pilot{
-  background:radial-gradient(circle at 38% 32%,color-mix(in srgb,#ffe6df calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,#ff6c5a calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,#e0301f calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,#a01a12 calc(var(--led)*100%),#7d857f) 100%)!important;
-  box-shadow:0 0 2px 1px rgb(255 110 90/calc(.95*var(--led))),0 0 8px 3px rgb(255 64 48/calc(.6*var(--led))),0 0 16px 6px rgb(255 50 40/calc(.28*var(--led))),inset 0 1px 2px rgb(83 96 87/calc(1 - var(--led))),0 1px rgb(224 227 218/calc(1 - var(--led)))!important;
+  background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--led-c1) calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,var(--led-c2) calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,var(--led-c3) calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,var(--led-c4) calc(var(--led)*100%),#7d857f) 100%)!important;
+  box-shadow:0 0 2px 1px rgb(var(--led-glow)/calc(.95*var(--led))),0 0 8px 3px rgb(var(--led-glow)/calc(.6*var(--led))),0 0 16px 6px rgb(var(--led-glow)/calc(.28*var(--led))),inset 0 1px 2px rgb(83 96 87/calc(1 - var(--led))),0 1px rgb(224 227 218/calc(1 - var(--led)))!important;
   transition:--led .18s ease-out}
 .c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
 .c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,

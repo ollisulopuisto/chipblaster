@@ -1899,3 +1899,12 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .speaker-recess .speaker-grille{inset:-3px;--buzz:calc(max(0, var(--bass,0) - .42) * 2.4);animation:grille-buzz .055s linear infinite alternate}
 @keyframes grille-buzz{from{translate:calc(var(--buzz) * -1.6px) calc(var(--buzz) * .6px)}to{translate:calc(var(--buzz) * 1.6px) calc(var(--buzz) * -.6px)}}
 @media(prefers-reduced-motion:reduce){.speaker-recess .speaker-grille{animation:none}}
+
+/* Phone header: keys and switch only. Legends and the saved count would collide, so they drop out. */
+@media(max-width:560px){
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block{gap:6px!important;padding:8px!important}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block .hifi-slide-legend{display:none}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block .saved-count{display:none}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{min-width:46px;width:46px;padding:0}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.hifi-slide{flex:1 1 auto!important;gap:0!important}
+}

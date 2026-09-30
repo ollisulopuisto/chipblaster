@@ -1793,3 +1793,18 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 @keyframes eject-lift{from{opacity:0;transform:perspective(1100px) translateY(36px) rotateX(-14deg) scale(.95)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped .flip-back{animation:none!important}}
 .manual-overlay .manual-plate.manual-sheet{overflow-x:hidden!important}
+
+/* SEARCH / PLAYLIST: a 1970s Japanese hi-fi slide switch. Ribbed satin knob in a black slot, engraved legends with a pilot lamp. */
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.hifi-slide{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;flex:1!important;min-width:0!important}
+.hifi-slide-legend{display:flex;flex-direction:column;align-items:center;gap:4px;font:700 9px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.14em;color:#8fa195;white-space:nowrap;transition:color .16s}
+.hifi-slide-legend::before{content:"";width:5px;height:5px;border-radius:50%;background:#3c2f22;box-shadow:inset 0 1px 1px #0008;transition:background .16s,box-shadow .16s}
+.hifi-slide-legend.lit{color:#f1efd8}
+.hifi-slide-legend.lit::before{background:#ffb347;box-shadow:0 0 5px #ffab3a,inset 0 1px #fff8}
+.hifi-slide-switch{position:relative;flex:none;width:58px;height:30px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hifi-slide-slot{position:absolute;left:0;right:0;top:6px;bottom:6px;border:1px solid #98a49a;border-radius:2px;background:linear-gradient(#020403,#101512);box-shadow:inset 0 2px 4px #000,0 1px 0 #ffffff59}
+.hifi-slide-slot::after{content:"";position:absolute;left:5px;right:5px;top:50%;height:1px;background:#3b4a40}
+.hifi-slide-knob{position:absolute;left:1px;top:1px;width:26px;height:28px;box-sizing:border-box;border:1px solid #1b211d;border-radius:2px;background:linear-gradient(#ffffff5c,#0000 45%,#0006),repeating-linear-gradient(90deg,#4a4f4b 0 1px,#dfe3dd 1px 3px,#8b918c 3px 4px);box-shadow:1px 2px 3px #000b,inset 0 1px #fff9;transition:transform .17s cubic-bezier(.3,.7,.3,1)}
+.hifi-slide-switch.thrown .hifi-slide-knob{transform:translateX(30px)}
+.hifi-slide-switch:active .hifi-slide-knob{box-shadow:1px 1px 2px #000b,inset 0 1px #fff9}
+.hifi-slide-switch:focus-visible{outline:2px solid #f5cd80;outline-offset:3px}
+@media(max-width:480px){.hifi-slide-legend{font-size:8px;letter-spacing:.08em}.hifi-slide-switch{width:48px}.hifi-slide-knob{width:22px}.hifi-slide-switch.thrown .hifi-slide-knob{transform:translateX(24px)}}

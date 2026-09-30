@@ -12,6 +12,7 @@ class SidProcessor extends AudioWorkletProcessor {
     this.seek = null;
     this.seekTicks = 0;
     this.spread = 0;
+    this.fade = null;
     this.port.onmessage = e => this.onMessage(e.data);
   }
   state() {
@@ -28,6 +29,7 @@ class SidProcessor extends AudioWorkletProcessor {
       case 'start': this.seek = null; c.start(m.subtune); break;
       case 'models': c.setSIDModels(m.primary, m.secondary); break;
       case 'tape': c.tapeRate = m.rate; break;
+      case 'fade': this.fade = m.end === null ? null : { end: m.end, len: Math.max(0.1, m.seconds) }; break;
       case 'spread': this.spread = Math.max(0, Math.min(1, m.value)); break;
       case 'seek': this.seek = { id: m.id, target: m.seconds, remaining: null }; break;
       case 'cancelSeek': this.seek = null; break;
@@ -57,6 +59,15 @@ class SidProcessor extends AudioWorkletProcessor {
     if (c.isRunning() && out) {
       if (this.spread > 0 && outR) (c.stereoActive() ? c.processStereo : c.processWide)(out, outR, out.length, this.spread);
       else { c.process(out, out.length); if (outR) outR.set(out); }
+      if (this.fade) {
+        // Linear fade against tune time, so seeking and tape speed keep it in step with the music.
+        const start = c.getplaytimeExact() - out.length / sampleRate, f = this.fade;
+        for (let i = 0; i < out.length; i++) {
+          const g = Math.max(0, Math.min(1, (f.end - (start + i / sampleRate)) / f.len));
+          out[i] *= g;
+          if (outR) outR[i] *= g;
+        }
+      }
       this.frames += out.length;
       if (this.frames >= METER_FRAMES) {
         c.finishMeters(this.frames);

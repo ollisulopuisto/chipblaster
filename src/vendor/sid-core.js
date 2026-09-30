@@ -32,6 +32,28 @@ function SidCore(samplerate, background_noise)
     }
     this.resetMeters = function() { for (var v = 0; v < meterEnergy.length; v++) meterEnergy[v] = 0; }
     this.finishMeters = function(frames) { for (var v = 0; v < meterLevels.length; v++) meterLevels[v] = Math.sqrt(meterEnergy[v] / Math.max(1, frames)); }
+    // Loop analysis: when a log is attached, every player frame appends a hash of the SID register files and its start time.
+    var frameLog = null;
+    this.attachFrameLog = function(log) { frameLog = log; }
+    function logFrame() {
+        var full = 0x811C9DC5, coarse = 0x811C9DC5, chip, base, i, v, voice;
+        for (chip = 0; chip < 3; chip++) {
+            base = chip === 0 ? 0xD400 : SID_address[chip];
+            if (!base) continue;
+            for (i = 0; i < 0x19; i++) full = Math.imul(full ^ memory[base + i], 0x01000193);
+            // Coarse: pitch, waveform/gate and envelope only. Free-running pulse-width and filter sweeps do not line up with the loop.
+            for (voice = 0; voice < 3; voice++) {
+                for (i = 0; i < 7; i++) {
+                    if (i === 2 || i === 3) continue;
+                    v = memory[base + voice * 7 + i];
+                    coarse = Math.imul(coarse ^ v, 0x01000193);
+                }
+            }
+        }
+        frameLog.hashes.push(full >>> 0);
+        frameLog.coarse.push(coarse >>> 0);
+        frameLog.times.push(playtime);
+    }
     this.skip = function(count) { for (var i = 0; i < count; i++) play(); }
     this.isRunning = function() { return running; }
     this.getplaytimeExact = function() { return playtime; }
@@ -341,6 +363,7 @@ function SidCore(samplerate, background_noise)
             playtime += 1 / samplerate;
             if (framecnt <= 0) {
                 framecnt = frame_sampleperiod;
+                if (frameLog !== null) logFrame();
                 finished = 0;
                 PC = playaddr;
                 SP = 0xFF;

@@ -22,3 +22,7 @@ Sync the playlist and playhead with other clients in a room.
 2. Small realtime service (Cloudflare Durable Objects, PartyKit or Supabase Realtime): more reliable and scales to more listeners, but needs a maintained service.
 
 Suggested start: option 1, single host, timestamped events, `tapeRate` drift correction.
+
+## Share links and catalog updates
+
+Share links use a 48-bit hash of the HVSC path (`?t=<id>`, plus `v`, `f`, `s` only when non-default). Old `?tune=<path>` links still open. When the catalog snapshot is updated, merge the new path list into the old one and keep removed or moved paths as retired entries instead of deleting them, so old IDs keep resolving to a name. If a retired tune fails to load, show its title and composer and prefill the search with them.

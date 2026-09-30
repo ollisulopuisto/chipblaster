@@ -1740,3 +1740,11 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .control-top .sid-model-pair fieldset{display:flex;flex-direction:row;align-items:center;gap:8px}
 .c64-shell .control-top .sid-model-pair legend{float:none;width:auto!important;min-width:44px;margin:0!important;padding:0;text-align:right;white-space:nowrap}
 .c64-shell .control-top .sid-model-pair{align-items:flex-start!important;width:max-content!important;max-width:100%;margin:0 auto}
+.c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{padding:8px 12px!important;align-items:center!important;align-content:center!important;overflow:visible}
+.c64-shell .control-top .sid-model-pair{align-self:center!important;margin:0 auto!important}
+/* Wide layout: chip name sits left of its keys so both rows fit the panel height. */
+@media(min-width:900px){
+.c64-shell .control-top .sid-model-pair{gap:8px!important;align-items:stretch!important}
+.c64-shell .control-top .sid-model-pair legend{float:left;width:44px!important;min-width:44px;text-align:right}
+.c64-shell .control-top .sid-model-pair fieldset{display:flex!important;flex-direction:row;align-items:center;gap:8px}
+}

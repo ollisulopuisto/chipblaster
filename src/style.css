@@ -1772,16 +1772,16 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 
 /* Manual: the leaflet unfolds panel by panel from its top edge, and folds back the same way in reverse. */
 .manual-overlay{animation:manual-fade .3s ease-out both}
-.manual-overlay.is-closing{animation:manual-fade .3s ease-in .3s reverse both}
+.manual-overlay.is-closing{animation:manual-fade-close .3s ease-in .3s reverse both}
 .manual-overlay .manual-head{animation:manual-head .28s ease-out both;transform-origin:50% 0}
-.manual-overlay.is-closing .manual-head{animation:manual-head .28s ease-in .34s reverse both}
+.manual-overlay.is-closing .manual-head{animation:manual-head-close .28s ease-in .34s reverse both}
 .manual-overlay .manual-panels{perspective:1100px}
 .manual-overlay .manual-panels section{transform-origin:50% 0;backface-visibility:hidden;animation:manual-unfold .42s cubic-bezier(.2,.7,.25,1) both;animation-delay:calc(.16s + var(--n,0)*.045s)}
-.manual-overlay.is-closing .manual-panels section{animation:manual-unfold .32s cubic-bezier(.5,0,.8,.4) reverse both;animation-delay:calc((8 - var(--n,0))*.03s)}
+.manual-overlay.is-closing .manual-panels section{animation:manual-unfold-close .32s cubic-bezier(.5,0,.8,.4) reverse both;animation-delay:calc((8 - var(--n,0))*.03s)}
 .manual-overlay .manual-panels section:nth-child(1){--n:0}.manual-overlay .manual-panels section:nth-child(2){--n:1}.manual-overlay .manual-panels section:nth-child(3){--n:2}.manual-overlay .manual-panels section:nth-child(4){--n:3}
 .manual-overlay .manual-panels section:nth-child(5){--n:4}.manual-overlay .manual-panels section:nth-child(6){--n:5}.manual-overlay .manual-panels section:nth-child(7){--n:6}.manual-overlay .manual-panels section:nth-child(8){--n:7}
 .manual-overlay .manual-foot{animation:manual-fade .3s ease-out .55s both}
-.manual-overlay.is-closing .manual-foot{animation:manual-fade .2s ease-in reverse both}
+.manual-overlay.is-closing .manual-foot{animation:manual-fade-close .2s ease-in reverse both}
 @keyframes manual-fade{from{opacity:0}to{opacity:1}}
 @keyframes manual-head{from{opacity:0;transform:scaleY(.2)}to{opacity:1;transform:none}}
 @keyframes manual-unfold{from{opacity:0;transform:rotateX(-92deg);filter:brightness(.6)}60%{opacity:1}to{opacity:1;transform:none;filter:none}}
@@ -1810,18 +1810,18 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 
 /* Tune browser: the grey control lid swings open on a top hinge and reveals the browser beneath it; closing plays the same motion in reverse. */
 .c64-shell .flip-stage.flipped .flip-front>.console{transform-origin:50% var(--axis,50%);backface-visibility:hidden;animation:lid-hinge .7s ease-in-out both;pointer-events:none}
-.c64-shell .flip-stage.flipped.is-closing .flip-front>.console{animation:lid-hinge .7s ease-in-out reverse both}
+.c64-shell .flip-stage.flipped.is-closing .flip-front>.console{animation:lid-hinge-close .7s ease-in-out reverse both}
 @keyframes lid-hinge{0%,49%{visibility:visible}0%{rotate:1 0 0 0deg}51%,100%{visibility:hidden}100%{rotate:1 0 0 -180deg}}
 @keyframes browser-reveal{from{opacity:0}to{opacity:1}}
 @keyframes browser-flip{0%,49%{visibility:hidden}0%{rotate:1 0 0 180deg}51%,100%{visibility:visible}100%{rotate:1 0 0 0deg}}
 @keyframes browser-reveal-full{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
 @media(min-width:701px){
 .c64-shell .flip-stage.flipped .flip-back{position:absolute!important;inset:auto!important;left:var(--lid-left,0)!important;top:var(--lid-top,0)!important;width:var(--lid-w,100%)!important;height:var(--lid-h,auto)!important;z-index:1!important;box-shadow:inset 0 3px 8px #0008!important;border-radius:6px!important;transform:none!important;transform-origin:50% var(--axis,50%);backface-visibility:hidden;animation:browser-flip .7s ease-in-out both}
-.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-flip .7s ease-in-out reverse both}
+.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-flip-close .7s ease-in-out reverse both}
 }
 @media(max-width:700px){
 .c64-shell .flip-stage.flipped .flip-back{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;border-radius:0!important;animation:browser-reveal-full .34s ease-out .34s both}
-.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-reveal-full .34s ease-out reverse both}
+.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-reveal-full-close .34s ease-out reverse both}
 }
 @media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped .flip-front>.console,.c64-shell .flip-stage.flipped .flip-back{animation:none!important}.c64-shell .flip-stage.flipped .flip-front>.console{opacity:0}}
 
@@ -1870,7 +1870,7 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 @media(min-width:701px){
 .c64-shell .player-body:has(.flip-stage.flipped){perspective:1300px;perspective-origin:50% calc(var(--pb-console-top,0px) + var(--axis,0px))}
 .c64-shell .flip-stage.flipped~.base-plate{z-index:2147482001!important;transform-origin:50% calc(var(--axis,0px) - var(--base-dy,0px));backface-visibility:hidden;animation:lid-hinge .7s ease-in-out both;pointer-events:none}
-.c64-shell .flip-stage.flipped.is-closing~.base-plate{animation:lid-hinge .7s ease-in-out reverse both}
+.c64-shell .flip-stage.flipped.is-closing~.base-plate{animation:lid-hinge-close .7s ease-in-out reverse both}
 }
 @media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped~.base-plate{animation:none!important;visibility:hidden}}
 
@@ -1935,3 +1935,26 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .add-all-queue{display:block;width:100%;min-height:44px;margin-top:10px;font:800 12px/1.1 "Arial Narrow",Arial,sans-serif;letter-spacing:.1em;color:#27352f;background:#c8ccc5;border:1px solid #718078;border-bottom:3px solid #52655b;border-radius:2px;box-shadow:inset 1px 1px 1px #f8f9ee,2px 3px 2px #26332b66;cursor:pointer}
 .add-all-queue:active{transform:translateY(1px);border-bottom-width:2px}
 .c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view .add-all-queue{display:none}
+
+.c64-shell .eq-deck .space-band{position:relative}
+.c64-shell .eq-deck .band-pilot{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da}
+.c64-shell .eq-deck .band-pilot.lit{background:#71c875;box-shadow:0 0 5px #6dbb6d,inset 0 1px #e0f5d7}
+.c64-shell .eq-deck .band-pilot{left:calc(50% + 30px);right:auto;top:3px}
+
+.c64-shell .rotary-wrap{position:relative}
+.c64-shell .rotary-ends{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.c64-shell .rotary-ends path{stroke:#5c6a5f;stroke-width:3;fill:none}
+.c64-shell .rotary-ends text{font:700 19px "Arial Narrow",Arial,sans-serif;fill:#3f4943}
+.c64-shell .eq-deck .eq-band>.rotary-wrap{margin-top:30px}
+.c64-shell .eq-deck .band-pilot{left:calc(50% + 46px);top:2px}
+
+/* Closing runs the opening keyframes in reverse under a new name, so the browser restarts the animation instead of reversing a finished one. */
+@keyframes lid-hinge-close{0%,49%{visibility:visible}0%{rotate:1 0 0 0deg}51%,100%{visibility:hidden}100%{rotate:1 0 0 -180deg}}
+@keyframes browser-flip-close{0%,49%{visibility:hidden}0%{rotate:1 0 0 180deg}51%,100%{visibility:visible}100%{rotate:1 0 0 0deg}}
+@keyframes browser-reveal-full-close{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@keyframes manual-fade-close{from{opacity:0}to{opacity:1}}
+@keyframes manual-head-close{from{opacity:0;transform:scaleY(.2)}to{opacity:1;transform:none}}
+@keyframes manual-unfold-close{from{opacity:0;transform:rotateX(-92deg);filter:brightness(.6)}60%{opacity:1}to{opacity:1;transform:none;filter:none}}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-count{order:2;display:inline-flex}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{order:2}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.hifi-slide{order:3}

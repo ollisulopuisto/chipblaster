@@ -75,6 +75,8 @@ export class WorkletPlayer {
   }
   /** Multi-SID tunes: 0 keeps both chips centred, 1 puts SID 1 fully left and SID 2 fully right. */
   setChipSpread(value: number) { this.send({ type: 'spread', value }); }
+  /** Fade to silence over the last `seconds` before tune time `end`; null clears the plan. */
+  setFadePlan(end: number | null, seconds: number) { this.send({ type: 'fade', end, seconds }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
   start(subtune: number) { this.cancelSeeks(); this.time = 0; this.core.start(subtune); this.send({ type: 'start', subtune }); }
   stop() { this.cancelSeeks(); this.time = 0; this.core.stop(); this.send({ type: 'stop' }); }

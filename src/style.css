@@ -1546,7 +1546,7 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 
 /* A red pause pilot glows softly only in the fully depressed pause state. */
 .c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#db4238;box-shadow:0 0 2px #f49e7f,inset 0 1px #ffe2d4;animation:pause-pilot 2.5s ease-in-out infinite}
-@keyframes pause-pilot{0%,100%{opacity:1;box-shadow:0 0 6px #e85546}50%{opacity:.45;box-shadow:0 0 1px #b84035}}
+@keyframes pause-pilot{0%,100%{opacity:1;box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}50%{opacity:.55;box-shadow:0 0 1px rgba(255,110,90,.6),0 0 4px 1px rgba(255,64,48,.3)}}
 @media(prefers-reduced-motion:reduce){.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after{animation:none!important}}
 
 /* Stack screenprinted speaker callouts on the broad baffle instead of leaving a bare center. */
@@ -1966,3 +1966,73 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .control-top .eq-deck .eq-band>label,.c64-shell.folded .eq-deck .eq-band>label,.c64-shell.unfolded .eq-deck .eq-band>label{margin:0 0 7px!important}
 @media(max-width:700px){.c64-shell .control-top .eq-deck .eq-band>label,.c64-shell.folded .eq-deck .eq-band>label,.c64-shell.unfolded .eq-deck .eq-band>label{margin:0 0 5px!important}.c64-shell .eq-deck .eq-band>.rotary-wrap{margin:0 auto 9px}}
 @media(max-width:700px){.c64-shell .rotary-ends text{display:none}}
+
+/* Lit pilots are red LEDs: a hot lens with a glow that spills over the panel around it. */
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after,
+.c64-shell .eq-deck .band-pilot.lit{background:radial-gradient(circle at 38% 32%,#ffe6df 0,#ff6c5a 32%,#e0301f 72%,#a01a12 100%);box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after{width:8px;height:8px;top:4px;right:5px}
+.c64-shell .eq-deck .band-pilot{width:8px;height:8px}
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on:not(:disabled)::after,
+.c64-shell .playlist-infinite-toggle.is-active .playlist-infinite-pilot{background:radial-gradient(circle at 38% 32%,#ffe6df 0,#ff6c5a 32%,#e0301f 72%,#a01a12 100%);box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on:not(:disabled)::after{width:8px;height:8px;top:4px;right:5px}
+
+/* WIDE is a key with a pilot LED, like the transport keys, instead of a knob. */
+.c64-shell .eq-deck .space-band{display:flex;align-items:center;justify-content:center}
+.c64-shell .eq-deck .wide-key{position:relative;min-width:62px;min-height:38px;padding:6px 12px;border:1px solid #718078;border-bottom:3px solid #52655b;border-radius:2px;background:linear-gradient(#d4d8d0,#c1c6bd);color:#27352f;box-shadow:inset 1px 1px 1px #f8f9ee,2px 3px 2px #26332b66;font:800 10px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.08em;cursor:pointer;touch-action:manipulation}
+.c64-shell .eq-deck .wide-key:active{transform:translateY(1px);border-bottom-width:2px}
+.c64-shell .eq-deck .wide-key::after{content:'';position:absolute;top:4px;right:5px;width:8px;height:8px;border-radius:50%;background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da}
+.c64-shell .eq-deck .wide-key.lit::after{background:radial-gradient(circle at 38% 32%,#ffe6df 0,#ff6c5a 32%,#e0301f 72%,#a01a12 100%);box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}
+.c64-shell .eq-deck .wide-key:focus-visible{outline:2px solid #256b63;outline-offset:2px}
+
+/* Pilot LEDs ease on and off: a registered --led number (0 off, 1 lit) drives the lens colour and the glow, so both fade together.
+   On is fast (a LED has no warm-up); off trails a little. After power-up the lit ones come on in a short stagger. */
+@property --led{syntax:'<number>';inherits:false;initial-value:0}
+/* Green means active (stereo enhance, favorite, infinite play); red is kept for paused/stopped. */
+.c64-shell{--led-c1:#e8ffea;--led-c2:#64f078;--led-c3:#1fb63a;--led-c4:#0c6a1f;--led-glow:70 255 105}
+.c64-shell .console>.controls.transport-controls>button.favorite-key::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button:not(:disabled)::after,
+.c64-shell .eq-deck .wide-key::after,
+.c64-shell .playlist-infinite-toggle .playlist-infinite-pilot{
+  background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--led-c1) calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,var(--led-c2) calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,var(--led-c3) calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,var(--led-c4) calc(var(--led)*100%),#7d857f) 100%)!important;
+  box-shadow:0 0 2px 1px rgb(var(--led-glow)/calc(.95*var(--led))),0 0 8px 3px rgb(var(--led-glow)/calc(.6*var(--led))),0 0 16px 6px rgb(var(--led-glow)/calc(.28*var(--led))),inset 0 1px 2px rgb(83 96 87/calc(1 - var(--led))),0 1px rgb(224 227 218/calc(1 - var(--led)))!important;
+  transition:--led .18s ease-out}
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
+.c64-shell .eq-deck .wide-key.lit::after,
+.c64-shell .playlist-infinite-toggle.is-active .playlist-infinite-pilot{--led:1;transition:--led .04s ease-in}
+@keyframes led-on{from{--led:0}to{--led:1}}
+.c64-shell.leds-boot .eq-deck .wide-key.lit::after{animation:led-on .12s ease-in .55s backwards}
+.c64-shell.leds-boot .console>.controls.transport-controls>button.favorite-key.favorite-active::after{animation:led-on .12s ease-in .7s backwards}
+.c64-shell.leds-boot .console>.controls.transport-controls>button.radio-button.radio-on::after{animation:led-on .12s ease-in .85s backwards}
+@media(prefers-reduced-motion:reduce){.c64-shell .console>.controls.transport-controls>button::after,.c64-shell .eq-deck .wide-key::after,.c64-shell .playlist-infinite-pilot{transition:none!important;animation:none!important}}
+
+/* STEREO ENHANCE key: two-line legend, centred vertically in the deck. */
+.c64-shell .eq-deck .space-band{align-self:stretch;min-height:0}
+.c64-shell .eq-deck .wide-key{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:72px;padding:7px 14px 7px 10px;font-size:9px;line-height:1.1}
+.c64-shell .eq-deck .space-band{position:relative;top:-7px}
+@media(max-width:700px){.c64-shell .eq-deck .space-band{top:3px}}
+@media(max-width:700px){.c64-shell .eq-deck .wide-key{min-width:0;padding:5px 9px 5px 5px;font-size:7px;letter-spacing:.04em}.c64-shell .eq-deck .wide-key::after{top:3px;right:3px;width:6px;height:6px}}
+
+/* Stereo enhance: off shows one speaker centred; on, that speaker lifts and slides left while a second slides out from behind it to the right
+   (a motorised changer). Phones keep their single oval. Clicking a speaker toggles too. */
+.c64-shell .base-plate .speaker-recess{cursor:pointer}
+@media(min-width:561px){
+.c64-shell .player-body>.base-plate.plate-slide{container-type:inline-size;grid-template-columns:1fr;grid-template-rows:auto auto;justify-items:center;row-gap:8px}
+.c64-shell .plate-slide .base-center{display:contents}
+.c64-shell .plate-slide .speaker-recess{grid-area:1/1;display:block!important;justify-self:center!important;transition:transform .64s cubic-bezier(.55,0,.25,1) .16s,filter .4s ease .2s}
+.c64-shell .plate-slide .speaker-recess.left{transform:translateX(calc(-25cqw - 45px));z-index:2}
+.c64-shell .plate-slide .speaker-recess.right{transform:translateX(calc(25cqw + 45px));z-index:1}
+.c64-shell .plate-slide.plate-mono .speaker-recess.left,.c64-shell .plate-slide.plate-mono .speaker-recess.right{transform:none}
+.c64-shell .plate-slide.plate-mono .speaker-recess.right{filter:brightness(.8)}
+.c64-shell .plate-slide .base-nameplate{grid-area:1/1;align-self:center;justify-self:center;opacity:1;transition:opacity .35s ease .55s}
+.c64-shell .plate-slide.plate-mono .base-nameplate{opacity:0;pointer-events:none;transition:opacity .15s ease 0s}
+.c64-shell .plate-slide .manual-key{grid-row:2;grid-column:1;justify-self:center}
+.c64-shell .plate-slide.plate-moving .speaker-recess.left{animation:speaker-lift .82s ease-in-out}
+@keyframes speaker-lift{0%,100%{translate:0 0}22%,68%{translate:0 -9px}}
+}
+@media(prefers-reduced-motion:reduce){.c64-shell .plate-slide .speaker-recess,.c64-shell .plate-slide .base-nameplate{transition:none!important}.c64-shell .plate-slide.plate-moving .speaker-recess.left{animation:none}}

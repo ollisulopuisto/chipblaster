@@ -1987,3 +1987,24 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .eq-deck .wide-key::after{content:'';position:absolute;top:4px;right:5px;width:8px;height:8px;border-radius:50%;background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da}
 .c64-shell .eq-deck .wide-key.lit::after{background:radial-gradient(circle at 38% 32%,#ffe6df 0,#ff6c5a 32%,#e0301f 72%,#a01a12 100%);box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}
 .c64-shell .eq-deck .wide-key:focus-visible{outline:2px solid #256b63;outline-offset:2px}
+
+/* Pilot LEDs ease on and off: a registered --led number (0 off, 1 lit) drives the lens colour and the glow, so both fade together.
+   On is fast (a LED has no warm-up); off trails a little. After power-up the lit ones come on in a short stagger. */
+@property --led{syntax:'<number>';inherits:false;initial-value:0}
+.c64-shell .console>.controls.transport-controls>button.favorite-key::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button:not(:disabled)::after,
+.c64-shell .eq-deck .wide-key::after,
+.c64-shell .playlist-infinite-toggle .playlist-infinite-pilot{
+  background:radial-gradient(circle at 38% 32%,color-mix(in srgb,#ffe6df calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,#ff6c5a calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,#e0301f calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,#a01a12 calc(var(--led)*100%),#7d857f) 100%)!important;
+  box-shadow:0 0 2px 1px rgb(255 110 90/calc(.95*var(--led))),0 0 8px 3px rgb(255 64 48/calc(.6*var(--led))),0 0 16px 6px rgb(255 50 40/calc(.28*var(--led))),inset 0 1px 2px rgb(83 96 87/calc(1 - var(--led))),0 1px rgb(224 227 218/calc(1 - var(--led)))!important;
+  transition:--led .18s ease-out}
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
+.c64-shell .eq-deck .wide-key.lit::after,
+.c64-shell .playlist-infinite-toggle.is-active .playlist-infinite-pilot{--led:1;transition:--led .04s ease-in}
+@keyframes led-on{from{--led:0}to{--led:1}}
+.c64-shell.leds-boot .eq-deck .wide-key.lit::after{animation:led-on .12s ease-in .55s backwards}
+.c64-shell.leds-boot .console>.controls.transport-controls>button.favorite-key.favorite-active::after{animation:led-on .12s ease-in .7s backwards}
+.c64-shell.leds-boot .console>.controls.transport-controls>button.radio-button.radio-on::after{animation:led-on .12s ease-in .85s backwards}
+@media(prefers-reduced-motion:reduce){.c64-shell .console>.controls.transport-controls>button::after,.c64-shell .eq-deck .wide-key::after,.c64-shell .playlist-infinite-pilot{transition:none!important;animation:none!important}}

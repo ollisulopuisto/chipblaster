@@ -1931,3 +1931,7 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 /* Old side-flip transitions must not run when the flipped class comes off: the panel goes straight to its resting, hidden state. */
 .c64-shell .flip-stage .flip-front,.c64-shell .flip-stage .flip-back{transition:none!important}
 .c64-shell .flip-stage:not(.flipped) .flip-back{visibility:hidden;opacity:0}
+
+.add-all-queue{display:block;width:100%;min-height:44px;margin-top:10px;font:800 12px/1.1 "Arial Narrow",Arial,sans-serif;letter-spacing:.1em;color:#27352f;background:#c8ccc5;border:1px solid #718078;border-bottom:3px solid #52655b;border-radius:2px;box-shadow:inset 1px 1px 1px #f8f9ee,2px 3px 2px #26332b66;cursor:pointer}
+.add-all-queue:active{transform:translateY(1px);border-bottom-width:2px}
+.c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view .add-all-queue{display:none}

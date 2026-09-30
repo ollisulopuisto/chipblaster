@@ -37,28 +37,52 @@ function SidCore(samplerate, background_noise)
     this.getplaytimeExact = function() { return playtime; }
 
     // Per-chip outputs of the latest play() call, for channel spread on multi-SID tunes.
-    var chips = [0, 0, 0];
-    var tapePrev3 = [0, 0, 0], tapeNext3 = [0, 0, 0], tapePhase3 = 0, tapeReady3 = false, outChips = [0, 0, 0];
+    var chips = [0, 0, 0, 0, 0, 0];
+    var tapePrev3 = [0, 0, 0, 0, 0, 0], tapeNext3 = [0, 0, 0, 0, 0, 0], tapePhase3 = 0, tapeReady3 = false, outChips = [0, 0, 0, 0, 0, 0];
     function playAtRate3() {
         var rate = Math.max(0.28, Math.min(2, selfPlayer.tapeRate)), i;
-        if (rate === 1) { tapeReady3 = false; tapePhase3 = 0; play(); outChips[0] = chips[0]; outChips[1] = chips[1]; outChips[2] = chips[2]; return; }
-        if (!tapeReady3) { play(); for (i = 0; i < 3; i++) tapePrev3[i] = chips[i]; play(); for (i = 0; i < 3; i++) tapeNext3[i] = chips[i]; tapePhase3 = 0; tapeReady3 = true; }
-        for (i = 0; i < 3; i++) outChips[i] = tapePrev3[i] + (tapeNext3[i] - tapePrev3[i]) * tapePhase3;
+        if (rate === 1) { tapeReady3 = false; tapePhase3 = 0; play(); for (i = 0; i < 6; i++) outChips[i] = chips[i]; return; }
+        if (!tapeReady3) { play(); for (i = 0; i < 6; i++) tapePrev3[i] = chips[i]; play(); for (i = 0; i < 6; i++) tapeNext3[i] = chips[i]; tapePhase3 = 0; tapeReady3 = true; }
+        for (i = 0; i < 6; i++) outChips[i] = tapePrev3[i] + (tapeNext3[i] - tapePrev3[i]) * tapePhase3;
         tapePhase3 += rate;
-        while (tapePhase3 >= 1) { tapePhase3 -= 1; for (i = 0; i < 3; i++) tapePrev3[i] = tapeNext3[i]; play(); for (i = 0; i < 3; i++) tapeNext3[i] = chips[i]; }
+        while (tapePhase3 >= 1) { tapePhase3 -= 1; for (i = 0; i < 6; i++) tapePrev3[i] = tapeNext3[i]; play(); for (i = 0; i < 6; i++) tapeNext3[i] = chips[i]; }
     }
     // True when a second (or third) SID is actually sounding, so the chips can be spread across the stereo field.
     this.stereoActive = function() { return SIDamount >= 2 && !!secondary_SID_model; }
     // Stereo render: SID 1 leans left, SID 2 leans right, SID 3 stays centred. spread 0..1 attenuates the far channel.
+    // Each chip's centred share (noise voices such as drums, and low bass voices) always reaches both channels at full level.
     this.processStereo = function(left, right, count, spread) {
-        var far = 1 - Math.max(0, Math.min(1, spread));
+        var far = 1 - Math.max(0, Math.min(1, spread)), near = 1 - far;
         for (var s = 0; s < count; s++) {
             playAtRate3();
             var a = outChips[0], b = outChips[1], c = outChips[2];
-            left[s] = a + b * far + c;
-            right[s] = a * far + b + c;
+            left[s] = a + b * far + c + outChips[4] * near;
+            right[s] = a * far + b + c + outChips[3] * near;
             var m = a + b + c;
             meterEnergy[3] += m * m;
+        }
+    }
+    // Single-SID width: a delayed, high-passed copy of everything except the centred share is added to one channel and subtracted from the other.
+    var wideB0 = 0, wideB1 = 0, wideB2 = 0, wideA1 = 0, wideA2 = 0, wideX1 = 0, wideX2 = 0, wideY1 = 0, wideY2 = 0;
+    (function() {
+        var w = 2 * Math.PI * 150 / samplerate, alpha = Math.sin(w) / (2 * Math.SQRT1_2), cs = Math.cos(w), a0 = 1 + alpha;
+        wideB0 = (1 + cs) / 2 / a0; wideB1 = -(1 + cs) / a0; wideB2 = wideB0; wideA1 = -2 * cs / a0; wideA2 = (1 - alpha) / a0;
+    })();
+    var wideDelay = new Float32Array(Math.max(2, Math.round(0.008 * samplerate))), widePos = 0;
+    this.processWide = function(left, right, count, amount) {
+        var gain = Math.max(0, Math.min(1, amount)) * 0.5;
+        for (var s = 0; s < count; s++) {
+            playAtRate3();
+            var total = outChips[0] + outChips[1] + outChips[2];
+            var x = total - (outChips[3] + outChips[4] + outChips[5]);
+            var y = wideB0 * x + wideB1 * wideX1 + wideB2 * wideX2 - wideA1 * wideY1 - wideA2 * wideY2;
+            wideX2 = wideX1; wideX1 = x; wideY2 = wideY1; wideY1 = y;
+            var side = wideDelay[widePos] * gain;
+            wideDelay[widePos] = y;
+            if (++widePos >= wideDelay.length) widePos = 0;
+            left[s] = total + side;
+            right[s] = total - side;
+            meterEnergy[3] += total * total;
         }
     }
 
@@ -358,20 +382,25 @@ function SidCore(samplerate, background_noise)
             ended = 1;
             endcallback();
         }
-        var first = SID(0, 0xD400), second = 0, third = 0;
+        var first = SID(0, 0xD400), second = 0, third = 0, centre0 = lastCentre, centre1 = 0, centre2 = 0;
         mix = first;
         if (SID_address[1]) {
             second = SID(1, SID_address[1]);
+            centre1 = lastCentre;
             if (secondary_SID_model) mix += second;
         }
         if (SID_address[2]) {
             third = SID(2, SID_address[2]);
+            centre2 = lastCentre;
             if (secondary_SID_model) mix += third;
         }
         var chipGain = volume * SIDamount_vol[secondary_SID_model ? SIDamount : 1];
         chips[0] = first * chipGain;
         chips[1] = secondary_SID_model ? second * chipGain : 0;
         chips[2] = secondary_SID_model ? third * chipGain : 0;
+        chips[3] = centre0 * chipGain;
+        chips[4] = secondary_SID_model ? centre1 * chipGain : 0;
+        chips[5] = secondary_SID_model ? centre2 * chipGain : 0;
 
         return mix * volume * SIDamount_vol[secondary_SID_model ? SIDamount : 1] + (Math.random() * background_noise - background_noise / 2);
     }
@@ -930,6 +959,7 @@ function SidCore(samplerate, background_noise)
       , sourceMSB = [0, 0, 0];
     var noise_LFSR = [0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8];
     var prevwfout = [0, 0, 0, 0, 0, 0, 0, 0, 0], prevwavdata = [0, 0, 0, 0, 0, 0, 0, 0, 0], combiwf;
+    var centreWeight = [0, 0, 0, 0, 0, 0, 0, 0, 0], prevbandC = [0, 0, 0], prevlowC = [0, 0, 0], lastCentre = 0, filtinC, outputC;
     var prevlowpass = [0, 0, 0]
       , prevbandpass = [0, 0, 0]
       , cutoff_ratio_8580 = -2 * 3.14 * (12500 / 256) / samplerate
@@ -954,6 +984,8 @@ function SidCore(samplerate, background_noise)
     {
         filtin = 0;
         output = 0;
+        filtinC = 0;
+        outputC = 0;
         active_SID_model = num === 0 ? SID_model : (secondary_SID_model || SID_model);
 
         //treating 2SID and 3SID channels uniformly (0..5 / 0..8), this probably avoids some extra code
@@ -1171,10 +1203,17 @@ function SidCore(samplerate, background_noise)
                 meterEnergy[meterIndex] += voiceSample * voiceSample;
             }
             //routing the channel signal to either the filter or the unfiltered master output depending on SID-registers
-            if (memory[SIDaddr + 0x17] & FILTSW[channel])
+            // Voices that belong in the middle of the mix: noise waveform (drums, hats) and anything below about 150 Hz (bass, kicks).
+            // The weight glides so a voice changing role does not click.
+            centreWeight[channel] += ((wf === 0x80 || (wf !== 0 && (memory[chnadd] | (memory[chnadd + 1] << 8)) < 2555) ? 1 : 0) - centreWeight[channel]) * 0.02;
+            if (memory[SIDaddr + 0x17] & FILTSW[channel]) {
                 filtin += (wfout - 0x8000) * (envcnt[channel] / 256);
-            else if ((channel % SID_CHANNEL_AMOUNT) != 2 || !(memory[SIDaddr + 0x18] & OFF3_BITMASK))
+                filtinC += (wfout - 0x8000) * (envcnt[channel] / 256) * centreWeight[channel];
+            }
+            else if ((channel % SID_CHANNEL_AMOUNT) != 2 || !(memory[SIDaddr + 0x18] & OFF3_BITMASK)) {
                 output += (wfout - 0x8000) * (envcnt[channel] / 256);
+                outputC += (wfout - 0x8000) * (envcnt[channel] / 256) * centreWeight[channel];
+            }
         }
 
         //update readable SID-registers (some SID tunes might use 3rd channel ENV3/OSC3 value as control)
@@ -1209,6 +1248,19 @@ function SidCore(samplerate, background_noise)
         prevlowpass[num] = tmp;
         if (memory[SIDaddr + 0x18] & LOWPASS_BITMASK)
             output += tmp;
+        // The filter is linear, so the centred share runs through its own copy of it and adds up to the same total.
+        tmp = filtinC + prevbandC[num] * resonance + prevlowC[num];
+        if (memory[SIDaddr + 0x18] & HIGHPASS_BITMASK)
+            outputC -= tmp;
+        tmp = prevbandC[num] - tmp * cutoff;
+        prevbandC[num] = tmp;
+        if (memory[SIDaddr + 0x18] & BANDPASS_BITMASK)
+            outputC -= tmp;
+        tmp = prevlowC[num] + tmp * cutoff;
+        prevlowC[num] = tmp;
+        if (memory[SIDaddr + 0x18] & LOWPASS_BITMASK)
+            outputC += tmp;
+        lastCentre = (outputC / OUTPUT_SCALEDOWN) * (memory[SIDaddr + 0x18] & 0xF);
 
         //when it comes to $D418 volume-register digi playback, I made an AC / DC separation for $D418 value in the SwinSID at low (20Hz or so) cutoff-frequency,
         //and sent the AC (highpass) value to a 4th 'digi' channel mixed to the master output, and set ONLY the DC (lowpass) value to the volume-control.

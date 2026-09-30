@@ -1732,3 +1732,10 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{flex:0 1 auto!important;min-width:0!important;max-width:44%!important;box-sizing:border-box;overflow:hidden}
 .c64-shell .control-top .sid-model-pair{flex-wrap:wrap!important;justify-content:center!important;max-width:100%}
 .c64-shell .control-top .sid-model-pair fieldset{min-width:0!important;max-width:100%!important}
+
+/* SID 1 above SID 2 so 6581/8580 keys share columns and a mismatch is visible at a glance. */
+.c64-shell .control-top .sid-model-pair{flex-direction:column!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important}
+.c64-shell .control-top .sid-model-pair fieldset{width:auto!important;min-width:0!important}
+.c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{max-width:none!important;flex:0 0 auto!important}
+.c64-shell .control-top .sid-model-pair fieldset{display:flex;flex-direction:row;align-items:center;gap:8px}
+.c64-shell .control-top .sid-model-pair legend{float:none;width:auto!important;min-width:44px;margin:0!important;padding:0;text-align:right;white-space:nowrap}

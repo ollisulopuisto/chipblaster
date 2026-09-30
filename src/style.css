@@ -2008,3 +2008,10 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell.leds-boot .console>.controls.transport-controls>button.favorite-key.favorite-active::after{animation:led-on .12s ease-in .7s backwards}
 .c64-shell.leds-boot .console>.controls.transport-controls>button.radio-button.radio-on::after{animation:led-on .12s ease-in .85s backwards}
 @media(prefers-reduced-motion:reduce){.c64-shell .console>.controls.transport-controls>button::after,.c64-shell .eq-deck .wide-key::after,.c64-shell .playlist-infinite-pilot{transition:none!important;animation:none!important}}
+
+/* STEREO ENHANCE key: two-line legend, centred vertically in the deck. */
+.c64-shell .eq-deck .space-band{align-self:stretch;min-height:0}
+.c64-shell .eq-deck .wide-key{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:72px;padding:7px 14px 7px 10px;font-size:9px;line-height:1.1}
+.c64-shell .eq-deck .space-band{position:relative;top:-7px}
+@media(max-width:700px){.c64-shell .eq-deck .space-band{top:3px}}
+@media(max-width:700px){.c64-shell .eq-deck .wide-key{min-width:0;padding:5px 9px 5px 5px;font-size:7px;letter-spacing:.04em}.c64-shell .eq-deck .wide-key::after{top:3px;right:3px;width:6px;height:6px}}

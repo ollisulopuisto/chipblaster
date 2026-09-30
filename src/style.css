@@ -1722,3 +1722,8 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 @media(max-width:700px),(min-width:1025px){.spectrum-module{display:contents}}
 
 .c64-shell .playlist-infinite-toggle:disabled{opacity:.45;cursor:default}.c64-shell .playlist-infinite-toggle:disabled:active{transform:none}.c64-shell .playlist-infinite-toggle:disabled .playlist-infinite-pilot{background:#617065;box-shadow:inset 0 1px 2px #26332b}
+
+/* Two SIDs: SID 1 amber, SID 2 cyan; a shared waveform shows amber over a cyan underlay. */
+.c64-shell .wave-apertures.dual .wave-aperture.sid-one .aperture-light,.c64-shell .wave-apertures.dual .wave-aperture.both .aperture-light{stroke:#ffb347;filter:drop-shadow(0 0 1px #ffb34788)}
+.c64-shell .wave-apertures.dual .wave-aperture.sid-two .aperture-light{stroke:#4fd6ff;filter:drop-shadow(0 0 1px #4fd6ff88)}
+.c64-shell .wave-apertures.dual .wave-aperture .aperture-second-edge{stroke:#4fd6ff;stroke-width:1.6;filter:drop-shadow(0 0 1px #4fd6ff88)}

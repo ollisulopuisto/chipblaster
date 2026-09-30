@@ -1916,3 +1916,11 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .base-plate .speaker-recess.left{width:min(82%,300px)!important;height:min(56vw,208px)!important;border-radius:50%;justify-self:center}
 .c64-shell .base-center{grid-column:1;grid-row:2}
 }
+
+/* Subtune selector: prev / next keys around a segmented n/N readout. */
+.c64-shell .console>.subtune-group{display:inline-flex;align-items:center;gap:6px;cursor:default}
+.c64-shell .subtune-group .subtune-title{margin:0;font:700 9px "Arial Narrow",Arial,sans-serif;letter-spacing:.08em}
+.c64-shell .subtune-group .subtune-step{display:grid;place-items:center;width:30px;height:26px;padding:0;border:1px solid #718078;border-bottom:2px solid #52655b;border-radius:2px;background:linear-gradient(#e6e8e0,#b4bbb1);color:#27352f;box-shadow:inset 1px 1px 1px #f8f9ee,1px 2px 2px #26332b55;cursor:pointer}
+.c64-shell .subtune-group .subtune-step:active{transform:translateY(1px);border-bottom-width:1px}
+.c64-shell .subtune-group .subtune-step .deck-icon{width:15px;height:15px}
+.c64-shell .subtune-group .subtune-step:focus-visible{outline:2px solid #f5cd80;outline-offset:1px}

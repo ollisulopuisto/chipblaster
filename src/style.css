@@ -1546,7 +1546,7 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 
 /* A red pause pilot glows softly only in the fully depressed pause state. */
 .c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#db4238;box-shadow:0 0 2px #f49e7f,inset 0 1px #ffe2d4;animation:pause-pilot 2.5s ease-in-out infinite}
-@keyframes pause-pilot{0%,100%{opacity:1;box-shadow:0 0 6px #e85546}50%{opacity:.45;box-shadow:0 0 1px #b84035}}
+@keyframes pause-pilot{0%,100%{opacity:1;box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}50%{opacity:.55;box-shadow:0 0 1px rgba(255,110,90,.6),0 0 4px 1px rgba(255,64,48,.3)}}
 @media(prefers-reduced-motion:reduce){.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after{animation:none!important}}
 
 /* Stack screenprinted speaker callouts on the broad baffle instead of leaving a bare center. */
@@ -1966,3 +1966,16 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .control-top .eq-deck .eq-band>label,.c64-shell.folded .eq-deck .eq-band>label,.c64-shell.unfolded .eq-deck .eq-band>label{margin:0 0 7px!important}
 @media(max-width:700px){.c64-shell .control-top .eq-deck .eq-band>label,.c64-shell.folded .eq-deck .eq-band>label,.c64-shell.unfolded .eq-deck .eq-band>label{margin:0 0 5px!important}.c64-shell .eq-deck .eq-band>.rotary-wrap{margin:0 auto 9px}}
 @media(max-width:700px){.c64-shell .rotary-ends text{display:none}}
+
+/* Lit pilots are red LEDs: a hot lens with a glow that spills over the panel around it. */
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after,
+.c64-shell .eq-deck .band-pilot.lit{background:radial-gradient(circle at 38% 32%,#ffe6df 0,#ff6c5a 32%,#e0301f 72%,#a01a12 100%);box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after{width:8px;height:8px;top:4px;right:5px}
+.c64-shell .eq-deck .band-pilot{width:8px;height:8px}
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on:not(:disabled)::after,
+.c64-shell .playlist-infinite-toggle.is-active .playlist-infinite-pilot{background:radial-gradient(circle at 38% 32%,#ffe6df 0,#ff6c5a 32%,#e0301f 72%,#a01a12 100%);box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on:not(:disabled)::after{width:8px;height:8px;top:4px;right:5px}

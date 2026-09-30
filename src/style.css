@@ -1791,10 +1791,8 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 
 /* SEARCH / PLAYLIST: a 1970s Japanese hi-fi slide switch. Ribbed satin knob in a black slot, engraved legends with a pilot lamp. */
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.hifi-slide{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;flex:1!important;min-width:0!important}
-.hifi-slide-legend{display:flex;flex-direction:column;align-items:center;gap:4px;font:700 9px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.14em;color:#8fa195;white-space:nowrap;transition:color .16s}
-.hifi-slide-legend::before{content:"";width:5px;height:5px;border-radius:50%;background:#3c2f22;box-shadow:inset 0 1px 1px #0008;transition:background .16s,box-shadow .16s}
+.hifi-slide-legend{display:flex;align-items:center;font:700 9px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.14em;color:#8fa195;white-space:nowrap;transition:color .16s}
 .hifi-slide-legend.lit{color:#f1efd8}
-.hifi-slide-legend.lit::before{background:#ffb347;box-shadow:0 0 5px #ffab3a,inset 0 1px #fff8}
 .hifi-slide-switch{position:relative;flex:none;width:58px;height:30px;padding:0;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .hifi-slide-slot{position:absolute;left:0;right:0;top:6px;bottom:6px;border:1px solid #98a49a;border-radius:2px;background:linear-gradient(#020403,#101512);box-shadow:inset 0 2px 4px #000,0 1px 0 #ffffff59}
 .hifi-slide-slot::after{content:"";position:absolute;left:5px;right:5px;top:50%;height:1px;background:#3b4a40}
@@ -1811,20 +1809,36 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .console>.controls.transport-controls>button.radio-button:disabled::after{background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da;opacity:.6}
 
 /* Tune browser: the grey control lid swings open on a top hinge and reveals the browser beneath it; closing plays the same motion in reverse. */
-.c64-shell .flip-stage.flipped .flip-front>.console{transform-origin:50% 0;backface-visibility:hidden;animation:lid-hinge .52s cubic-bezier(.45,.05,.3,1) both;pointer-events:none}
-.c64-shell .flip-stage.flipped.is-closing .flip-front>.console{animation:lid-hinge .52s cubic-bezier(.45,.05,.3,1) reverse both}
-@keyframes lid-hinge{0%{opacity:1;rotate:1 0 0 0deg}92%{opacity:1}100%{opacity:0;rotate:1 0 0 -96deg}}
+.c64-shell .flip-stage.flipped .flip-front>.console{transform-origin:50% 50%;backface-visibility:hidden;animation:lid-hinge .7s ease-in-out both;pointer-events:none}
+.c64-shell .flip-stage.flipped.is-closing .flip-front>.console{animation:lid-hinge .7s ease-in-out reverse both}
+@keyframes lid-hinge{0%,49%{visibility:visible}0%{rotate:1 0 0 0deg}51%,100%{visibility:hidden}100%{rotate:1 0 0 -180deg}}
 @keyframes browser-reveal{from{opacity:0}to{opacity:1}}
+@keyframes browser-flip{0%,49%{visibility:hidden}0%{rotate:1 0 0 180deg}51%,100%{visibility:visible}100%{rotate:1 0 0 0deg}}
 @keyframes browser-reveal-full{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
 @media(min-width:701px){
-.c64-shell .flip-stage.flipped .flip-back{position:absolute!important;inset:auto!important;left:var(--lid-left,0)!important;top:var(--lid-top,0)!important;width:var(--lid-w,100%)!important;height:var(--lid-h,auto)!important;z-index:1!important;box-shadow:inset 0 3px 8px #0008!important;border-radius:6px!important;transform:none!important;transform-origin:50% 0;animation:browser-reveal .1s linear both}
-.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-reveal .1s linear .44s reverse both}
+.c64-shell .flip-stage.flipped .flip-back{position:absolute!important;inset:auto!important;left:var(--lid-left,0)!important;top:var(--lid-top,0)!important;width:var(--lid-w,100%)!important;height:var(--lid-h,auto)!important;z-index:1!important;box-shadow:inset 0 3px 8px #0008!important;border-radius:6px!important;transform:none!important;transform-origin:50% 50%;backface-visibility:hidden;animation:browser-flip .7s ease-in-out both}
+.c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-flip .7s ease-in-out reverse both}
 }
 @media(max-width:700px){
-.c64-shell .flip-stage.flipped .flip-back{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;border-radius:0!important;animation:browser-reveal-full .34s ease-out .2s both}
+.c64-shell .flip-stage.flipped .flip-back{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;border-radius:0!important;animation:browser-reveal-full .34s ease-out .34s both}
 .c64-shell .flip-stage.flipped.is-closing .flip-back{animation:browser-reveal-full .34s ease-out reverse both}
 }
 @media(prefers-reduced-motion:reduce){.c64-shell .flip-stage.flipped .flip-front>.console,.c64-shell .flip-stage.flipped .flip-back{animation:none!important}.c64-shell .flip-stage.flipped .flip-front>.console{opacity:0}}
 
-.c64-shell .flip-stage.flipped .flip-front{perspective:1300px;perspective-origin:50% var(--lid-top,0)}
+.c64-shell .flip-stage.flipped .flip-front,.c64-shell .flip-stage.flipped{perspective:1300px;perspective-origin:50% calc(var(--lid-top,0px) + var(--lid-h,0px) / 2)}
 .c64-shell .flip-stage.flipped .flip-front{position:relative;z-index:2}
+
+/* The panel flips inside a dark recess in the case, so the empty slot reads as a cavity. */
+@media(min-width:701px){.c64-shell .flip-stage.flipped::before{content:"";position:absolute;left:var(--lid-left,0);top:var(--lid-top,0);width:var(--lid-w,0);height:var(--lid-h,0);border-radius:6px;background:linear-gradient(#141b17,#222c26);box-shadow:inset 0 4px 12px #000,0 1px 0 #ffffff55;z-index:0;pointer-events:none}}
+
+/* Browser header: identical keys in Search and Playlist views; only the switch and the list beneath change. */
+.c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view .selector-button-block .random-sid,.c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view .selector-button-block>.saved-key{display:grid!important}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{margin-left:0;min-width:49px;min-height:44px;border:1px solid #718078;border-bottom:2px solid #52655b;border-radius:2px;background:#c8ccc5;color:#27352f;box-shadow:inset 1px 1px 1px #f8f9ee,2px 3px 2px #26332b66;cursor:pointer}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key:disabled{opacity:.45;cursor:default}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.catalog-mobile-close{order:0}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.random-sid{order:1}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{order:2}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.hifi-slide{order:3}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-total{order:4}
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-infinite-toggle{order:5;margin-left:0!important}
+.c64-shell .hvsc.search-view .selector-button-block>.playlist-infinite-toggle{display:grid!important}

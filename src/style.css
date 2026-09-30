@@ -1748,3 +1748,24 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 .c64-shell .control-top .sid-model-pair legend{float:left;width:44px!important;min-width:44px;text-align:right}
 .c64-shell .control-top .sid-model-pair fieldset{display:flex!important;flex-direction:row;align-items:center;gap:8px}
 }
+
+/* Base plate: two drivers flank one nameplate and the manual key. No vents, arcs or floating stamps. */
+.manual-anchor{display:contents}
+.c64-shell .player-body>.base-plate{order:7;position:relative;z-index:1;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:clamp(12px,3vw,32px);box-sizing:border-box;width:100%;margin:10px 0 0;padding:clamp(14px,3vw,26px) clamp(16px,4vw,44px) clamp(16px,3vw,28px);min-height:0;border-top:1px solid #a29676;background:linear-gradient(180deg,#bdae8b,#cdbf9d 55%,#d9cdac);box-shadow:inset 0 3px 5px #fff6,inset 0 -3px 6px #7f735c33}
+.c64-shell .base-plate .speaker-recess{position:relative;width:clamp(72px,17vw,132px)!important;height:clamp(72px,17vw,132px)!important;max-width:none!important;max-height:none!important;margin:0!important;flex:none}
+.c64-shell .base-center{display:flex;flex-direction:column;align-items:center;gap:14px;min-width:0;text-align:center}
+.c64-shell .base-nameplate{display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 22px;border:1px solid #91866b;border-radius:3px;background:linear-gradient(115deg,#d8d9cd,#b9beb5 55%,#d3d3c5);box-shadow:inset 0 1px #fffc,0 1px 2px #0003;color:#30382f}
+.c64-shell .base-nameplate b{font:800 15px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.32em;margin-right:-.32em}
+.c64-shell .base-nameplate span{font:700 8px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.24em;margin-right:-.24em;color:#56604f}
+.c64-shell .manual-key{display:inline-flex;align-items:center;gap:8px;padding:7px 16px 7px 8px;border:1px solid #718078;border-bottom-width:3px;border-radius:2px;background:linear-gradient(#f3f2e7,#aeb7ad);color:#24392d;font:800 9px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.2em;cursor:pointer;box-shadow:0 2px 1px #35443a55}
+.c64-shell .manual-key span{display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#2c3830;color:#e8c378;font:800 10px/1 Arial,sans-serif;letter-spacing:0}
+.c64-shell .manual-key:hover{background:linear-gradient(#fbfaf0,#bcc5bb)}
+.c64-shell .manual-key:active{transform:translateY(2px);border-bottom-width:1px}
+.c64-shell .manual-key:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
+@media(max-width:560px){
+.c64-shell .player-body>.base-plate{grid-template-columns:1fr 1fr;row-gap:14px}
+.c64-shell .base-plate .speaker-recess{width:min(38vw,132px)!important;height:min(38vw,132px)!important}
+.c64-shell .base-plate .speaker-recess.left{justify-self:start}.c64-shell .base-plate .speaker-recess.right{justify-self:end}
+.c64-shell .base-center{grid-column:1/-1;grid-row:2}
+}
+.c64-shell .player-body>.base-plate{margin:14px 16px 16px;width:auto;border:1px solid #a29676;border-radius:6px}

@@ -433,7 +433,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:480px){.c64-shell .console>.controls.transport-controls>button:nth-child(-n+5){min-height:44px}}
 
 /* The groove band moves beneath the stationary curved mask as the thumbwheel turns. */
-.visual-thumbwheel .wheel-grooves::after{background-position:0 var(--wheel-roll,0px);transition:background-position .14s ease-out}
+.visual-thumbwheel .wheel-grooves::after{background-position:0 calc(var(--wheel-roll,0px) * -1);transition:background-position .14s ease-out}
 @media(prefers-reduced-motion:reduce){.visual-thumbwheel .wheel-grooves::after{transition:none}}
 
 /* Keep the outer woofer cone visible through the decorative perforated grille. */

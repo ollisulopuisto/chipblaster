@@ -13,11 +13,17 @@ class SidProcessor extends AudioWorkletProcessor {
     this.seekTicks = 0;
     this.spread = 0;
     this.fade = null;
+    // Load: time spent in process() against the time the audio lasts. The worklet scope has no performance.now(), so Date.now() is
+    // summed over many calls, which averages out its one-millisecond steps.
+    this.busy = 0;
+    this.audioMs = 0;
+    this.load = 0;
+    this.peak = 0;
     this.port.onmessage = e => this.onMessage(e.data);
   }
   state() {
     const c = this.core;
-    this.port.postMessage({ type: 'state', levels: Array.from(c.voiceLevels), waves: Array.from(c.voiceWaveforms), time: c.getplaytimeExact(), running: c.isRunning() });
+    this.port.postMessage({ type: 'state', levels: Array.from(c.voiceLevels), waves: Array.from(c.voiceWaveforms), time: c.getplaytimeExact(), running: c.isRunning(), load: this.load, peak: this.peak });
   }
   onMessage(m) {
     const c = this.core;
@@ -37,6 +43,19 @@ class SidProcessor extends AudioWorkletProcessor {
     this.state();
   }
   process(inputs, outputs) {
+    const t0 = Date.now();
+    const keep = this.render(inputs, outputs);
+    this.busy += Date.now() - t0;
+    this.audioMs += outputs[0][0].length / sampleRate * 1000;
+    if (this.audioMs >= 500) {
+      this.load = this.busy / this.audioMs;
+      this.peak = Math.max(this.peak * 0.8, this.load);
+      this.busy = 0;
+      this.audioMs = 0;
+    }
+    return keep;
+  }
+  render(inputs, outputs) {
     const out = outputs[0][0], outR = outputs[0][1], c = this.core, s = this.seek;
     if (s) {
       if (s.remaining === null) {

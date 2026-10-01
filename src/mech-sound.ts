@@ -1,0 +1,98 @@
+// Mechanical key, latch and case sounds, synthesised. They are only a seasoning: quiet in general, and while music plays only the big
+// mechanical events are heard (and softly), because small clicks fight with the music. The level is one of off, soft and full.
+export type MechLevel = 'off' | 'soft' | 'full';
+export type MechKind = 'key' | 'latch' | 'eject' | 'power' | 'thunk';
+
+const BIG: ReadonlySet<MechKind> = new Set(['eject', 'power', 'thunk']);
+/** Peak gain per level: [idle, music playing] for big events and for small ones. */
+const GAIN: Record<MechLevel, { bigIdle: number; bigPlaying: number; smallIdle: number; smallPlaying: number }> = {
+  off: { bigIdle: 0, bigPlaying: 0, smallIdle: 0, smallPlaying: 0 },
+  soft: { bigIdle: 0.7, bigPlaying: 0.12, smallIdle: 0.6, smallPlaying: 0 },
+  full: { bigIdle: 1, bigPlaying: 0.3, smallIdle: 1, smallPlaying: 0.1 }
+};
+const MIN_GAP = 0.07;
+
+export class MechSound {
+  level: MechLevel = 'soft';
+  private own: AudioContext | null = null;
+  private noise: AudioBuffer | null = null;
+  private noiseCtx: BaseAudioContext | null = null;
+  private last = 0;
+
+  /** `getContext` returns the player's AudioContext when there is one; the sounds then share it, which keeps iOS to one audio session. */
+  constructor(private getContext: () => AudioContext | null, private isPlaying: () => boolean, private getVolume: () => number) {}
+
+  private context(): AudioContext | null {
+    const shared = this.getContext();
+    if (shared) return shared;
+    if (!this.own) {
+      try { const AC = window.AudioContext || (window as any).webkitAudioContext; this.own = new AC(); } catch { return null; }
+    }
+    return this.own;
+  }
+
+  /** Call from a user gesture so the context is running by the time a sound is wanted. */
+  ensure() {
+    if (this.level === 'off') return;
+    const c = this.context();
+    if (c && c.state === 'suspended') void c.resume().catch(() => {});
+  }
+
+  play(kind: MechKind) {
+    if (this.level === 'off' || document.hidden) return;
+    const g = GAIN[this.level], big = BIG.has(kind), playing = this.isPlaying();
+    const peak = big ? (playing ? g.bigPlaying : g.bigIdle) : playing ? g.smallPlaying : g.smallIdle;
+    if (peak <= 0) return;
+    const c = this.context();
+    if (!c) return;
+    if (c.state !== 'running') {
+      // First gesture: the context may still be starting. Play once it runs, unless the moment has passed.
+      const asked = performance.now();
+      void c.resume().then(() => { if (c.state === 'running' && performance.now() - asked < 250) this.play(kind); }).catch(() => {});
+      return;
+    }
+    const t = c.currentTime;
+    if (t - this.last < MIN_GAP) return;
+    this.last = t;
+    // The volume knob scales the sounds too, with a floor so they stay audible at low settings.
+    const level = peak * Math.max(0.25, Math.min(1, this.getVolume()));
+    const out = c.createGain();
+    out.gain.value = level;
+    out.connect(c.destination);
+    const parts: AudioNode[] = [out];
+    const burst = (at: number, ms: number, freq: number, q: number, amp: number, type: BiquadFilterType = 'bandpass') => {
+      const src = c.createBufferSource(), f = c.createBiquadFilter(), a = c.createGain();
+      src.buffer = this.noiseBuffer(c);
+      f.type = type; f.frequency.value = freq; f.Q.value = q;
+      a.gain.setValueAtTime(amp, at); a.gain.exponentialRampToValueAtTime(0.0001, at + ms / 1000);
+      src.connect(f); f.connect(a); a.connect(out);
+      src.start(at); src.stop(at + ms / 1000 + 0.01);
+      parts.push(src, f, a);
+    };
+    const thud = (at: number, from: number, to: number, sec: number, amp: number) => {
+      const o = c.createOscillator(), a = c.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(from, at); o.frequency.exponentialRampToValueAtTime(to, at + sec * 0.8);
+      a.gain.setValueAtTime(amp, at); a.gain.exponentialRampToValueAtTime(0.0001, at + sec);
+      o.connect(a); a.connect(out);
+      o.start(at); o.stop(at + sec + 0.01);
+      parts.push(o, a);
+    };
+    let end = 0.2;
+    if (kind === 'key') { burst(t, 14, 2200, 0.8, 0.5); thud(t, 170, 95, 0.045, 0.55); }
+    else if (kind === 'latch') { burst(t, 16, 1500, 0.8, 0.45); thud(t, 125, 58, 0.075, 0.85); }
+    else if (kind === 'eject') { burst(t, 24, 900, 0.7, 0.7); thud(t, 105, 50, 0.1, 0.85); burst(t + 0.055, 14, 1800, 0.9, 0.4); end = 0.25; }
+    else if (kind === 'power') { burst(t, 12, 2600, 0.9, 0.5); thud(t, 80, 44, 0.12, 0.9); end = 0.22; }
+    else { thud(t, 120, 45, 0.12, 1); burst(t, 34, 600, 0.6, 0.4, 'lowpass'); end = 0.25; }
+    window.setTimeout(() => { for (const p of parts) { try { p.disconnect(); } catch {} } }, (end + 0.1) * 1000);
+  }
+
+  private noiseBuffer(c: BaseAudioContext): AudioBuffer {
+    if (!this.noise || this.noiseCtx !== c) {
+      const n = Math.ceil(c.sampleRate * 0.1), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      this.noise = b; this.noiseCtx = c;
+    }
+    return this.noise;
+  }
+}

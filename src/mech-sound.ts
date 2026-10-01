@@ -58,8 +58,11 @@ export class MechSound {
     const level = peak * Math.max(0.25, Math.min(1, this.getVolume()));
     const out = c.createGain();
     out.gain.value = level;
-    out.connect(c.destination);
-    const parts: AudioNode[] = [out];
+    // Small speakers and phones barely reproduce the low end; cut it so the sounds stay clicks, not booms.
+    const hp = c.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 140; hp.Q.value = 0.5;
+    out.connect(hp); hp.connect(c.destination);
+    const parts: AudioNode[] = [out, hp];
     const burst = (at: number, ms: number, freq: number, q: number, amp: number, type: BiquadFilterType = 'bandpass') => {
       const src = c.createBufferSource(), f = c.createBiquadFilter(), a = c.createGain();
       src.buffer = this.noiseBuffer(c);
@@ -79,11 +82,11 @@ export class MechSound {
       parts.push(o, a);
     };
     let end = 0.2;
-    if (kind === 'key') { burst(t, 14, 2200, 0.8, 0.5); thud(t, 170, 95, 0.045, 0.55); }
-    else if (kind === 'latch') { burst(t, 16, 1500, 0.8, 0.45); thud(t, 125, 58, 0.075, 0.85); }
-    else if (kind === 'eject') { burst(t, 24, 900, 0.7, 0.7); thud(t, 105, 50, 0.1, 0.85); burst(t + 0.055, 14, 1800, 0.9, 0.4); end = 0.25; }
-    else if (kind === 'power') { burst(t, 12, 2600, 0.9, 0.5); thud(t, 80, 44, 0.12, 0.9); end = 0.22; }
-    else { thud(t, 120, 45, 0.12, 1); burst(t, 34, 600, 0.6, 0.4, 'lowpass'); end = 0.25; }
+    if (kind === 'key') { burst(t, 14, 2200, 0.8, 0.5); thud(t, 280, 170, 0.035, 0.3); }
+    else if (kind === 'latch') { burst(t, 16, 1500, 0.8, 0.45); thud(t, 220, 120, 0.05, 0.4); }
+    else if (kind === 'eject') { burst(t, 24, 900, 0.7, 0.7); thud(t, 180, 100, 0.07, 0.45); burst(t + 0.055, 14, 1800, 0.9, 0.4); end = 0.25; }
+    else if (kind === 'power') { burst(t, 12, 2600, 0.9, 0.5); thud(t, 150, 80, 0.09, 0.5); end = 0.22; }
+    else { thud(t, 170, 90, 0.09, 0.55); burst(t, 34, 600, 0.6, 0.4, 'lowpass'); end = 0.25; }
     window.setTimeout(() => { for (const p of parts) { try { p.disconnect(); } catch {} } }, (end + 0.1) * 1000);
   }
 

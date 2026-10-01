@@ -30,11 +30,15 @@ let renderMs = 0, renderFrames = 0, lastReport = 0, peak = 0;
 const locateFile = (path: string) => path.endsWith('.wasm') ? (kind === 'residfp' ? residWasm : liteWasm) : path;
 const fresh = () => new SidAudioEngine({ engine: kind, sampleRate, stereo: true, locateFile } as any);
 
+let sidModel: 'MOS6581' | 'MOS8580' = 'MOS6581';
+const applyModel = () => engine!.setEmulationConfig({ sidModel, forceSidModel: false } as any);
+
 async function reload(song: number) {
   if (!bytes) return;
   engine?.dispose();
   engine = fresh();
   await engine.loadSidBuffer(bytes, song);
+  await applyModel();
   subtune = song;
 }
 
@@ -89,8 +93,9 @@ async function handle(m: Cmd) {
       gen = m.gen; wanted = 0; await reload(m.subtune); sink.postMessage({ type: 'loaded', gen });
     } else if (m.type === 'stop') {
       gen = m.gen; wanted = 0; await reload(subtune); sink.postMessage({ type: 'loaded', gen });
-    } else if (m.type === 'models' && engine) {
-      await engine.setEmulationConfig({ sidModel: m.primary === 8580 ? 'MOS8580' : 'MOS6581', forceSidModel: false } as any);
+    } else if (m.type === 'models') {
+      sidModel = m.primary === 8580 ? 'MOS8580' : 'MOS6581';
+      if (bytes) await applyModel();
     } else if (m.type === 'seek') {
       gen = m.gen; wanted = 0; seekCancelled = false;
       if (engine && engine.getTimeMs() / 1000 > m.seconds - 0.25) await reload(subtune);

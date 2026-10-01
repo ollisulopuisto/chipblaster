@@ -72,7 +72,7 @@ For local testing put `VITE_LASTFM_API_KEY` and `VITE_LASTFM_SIGNER` in `.env.lo
 
 ## Trying another SID engine
 
-The default sound comes from the jsSID emulation in an AudioWorklet. For comparison, libsidplayfp (WebAssembly, GPL-2.0-or-later, `libsidplayfp-wasm`) can be switched on from the address bar:
+The default sound comes from the jsSID emulation in an AudioWorklet. For comparison, libsidplayfp (WebAssembly, GPL-2.0-or-later, `libsidplayfp-wasm`) can be chosen with the SID CORE slide selector on the base plate (JS, LITE, RESID). The tune carries on from where it was, and the choice is remembered. The address bar does the same:
 
 - `?engine=sidlite` is the fast libsidplayfp engine.
 - `?engine=residfp` is the cycle-exact one (several times heavier).

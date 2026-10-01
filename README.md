@@ -69,3 +69,15 @@ Last.fm signs every write call with a shared secret, so a small Cloudflare Worke
 4. Build as usual. Without the variables the LAST.FM key is hidden.
 
 For local testing put `VITE_LASTFM_API_KEY` and `VITE_LASTFM_SIGNER` in `.env.local`.
+
+## Trying another SID engine
+
+The default sound comes from the jsSID emulation in an AudioWorklet. For comparison, libsidplayfp (WebAssembly, GPL-2.0-or-later, `libsidplayfp-wasm`) can be switched on from the address bar:
+
+- `?engine=sidlite` is the fast libsidplayfp engine.
+- `?engine=residfp` is the cycle-exact one (several times heavier).
+- `?debug` shows the readout without changing the engine.
+
+The engine renders in a Web Worker (`src/fp-worker.ts`) and streams PCM to a small AudioWorklet (`src/fp-sink-worklet.js`); `src/fp-player.ts` presents the same surface as the default player. A readout in the lower left corner shows the engine and its load. For libsidplayfp it is the share of real time spent rendering, measured with a precise clock. For jsSID the worklet has only a coarse clock, so the value is approximate; browsers that provide `AudioContext.renderCapacity` also get the audio thread's own figure.
+
+Not available with libsidplayfp: per-voice meters, STEREO ENHANCE and tape speed (the engine gives only the mixed output), and RSID tunes that need C64 ROM images, which are not bundled.

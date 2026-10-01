@@ -1,33 +1,38 @@
-// Main-thread facade with the same surface as the original jsSID player, but the emulation runs in an AudioWorklet.
+// Same surface as WorkletPlayer, but the sound comes from libsidplayfp (see fp-worker.ts). Metadata still comes from the jsSID parser.
+// Missing against the default engine: per-voice meters, STEREO ENHANCE (the engine has no voice outputs) and tape speed.
 // @ts-ignore vendored JS
 import SidCore from './vendor/sid-core.js';
-import workletUrl from './sid-worklet.js?worker&url';
+import sinkUrl from './fp-sink-worklet.js?worker&url';
 
 type Message = Record<string, unknown>;
+export type FpEngine = 'sidlite' | 'residfp';
 
-export class WorkletPlayer {
+export class FpPlayer {
   audioContext: AudioContext;
   analyser: AnalyserNode;
   outputGain: GainNode;
   masterAnalyser?: AnalyserNode;
   voiceLevels = [0, 0, 0, 0, 0, 0, 0];
   voiceWaveforms = [0, 0, 0, 0, 0, 0];
-  engineName = 'jsSID (AudioWorklet)';
-  /** Share of the audio's duration that process() takes, averaged over half a second; `peak` decays slowly. */
+  engineName: string;
+  /** Render time as a share of audio time, from the worker: average and worst chunk over the last half second. */
   load = 0;
   peak = 0;
   /** Chrome's own measure of the audio thread (AudioContext.renderCapacity), where the browser has it. */
   capacity: { avg: number; peak: number } | null = null;
   private core: any;
   private node: AudioWorkletNode | null = null;
+  private worker: Worker;
   private queue: Message[] = [];
   private time = 0;
   private tape = 1;
+  private gen = 0;
   private seekId = 0;
   private seekWaiters = new Map<number, { done: () => void; progress?: (t: number) => void }>();
   ready: Promise<void>;
 
-  constructor() {
+  constructor(engine: FpEngine) {
+    this.engineName = 'libsidplayfp ' + (engine === 'residfp' ? 'reSIDfp' : 'SIDLite');
     const AC = window.AudioContext || (window as any).webkitAudioContext;
     const ctx: AudioContext = new AC();
     this.audioContext = ctx;
@@ -41,57 +46,63 @@ export class WorkletPlayer {
     this.outputGain = ctx.createGain();
     this.analyser.connect(this.outputGain);
     this.outputGain.connect(ctx.destination);
-    // The app later re-points `analyser` at the post-EQ tap; the worklet must keep feeding the original entry node.
     const entry = this.analyser;
     this.core = new (SidCore as any)(ctx.sampleRate, 0);
-    if (import.meta.env.DEV) (window as any).__sidPlayer = this;
-    this.ready = ctx.audioWorklet.addModule(workletUrl).then(() => {
-      const node = new AudioWorkletNode(ctx, 'sid-processor', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
-      node.port.onmessage = e => this.onMessage(e.data);
+    this.worker = new Worker(new URL('./fp-worker.ts', import.meta.url), { type: 'module' });
+    this.worker.onmessage = e => this.onWorker(e.data);
+    this.ready = ctx.audioWorklet.addModule(sinkUrl).then(() => {
+      const node = new AudioWorkletNode(ctx, 'fp-sink', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
+      node.port.onmessage = e => { if (e.data.type === 'state') this.time = e.data.time; };
       node.connect(entry);
       this.node = node;
-      for (const m of this.queue) node.port.postMessage(m);
+      const ch = new MessageChannel();
+      node.port.postMessage({ type: 'worker', port: ch.port1 }, [ch.port1]);
+      this.worker.postMessage({ type: 'init', sampleRate: ctx.sampleRate, engine, port: ch.port2 }, [ch.port2]);
+      for (const m of this.queue) this.dispatch(m);
       this.queue = [];
-    }).catch(err => { console.error('SID worklet failed to load', err); });
+    }).catch(err => { console.error('fp engine failed to load', err); });
   }
 
-  private send(m: Message) { if (this.node) this.node.port.postMessage(m); else this.queue.push(m); }
+  private dispatch(m: Message) {
+    if (m.type === 'play' || m.type === 'pause' || m.type === 'fade') this.node!.port.postMessage(m);
+    else {
+      // A message that starts new material first tells the sink to drop what it holds.
+      if (typeof m.gen === 'number') this.node!.port.postMessage({ type: 'gen', gen: m.gen, time: 0 });
+      this.worker.postMessage(m);
+    }
+  }
+  private send(m: Message) { if (this.node) this.dispatch(m); else this.queue.push(m); }
+  private restart(m: Message) {
+    this.gen++;
+    this.time = 0;
+    this.send({ ...m, gen: this.gen });
+  }
 
-  private onMessage(m: any) {
-    if (m.type === 'state') {
-      for (let i = 0; i < this.voiceLevels.length; i++) this.voiceLevels[i] = m.levels[i] ?? 0;
-      for (let i = 0; i < this.voiceWaveforms.length; i++) this.voiceWaveforms[i] = m.waves[i] ?? 0;
-      this.time = m.time;
-      this.load = m.load ?? 0;
-      this.peak = m.peak ?? 0;
-    } else if (m.type === 'seekProgress') {
-      this.time = m.time;
-      this.seekWaiters.get(m.id)?.progress?.(m.time);
-    } else if (m.type === 'seekDone') {
+  private onWorker(m: any) {
+    if (m.type === 'load') { this.load = m.load; this.peak = m.peak; }
+    else if (m.type === 'seekProgress') { this.time = m.time; this.seekWaiters.get(m.id)?.progress?.(m.time); }
+    else if (m.type === 'seekDone') {
       this.time = m.time;
       const w = this.seekWaiters.get(m.id);
       this.seekWaiters.delete(m.id);
       w?.done();
-    }
+    } else if (m.type === 'error') console.error('fp engine', m.message);
   }
 
   get tapeRate() { return this.tape; }
-  set tapeRate(rate: number) { if (rate === this.tape) return; this.tape = rate; this.send({ type: 'tape', rate }); }
+  set tapeRate(rate: number) { this.tape = rate; }
 
   setloadcallback(cb: () => void) { this.core.setloadcallback(cb); }
   loadbuffer(bytes: Uint8Array, subtune: number) {
     this.cancelSeeks();
-    this.time = 0;
     this.core.loadbuffer(bytes, subtune);
-    this.send({ type: 'load', bytes: bytes.slice(), subtune });
+    this.restart({ type: 'load', bytes: bytes.slice(), subtune });
   }
-  /** Multi-SID tunes: 0 keeps both chips centred, 1 puts SID 1 fully left and SID 2 fully right. */
-  setChipSpread(value: number) { this.send({ type: 'spread', value }); }
-  /** Fade to silence over the last `seconds` before tune time `end`; null clears the plan. */
+  setChipSpread(_value: number) {}
   setFadePlan(end: number | null, seconds: number) { this.send({ type: 'fade', end, seconds }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
-  start(subtune: number) { this.cancelSeeks(); this.time = 0; this.core.start(subtune); this.send({ type: 'start', subtune }); }
-  stop() { this.cancelSeeks(); this.time = 0; this.core.stop(); this.send({ type: 'stop' }); }
+  start(subtune: number) { this.cancelSeeks(); this.core.start(subtune); this.restart({ type: 'start', subtune }); }
+  stop() { this.cancelSeeks(); this.core.stop(); this.restart({ type: 'stop' }); }
   pause() { this.send({ type: 'pause' }); }
   playcont() { this.send({ type: 'play' }); }
   gettitle(): string { return this.core.gettitle(); }
@@ -101,15 +112,13 @@ export class WorkletPlayer {
   getSIDCount(): number { return this.core.getSIDCount(); }
   getplaytime(): number { return Math.floor(this.time); }
 
-  /** Fast-forward silently to `seconds` (restarting the tune first when seeking backwards). Resolves when the emulation has caught up. */
   seek(seconds: number, progress?: (t: number) => void): Promise<void> {
-    // The worklet only runs while the context runs; resume inside the caller's user gesture.
     void this.audioContext.resume().catch(() => {});
     this.cancelSeeks();
     const id = ++this.seekId;
     return new Promise<void>(done => {
       this.seekWaiters.set(id, { done, progress });
-      this.send({ type: 'seek', id, seconds });
+      this.restart({ type: 'seek', id, seconds });
     });
   }
   private cancelSeeks() {

@@ -112,6 +112,7 @@ async function handle(m: Cmd) {
       postMessage({ type: 'ready' });
     } else if (m.type === 'load') {
       gen = m.gen; wanted = 0; bytes = m.bytes; await reload(m.subtune); sink.postMessage({ type: 'loaded', gen });
+      postMessage({ type: 'started' });
     } else if (m.type === 'start') {
       gen = m.gen; wanted = 0; await reload(m.subtune); sink.postMessage({ type: 'loaded', gen });
     } else if (m.type === 'stop') {

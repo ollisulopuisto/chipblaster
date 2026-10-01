@@ -1999,8 +1999,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .console>.controls.transport-controls>button.radio-button:not(:disabled)::after,
 .c64-shell .eq-deck .wide-key::after,
 .c64-shell .scrobble-key::after,
-.c64-shell .click-key::before,
-.c64-shell .click-key::after,
 .c64-shell .playlist-infinite-toggle .playlist-infinite-pilot{
   background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--led-c1) calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,var(--led-c2) calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,var(--led-c3) calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,var(--led-c4) calc(var(--led)*100%),#7d857f) 100%)!important;
   box-shadow:0 0 2px 1px rgb(var(--led-glow)/calc(.95*var(--led))),0 0 8px 3px rgb(var(--led-glow)/calc(.6*var(--led))),0 0 16px 6px rgb(var(--led-glow)/calc(.28*var(--led))),inset 0 1px 2px rgb(83 96 87/calc(1 - var(--led))),0 1px rgb(224 227 218/calc(1 - var(--led)))!important;
@@ -2009,8 +2007,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
 .c64-shell .eq-deck .wide-key.lit::after,
 .c64-shell .scrobble-key.connected::after,
-.c64-shell .click-key.on::after,
-.c64-shell .click-key.full::before,
 .c64-shell .playlist-infinite-toggle.is-active .playlist-infinite-pilot{--led:1;transition:--led .04s ease-in}
 @keyframes led-on{from{--led:0}to{--led:1}}
 .c64-shell.leds-boot .eq-deck .wide-key.lit::after{animation:led-on .12s ease-in .55s backwards}
@@ -2101,7 +2097,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .manual-panels .manual-functions li{font-size:11px}
 @media(max-width:700px){.manual-panels .manual-functions ul{grid-template-columns:1fr}}
 .c64-shell .base-keys{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
-.c64-shell .click-key{min-width:104px;justify-content:flex-start}
 
 /* The open tune browser never grows taller than the window: its list scrolls inside, and the footer with the page and queue keys stays in reach. */
 @media(min-width:701px){.c64-shell .flip-stage.flipped .flip-back{max-height:calc(100vh - 16px)!important;max-height:calc(100dvh - 16px)!important}}
@@ -2114,15 +2109,20 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 /* Labels never change. CLICK shows its level with the key itself (pushed in when on) and two lamps: one lit for SOFT, both for FULL.
    LAST.FM is pushed in with its lamp lit while linked. */
-.c64-shell .click-key,.c64-shell .scrobble-key{position:relative;transition:transform .09s ease-out,border-bottom-width .09s ease-out,box-shadow .09s ease-out,background .12s ease-out}
-.c64-shell .click-key{min-width:0;padding-right:32px}
-.c64-shell .click-key::before,.c64-shell .click-key::after{content:'';position:absolute;top:4px;width:8px;height:8px;border-radius:50%}
-.c64-shell .click-key::after{right:5px}
-.c64-shell .click-key::before{right:16px}
-.c64-shell .click-key[aria-pressed="true"],.c64-shell .scrobble-key[aria-pressed="true"]{transform:translateY(2px);border-bottom-width:1px;background:linear-gradient(#b4bcb1,#c4c9c0);box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b,0 1px #e0e3da}
 
 /* Plain on/off keys show their state by being pushed in; they carry no lamp. Lamps stay for keys with more than two states. */
 .c64-shell .console>.controls.transport-controls>button.favorite-key::after,.c64-shell .scrobble-key::after,.c64-shell .playlist-infinite-toggle .playlist-infinite-pilot{display:none!important}
 .c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active{transform:translateY(2px)!important;border-bottom-width:1px!important;background:linear-gradient(#b4bcb1,#c4c9c0)!important;box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b,0 1px #e0e3da!important}
 .c64-shell .playlist-infinite-toggle.is-active,.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-infinite-toggle.is-active{transform:translateY(2px)!important;border-bottom-width:1px!important;background:linear-gradient(#b4bcb1,#c4c9c0)!important;box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b!important}
 .c64-shell .scrobble-key[aria-pressed="true"].flash{transform:translateY(0);border-bottom-width:3px}
+
+/* CLICK is a three-way slide selector with OFF, SOFT and FULL printed on the panel; the lever shows the setting. */
+.c64-shell .click-selector{display:inline-flex;flex-direction:column;align-items:center;gap:3px;padding:5px 9px 4px;border:1px solid #91866b;border-radius:3px;background:linear-gradient(115deg,#d8d9cd,#b9beb5 55%,#d3d3c5);box-shadow:inset 0 1px #fffc,0 1px 2px #0003;color:#30382f}
+.c64-shell .click-selector-name{font:800 9px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.24em;margin-right:-.24em}
+.c64-shell .click-selector-track{position:relative;width:96px;height:14px;border-radius:7px;background:linear-gradient(#17201b,#314037);box-shadow:inset 0 2px 4px #000c,0 1px #fff8}
+.c64-shell .click-selector-lever{position:absolute;top:-3px;left:calc((100% - 28px) * var(--p));width:28px;height:20px;box-sizing:border-box;border:1px solid #738374;border-radius:4px;background:repeating-linear-gradient(90deg,#0002 0 1px,#0000 1px 4px),linear-gradient(#eef0e4,#9ba998);box-shadow:1px 2px 3px #0007,inset 0 1px #fff;transition:left .12s cubic-bezier(.3,1.4,.5,1);pointer-events:none}
+.c64-shell .click-selector-track button{position:absolute;top:-4px;bottom:-4px;width:33.34%;padding:0;border:0;background:transparent;cursor:pointer;opacity:0}
+.c64-shell .click-selector-track button:nth-of-type(1){left:0}.c64-shell .click-selector-track button:nth-of-type(2){left:33.33%}.c64-shell .click-selector-track button:nth-of-type(3){left:66.66%}
+.c64-shell .click-selector-track button:focus-visible{opacity:1;outline:2px solid #256b63;outline-offset:1px;border-radius:5px}
+.c64-shell .click-selector-legends{display:flex;justify-content:space-between;width:100%;font:800 7px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.06em;color:#3f4943}
+@media(prefers-reduced-motion:reduce){.c64-shell .click-selector-lever{transition:none}}

@@ -2036,3 +2036,58 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 @keyframes speaker-lift{0%,100%{translate:0 0}22%,68%{translate:0 -9px}}
 }
 @media(prefers-reduced-motion:reduce){.c64-shell .plate-slide .speaker-recess,.c64-shell .plate-slide .base-nameplate{transition:none!important}.c64-shell .plate-slide.plate-moving .speaker-recess.left{animation:none}}
+
+/* STEREO ENHANCE latches: raised when off, pushed in when on. No pilot light. */
+.c64-shell .eq-deck .wide-key::after{display:none!important}
+.c64-shell .eq-deck .wide-key{padding:7px 12px;transition:transform .09s ease-out,border-bottom-width .09s ease-out,box-shadow .09s ease-out,background .12s ease-out}
+.c64-shell .eq-deck .wide-key[aria-pressed="true"]{transform:translateY(2px);border-bottom-width:1px;background:linear-gradient(#b4bcb1,#c4c9c0);box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b,0 1px #e0e3da}
+.c64-shell .eq-deck .wide-key[aria-pressed="true"]:active{transform:translateY(2px)}
+@media(max-width:700px){.c64-shell .eq-deck .wide-key{padding:5px 7px}}
+
+/* CRT switch-on and switch-off. Off: the raster collapses to a line, the line to a dot, the dot fades. On: a dot becomes a line, the line opens into the picture, brightness settles.
+   The screen waits for the lid before warming up, and the lid waits for the shut-down (retraction delay .7s = CRT_OFF_MS). */
+.display-window .crt-glow{position:absolute;z-index:4;left:50%;top:50%;width:100%;height:2px;transform:translate(-50%,-50%);border-radius:2px;background:#eafff0;box-shadow:0 0 10px 2px rgb(150 255 190/.85),0 0 28px 8px rgb(110 230 160/.4);opacity:0;pointer-events:none}
+.display-window.crt-off .visual{animation:crt-off-raster .7s cubic-bezier(.6,0,.9,.5) both}
+.display-window.crt-off .veil{opacity:0;transition:opacity .18s ease-out}
+.display-window.crt-off .crt-glow{animation:crt-off-glow .7s ease-in both}
+.display-window.crt-on .visual{animation:crt-on-raster 1.1s cubic-bezier(.2,.7,.2,1) both}
+.display-window.crt-on .veil{animation:crt-veil-in .45s ease-out .7s both}
+.display-window.crt-on .crt-glow{animation:crt-on-glow 1.1s ease-out both}
+.display-window.crt-wait::before{content:none!important}
+.c64-shell.is-off .screen-sleep::before{content:none!important}
+@keyframes crt-off-raster{0%{transform:scale(1,1);filter:brightness(1) saturate(1);opacity:1}45%{transform:scale(1,.006);filter:brightness(2.6) saturate(.3);opacity:1}78%{transform:scale(.012,.006);filter:brightness(5);opacity:1}100%{transform:scale(0,0);filter:brightness(5);opacity:0}}
+@keyframes crt-off-glow{0%,38%{opacity:0;width:100%;height:2px}46%{opacity:1;width:96%;height:2px}78%{opacity:1;width:5px;height:5px;border-radius:50%}100%{opacity:0;width:2px;height:2px;border-radius:50%}}
+@keyframes crt-on-raster{0%,8%{transform:scale(.01,.004);filter:brightness(6);opacity:0}14%{opacity:1}34%{transform:scale(1,.004);filter:brightness(5)}72%{transform:scale(1,1);filter:brightness(2.4) saturate(.4)}100%{transform:scale(1,1);filter:brightness(1) saturate(1);opacity:1}}
+@keyframes crt-on-glow{0%{opacity:0;width:4px;height:4px;border-radius:50%}10%{opacity:1;width:6px;height:4px}34%{opacity:1;width:100%;height:2px;border-radius:2px}62%{opacity:.5;width:100%;height:2px}100%{opacity:0;width:100%;height:2px}}
+@keyframes crt-veil-in{from{opacity:0}to{opacity:1}}
+.c64-shell.folded .screen-carriage{transition-delay:.7s}
+.c64-shell.folded .screen-carriage>.deck{transition-delay:.7s!important}
+@media(prefers-reduced-motion:reduce){.display-window .visual,.display-window .veil,.display-window .crt-glow{animation:none!important}.c64-shell.folded .screen-carriage,.c64-shell.folded .screen-carriage>.deck{transition-delay:0s!important}}
+
+/* Infinite play latches like STEREO ENHANCE: no pilot light, the key stays pushed in while it is on. */
+.c64-shell .console>.controls.transport-controls>button.radio-button::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
+.c64-shell .console>.controls.transport-controls>button.radio-button.radio-on:not(:disabled)::after{display:none!important}
+
+.manual-panels .manual-functions ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:5px}
+.manual-panels .manual-functions li{font:12px/1.45 "Arial Narrow",Arial,sans-serif;color:#33372f}
+.manual-panels .manual-functions li strong{font-weight:800;letter-spacing:.06em;color:#26382e}
+
+/* Handle. Folding pulls it out: a small dip, then it shoots up with a springy overshoot once the CRT has shut down (.7s) and settles.
+   Unfolding pushes it in quickly and it lands with a thunk. --dip is the size of the dip and the thunk. */
+.c64-shell{--dip:7px}
+@media(max-width:700px){.c64-shell{--dip:4px}}
+.c64-shell .handle-pocket::before,.c64-shell .handle-toggle{transition:top .75s cubic-bezier(.5,0,.3,1),height .75s cubic-bezier(.5,0,.3,1)}
+.c64-shell.folded .handle-pocket::before,.c64-shell.folded .handle-toggle{transition:top .85s cubic-bezier(.2,1.5,.4,1) .7s,height .85s cubic-bezier(.2,1.5,.4,1) .7s}
+.c64-shell.handle-closing .handle-pocket::before,.c64-shell.handle-closing .handle-toggle{animation:handle-pull .85s ease-in-out .7s}
+.c64-shell.handle-opening .handle-pocket::before,.c64-shell.handle-opening .handle-toggle{animation:handle-thunk .85s ease-in-out}
+@keyframes handle-pull{0%{transform:translateY(0)}16%{transform:translateY(var(--dip))}100%{transform:translateY(0)}}
+@keyframes handle-thunk{0%,68%{transform:translateY(0)}80%{transform:translateY(var(--dip))}91%{transform:translateY(calc(var(--dip) * -.3))}100%{transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.c64-shell .handle-pocket::before,.c64-shell .handle-toggle{transition:none!important;animation:none!important}}
+.c64-shell.handle-opening .handle-pocket::before,.c64-shell.handle-opening .handle-toggle,.c64-shell.handle-closing .handle-pocket::before,.c64-shell.handle-closing .handle-toggle{transition:top .75s cubic-bezier(.5,0,.3,1),height .75s cubic-bezier(.5,0,.3,1)}
+.c64-shell.folded.handle-closing .handle-pocket::before,.c64-shell.folded.handle-closing .handle-toggle{transition:top .85s cubic-bezier(.2,1.5,.4,1) .7s,height .85s cubic-bezier(.2,1.5,.4,1) .7s}
+@media(prefers-reduced-motion:reduce){.c64-shell .handle-pocket::before,.c64-shell .handle-toggle{transition:none!important}}
+.manual-panels .manual-functions{grid-column:1/-1}
+.manual-panels .manual-functions ul{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}
+.manual-panels .manual-functions li{font-size:11px}
+@media(max-width:700px){.manual-panels .manual-functions ul{grid-template-columns:1fr}}

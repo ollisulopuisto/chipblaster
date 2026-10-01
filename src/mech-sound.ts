@@ -58,9 +58,9 @@ export class MechSound {
     const level = peak * Math.max(0.25, Math.min(1, this.getVolume()));
     const out = c.createGain();
     out.gain.value = level;
-    // Small speakers and phones barely reproduce the low end; cut it so the sounds stay clicks, not booms.
+    // Small speakers and phones barely reproduce the low end; cut it so the sounds stay bright clicks, not thuds.
     const hp = c.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 140; hp.Q.value = 0.5;
+    hp.type = 'highpass'; hp.frequency.value = 450; hp.Q.value = 0.7;
     out.connect(hp); hp.connect(c.destination);
     const parts: AudioNode[] = [out, hp];
     const burst = (at: number, ms: number, freq: number, q: number, amp: number, type: BiquadFilterType = 'bandpass') => {
@@ -82,11 +82,12 @@ export class MechSound {
       parts.push(o, a);
     };
     let end = 0.2;
-    if (kind === 'key') { burst(t, 14, 2200, 0.8, 0.5); thud(t, 280, 170, 0.035, 0.3); }
-    else if (kind === 'latch') { burst(t, 16, 1500, 0.8, 0.45); thud(t, 220, 120, 0.05, 0.4); }
-    else if (kind === 'eject') { burst(t, 24, 900, 0.7, 0.7); thud(t, 180, 100, 0.07, 0.45); burst(t + 0.055, 14, 1800, 0.9, 0.4); end = 0.25; }
-    else if (kind === 'power') { burst(t, 12, 2600, 0.9, 0.5); thud(t, 150, 80, 0.09, 0.5); end = 0.22; }
-    else { thud(t, 170, 90, 0.09, 0.55); burst(t, 34, 600, 0.6, 0.4, 'lowpass'); end = 0.25; }
+    // Bright and sharp: a few milliseconds of high noise, a short ringing tick, and for the heavier keys a second snap. Little below 500 Hz.
+    if (kind === 'key') { burst(t, 6, 6500, 1, 0.8); thud(t, 3400, 2600, 0.014, 0.4); burst(t + 0.004, 5, 3200, 1.2, 0.4); thud(t, 900, 600, 0.02, 0.12); end = 0.1; }
+    else if (kind === 'latch') { burst(t, 8, 5500, 1, 0.75); thud(t, 2900, 2200, 0.018, 0.45); burst(t + 0.014, 6, 7500, 1, 0.6); thud(t + 0.014, 4200, 3500, 0.012, 0.35); thud(t, 700, 420, 0.03, 0.18); end = 0.12; }
+    else if (kind === 'eject') { burst(t, 12, 3800, 0.8, 0.7); thud(t, 1200, 520, 0.06, 0.3); thud(t, 3000, 2400, 0.02, 0.4); burst(t + 0.05, 8, 5500, 1, 0.6); thud(t + 0.05, 3800, 3000, 0.014, 0.35); end = 0.22; }
+    else if (kind === 'power') { burst(t, 10, 4200, 0.9, 0.9); thud(t, 2600, 2000, 0.02, 0.6); thud(t, 640, 380, 0.05, 0.14); burst(t + 0.03, 8, 6000, 1, 0.5); end = 0.18; }
+    else { burst(t, 10, 5000, 0.9, 0.7); thud(t, 700, 360, 0.05, 0.35); thud(t, 3000, 2300, 0.02, 0.4); burst(t + 0.02, 6, 6800, 1, 0.45); end = 0.2; }
     window.setTimeout(() => { for (const p of parts) { try { p.disconnect(); } catch {} } }, (end + 0.1) * 1000);
   }
 

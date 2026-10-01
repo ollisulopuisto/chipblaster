@@ -2159,7 +2159,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .setup-tab{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:16px;margin-top:8px;padding:0;cursor:pointer;border:1px solid #8a7e65;border-radius:0 0 8px 8px;background:linear-gradient(#d3c7a9,#b7ab8d);box-shadow:inset 0 1px #fff7,inset 0 -2px #9b8f74;font:800 7px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.36em;color:#5a533f}
 .c64-shell .setup-tab span{margin-right:-.36em}
 .c64-shell .setup-tab::before,.c64-shell .setup-tab::after{content:'';width:34px;height:7px;background:repeating-linear-gradient(90deg,#8a7e66 0 1px,#0000 1px 4px);opacity:.75}
-.c64-shell .setup-hatch.is-closed .setup-tab,.c64-shell .setup-hatch.is-open .setup-lid{display:none}
+.c64-shell .setup-hatch.is-closed .setup-tab{visibility:hidden}.c64-shell .setup-hatch.is-open .setup-lid{display:none}
 /* press in first, then swing up and vanish; closing plays the same in reverse */
 @keyframes lid-open{
  0%{transform:translateY(0) scale(1) rotateX(0);opacity:1}

@@ -109,7 +109,7 @@ const FN={
   timer:['AUTO TIME SET','How long a tune plays when its length is not known.'],
   scrobble:['SCROBBLE LINK','Sends what you play to your Last.fm profile: now playing at once, a scrobble after half the tune or four minutes. Connect or disconnect with the LAST.FM key; it stays pushed in while linked.'],
   click:['FEATHER TOUCH CLICK','Mechanical key sounds. Up is OFF. Pushed in is SOFT: quiet, and mostly silent while music plays. Pushed in with the lamp lit is FULL, which adds more. Press to change.'],
-  core:['SID CORE','Chooses the SID emulation. JS is the original and the lightest. LITE is libsidplayfp SIDLite: fast and accurate. RESID is libsidplayfp reSIDfp, the closest to a real chip, and about ten times heavier. The two libsidplayfp cores have no voice meters, STEREO ENHANCE or tape speed. The tune carries on from where it was.'],
+  core:['SID CORE','Chooses the SID emulation. JS is the original and the lightest. LITE is libsidplayfp SIDLite: fast and accurate. RESID is libsidplayfp reSIDfp, the closest to a real chip, and about ten times heavier. Voice meters, STEREO ENHANCE and tape speed work with every core. The tune carries on from where it was.'],
   manual:['OWNER\'S MANUAL','Opens this manual.']
 } as const;
 const tip=(k:keyof typeof FN)=>FN[k][0]+' · '+FN[k][1];

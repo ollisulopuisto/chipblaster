@@ -1,10 +1,13 @@
 // Test engine: libsidplayfp (WebAssembly, GPL-2.0+) renders PCM in this worker and streams it to the fp-sink AudioWorklet.
 // Reached with ?engine=sidlite or ?engine=residfp. The default jsSID engine in the worklet is untouched.
+// @ts-ignore vendored JS
+import SidCore from './vendor/sid-core.js';
 import { SidAudioEngine } from 'libsidplayfp-wasm';
 import residWasm from 'libsidplayfp-wasm/dist/libsidplayfp.wasm?url';
 import liteWasm from 'libsidplayfp-wasm/dist/sidlite/libsidplayfp.wasm?url';
 
 const CHUNK = 4096;
+const BLOCK = 1024; // meter readings per block, four to a chunk
 type Cmd =
   | { type: 'init'; sampleRate: number; engine: 'sidlite' | 'residfp'; port: MessagePort }
   | { type: 'load'; bytes: Uint8Array; subtune: number; gen: number }
@@ -15,6 +18,10 @@ type Cmd =
   | { type: 'cancelSeek' };
 
 let engine: SidAudioEngine | null = null;
+// A jsSID core plays the same tune alongside, only to feed what libsidplayfp cannot: per-voice meters and the side signal for STEREO ENHANCE.
+let analysis: any = null;
+let models: [number, number] = [6581, 6581];
+const tmpL = new Float32Array(BLOCK), tmpR = new Float32Array(BLOCK);
 let sink: MessagePort;
 let sampleRate = 44100;
 let kind: 'sidlite' | 'residfp' = 'sidlite';
@@ -39,6 +46,10 @@ async function reload(song: number) {
   engine = fresh();
   await engine.loadSidBuffer(bytes, song);
   await applyModel();
+  analysis = new (SidCore as any)(sampleRate, 0);
+  analysis.setSIDModels(models[0], models[1]);
+  analysis.loadbuffer(bytes, song);
+  analysis.playcont();
   subtune = song;
 }
 
@@ -53,9 +64,21 @@ async function pump() {
       const pcm = await engine.renderFrames(CHUNK);
       const spent = performance.now() - a;
       if (myGen !== gen) { continue; }
-      const l = new Float32Array(CHUNK), r = new Float32Array(CHUNK);
+      const l = new Float32Array(CHUNK), r = new Float32Array(CHUNK), side = new Float32Array(CHUNK);
+      const blocks = CHUNK / BLOCK, levels = new Float32Array(blocks * 7), waves = new Float32Array(blocks * 6);
       for (let i = 0; i < CHUNK; i++) { l[i] = pcm[2 * i] / 32768; r[i] = pcm[2 * i + 1] / 32768; }
-      sink.postMessage({ type: 'chunk', gen: myGen, t0, l, r }, [l.buffer, r.buffer]);
+      if (analysis) {
+        const chips = analysis.stereoActive();
+        for (let k = 0; k < blocks; k++) {
+          analysis.processWide(tmpL, tmpR, BLOCK, 1);
+          if (!chips) for (let i = 0; i < BLOCK; i++) side[k * BLOCK + i] = (tmpL[i] - tmpR[i]) / 2;
+          analysis.finishMeters(BLOCK);
+          for (let v = 0; v < 7; v++) levels[k * 7 + v] = analysis.voiceLevels[v];
+          for (let v = 0; v < 6; v++) waves[k * 6 + v] = analysis.voiceWaveforms[v];
+          analysis.resetMeters();
+        }
+      }
+      sink.postMessage({ type: 'chunk', gen: myGen, t0, l, r, s: side, levels, waves, blocks }, [l.buffer, r.buffer, side.buffer]);
       wanted -= CHUNK;
       renderMs += spent; renderFrames += CHUNK;
       const ratio = spent / (CHUNK / sampleRate * 1000);
@@ -95,6 +118,8 @@ async function handle(m: Cmd) {
       gen = m.gen; wanted = 0; await reload(subtune); sink.postMessage({ type: 'loaded', gen });
     } else if (m.type === 'models') {
       sidModel = m.primary === 8580 ? 'MOS8580' : 'MOS6581';
+      models = [m.primary, m.secondary];
+      analysis?.setSIDModels(m.primary, m.secondary);
       if (bytes) await applyModel();
     } else if (m.type === 'seek') {
       gen = m.gen; wanted = 0; seekCancelled = false;
@@ -102,6 +127,7 @@ async function handle(m: Cmd) {
       let n = 0;
       while (engine && !seekCancelled && engine.getTimeMs() / 1000 < m.seconds) {
         await engine.renderFrames(CHUNK * 4);
+        analysis?.skip(CHUNK * 4);
         if (++n % 8 === 0) { postMessage({ type: 'seekProgress', id: m.id, time: engine.getTimeMs() / 1000 }); await new Promise(res => setTimeout(res, 0)); }
       }
       sink.postMessage({ type: 'loaded', gen });

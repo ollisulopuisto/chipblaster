@@ -1,5 +1,6 @@
 // Same surface as WorkletPlayer, but the sound comes from libsidplayfp (see fp-worker.ts). Metadata still comes from the jsSID parser.
-// Missing against the default engine: per-voice meters, STEREO ENHANCE (the engine has no voice outputs) and tape speed.
+// libsidplayfp gives only the mixed sound, so a jsSID core runs alongside in the worker for the voice meters and the STEREO ENHANCE side signal.
+// Tape speed is a resampler in the sink. Multi-SID tunes use libsidplayfp's own chip placement.
 // @ts-ignore vendored JS
 import SidCore from './vendor/sid-core.js';
 import sinkUrl from './fp-sink-worklet.js?worker&url';
@@ -52,7 +53,12 @@ export class FpPlayer {
     this.worker.onmessage = e => this.onWorker(e.data);
     this.ready = ctx.audioWorklet.addModule(sinkUrl).then(() => {
       const node = new AudioWorkletNode(ctx, 'fp-sink', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
-      node.port.onmessage = e => { if (e.data.type === 'state') this.time = e.data.time; };
+      node.port.onmessage = e => {
+        const m = e.data;
+        if (m.type !== 'state') return;
+        this.time = m.time;
+        if (m.levels) { for (let i = 0; i < 7; i++) this.voiceLevels[i] = m.levels[i] ?? 0; for (let i = 0; i < 6; i++) this.voiceWaveforms[i] = m.waves[i] ?? 0; }
+      };
       node.connect(entry);
       this.node = node;
       const ch = new MessageChannel();
@@ -64,7 +70,7 @@ export class FpPlayer {
   }
 
   private dispatch(m: Message) {
-    if (m.type === 'play' || m.type === 'pause' || m.type === 'fade') this.node!.port.postMessage(m);
+    if (m.type === 'play' || m.type === 'pause' || m.type === 'fade' || m.type === 'tape' || m.type === 'spread') this.node!.port.postMessage(m);
     else {
       // A message that starts new material first tells the sink to drop what it holds.
       if (typeof m.gen === 'number') this.node!.port.postMessage({ type: 'gen', gen: m.gen, time: 0 });
@@ -90,7 +96,7 @@ export class FpPlayer {
   }
 
   get tapeRate() { return this.tape; }
-  set tapeRate(rate: number) { this.tape = rate; }
+  set tapeRate(rate: number) { if (rate === this.tape) return; this.tape = rate; this.send({ type: 'tape', rate }); }
 
   setloadcallback(cb: () => void) { this.core.setloadcallback(cb); }
   loadbuffer(bytes: Uint8Array, subtune: number) {
@@ -98,7 +104,8 @@ export class FpPlayer {
     this.core.loadbuffer(bytes, subtune);
     this.restart({ type: 'load', bytes: bytes.slice(), subtune });
   }
-  setChipSpread(_value: number) {}
+  /** STEREO ENHANCE amount (0..1): the side signal made by the analysis core is mixed in at this level. */
+  setChipSpread(value: number) { this.send({ type: 'spread', value }); }
   setFadePlan(end: number | null, seconds: number) { this.send({ type: 'fade', end, seconds }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
   start(subtune: number) { this.cancelSeeks(); this.core.start(subtune); this.restart({ type: 'start', subtune }); }

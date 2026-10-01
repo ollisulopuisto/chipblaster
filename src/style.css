@@ -1659,7 +1659,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 .c64-shell.unfolded{--rise:1}.c64-shell.folded{--rise:0}
 /* --rise is 0 (down) to 1 (up). A spring in App.tsx drives it, so it can overshoot and settle: the rest of the device stretches a little past 1 and tucks in a little past 0. */
-.c64-shell .screen-carriage{position:relative;overflow:hidden;flex:none;max-height:max(0px,calc(var(--rise,1) * (var(--screen-height,1100px) + 20px)));margin-bottom:calc(max(var(--rise,1) - 1, 0) * var(--screen-height,1100px) * .5 + min(var(--rise,1), 0) * var(--screen-height,1100px) * .12);transition:none;order:1;background-color:color-mix(in srgb,#10150f calc(min(1, (1 - clamp(0, var(--rise,1), 1)) * 10) * 100%),transparent);border-radius:4px;box-shadow:inset 0 6px 10px color-mix(in srgb,#000 calc(min(1, (1 - clamp(0, var(--rise,1), 1)) * 10) * 70%),transparent)}
+.c64-shell .screen-carriage{position:relative;overflow:hidden;flex:none;max-height:max(0px,calc(var(--rise,1) * (var(--screen-height,1100px) + 20px)));margin-bottom:calc(max(var(--rise,1) - 1, 0) * var(--screen-height,1100px) * .5 + min(var(--rise,1), 0) * var(--screen-height,1100px) * .12);transition:none;order:1;margin-left:var(--screen-inset,6%);margin-right:var(--screen-inset,6%);background-color:color-mix(in srgb,#10150f calc(min(1, (1 - clamp(0, var(--rise,1), 1)) * 10) * 100%),transparent);border-radius:4px;box-shadow:inset 0 6px 10px color-mix(in srgb,#000 calc(min(1, (1 - clamp(0, var(--rise,1), 1)) * 10) * 70%),transparent)}
 .c64-shell .screen-carriage>.deck,.c64-shell.folded .screen-carriage>.deck{display:block!important;max-height:none!important;height:auto!important;min-height:0!important;opacity:1!important;clip-path:none!important;pointer-events:auto;position:relative;transition:none!important;animation:none!important;margin:10px 0!important;padding:10px!important;border:2px solid #686b5e!important;transform:translateY(calc((1 - clamp(0, var(--rise,1), 1)) * (1 - clamp(0, var(--rise,1), 1)) * 100%))}
 .c64-shell.folded .screen-carriage>.deck{pointer-events:none}
 .c64-shell .screen-carriage>.deck::before,.c64-shell .screen-carriage>.deck::after{content:'';position:absolute;top:8px;bottom:8px;width:3px;z-index:4;background:linear-gradient(90deg,#4b5148,#cbd0bd,#555a50);pointer-events:none}.c64-shell .screen-carriage>.deck::before{left:1px}.c64-shell .screen-carriage>.deck::after{right:1px}
@@ -2192,3 +2192,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .rotary-knob{touch-action:none}
 .c64-shell .eq-band-label{cursor:pointer;touch-action:manipulation}
 .c64-shell .eq-band-label:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
+
+/* The screen block is narrower than the case, so it rises between two shoulders of the case instead of the whole width folding. */
+.c64-shell .screen-carriage{--screen-inset:6%}
+@media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:10px}}

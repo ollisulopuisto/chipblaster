@@ -21,6 +21,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # Optional: both are public values (repository variables). Without them the Last.fm key stays hidden.
+          VITE_LASTFM_API_KEY: ${{ vars.LASTFM_API_KEY }}
+          VITE_LASTFM_SIGNER: ${{ vars.LASTFM_SIGNER_URL }}
       - name: Configure Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5

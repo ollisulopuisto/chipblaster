@@ -1,0 +1,10 @@
+name = "chipblaster-lastfm-signer"
+main = "index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Comma-separated origins allowed to call the signer.
+ALLOWED_ORIGINS = "https://chipblaster.sulopuis.to"
+# Public: also given to the app build as VITE_LASTFM_API_KEY.
+LASTFM_API_KEY = "PUT-YOUR-LASTFM-API-KEY-HERE"
+# The shared secret is NOT set here. Run: npx wrangler secret put LASTFM_SECRET

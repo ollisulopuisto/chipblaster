@@ -56,3 +56,16 @@ No server component is needed. The player fetches individual SID files from the 
 The UI code in `src/App.tsx` and `src/style.css` was written for this project. Bundled third-party code: Hermit's jsSID emulator (`src/vendor/hermit-jsSID.js`, permissive use with credit: https://github.com/og2t/jsSID/blob/master/README.txt), and 16-segment glyphs based on David Madison's MIT-licensed [LED-Segment-ASCII](https://github.com/dmadison/LED-Segment-ASCII) (`src/vendor/LED-SEGMENT-ASCII-LICENSE.txt`). This repository makes no blanket license claim over third-party code or the HVSC metadata.
 
 HVSC tunes are copyrighted and are not included; see https://hvsc.c64.org/download/C64Music/DOCUMENTS/HVSC.txt. This is an independent fan project, not affiliated with HVSC or the library authors.
+
+## Last.fm scrobbling (optional)
+
+The LAST.FM key on the bottom plate links the player to a Last.fm account. While linked, a tune is sent as "now playing" when it starts and scrobbled after half its length or four minutes (tunes under 30 seconds are skipped). Artists lose a trailing scene handle: "Marcin Majdzik (Psycho)" becomes "Marcin Majdzik". Scrobbles that cannot be sent wait in the browser and go out later. Each person links their own account in their own browser; the session key never leaves it.
+
+Last.fm signs every write call with a shared secret, so a small Cloudflare Worker (`worker/lastfm-signer`) does the signing and the secret never reaches the page. To switch it on:
+
+1. Create an API account at https://www.last.fm/api/account/create. Note the API key and the shared secret.
+2. Deploy the Worker (see `worker/lastfm-signer/README.md`): put the API key and the site origin in `wrangler.toml`, store the secret with `npx wrangler secret put LASTFM_SECRET`, run `npx wrangler deploy`.
+3. In the GitHub repository settings add two variables (Settings, Secrets and variables, Actions, Variables): `LASTFM_API_KEY` and `LASTFM_SIGNER_URL` (the Worker URL, without a trailing slash).
+4. Build as usual. Without the variables the LAST.FM key is hidden.
+
+For local testing put `VITE_LASTFM_API_KEY` and `VITE_LASTFM_SIGNER` in `.env.local`.

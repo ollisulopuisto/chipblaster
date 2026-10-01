@@ -81,3 +81,7 @@ The default sound comes from the jsSID emulation in an AudioWorklet. For compari
 The engine renders in a Web Worker (`src/fp-worker.ts`) and streams PCM to a small AudioWorklet (`src/fp-sink-worklet.js`); `src/fp-player.ts` presents the same surface as the default player. A readout in the lower left corner shows the engine and its load. For libsidplayfp it is the share of real time spent rendering, measured with a precise clock. For jsSID the worklet has only a coarse clock, so the value is approximate; browsers that provide `AudioContext.renderCapacity` also get the audio thread's own figure.
 
 Feature parity: voice meters and STEREO ENHANCE come from a jsSID core that plays the same tune alongside in the worker, because libsidplayfp gives only the mixed sound. The meters follow the tune, not the exact sound of the chosen core, and the width effect is the same signal added to libsidplayfp's mix. Tape speed is a resampler in the sink and is identical for all cores. Multi-SID tunes use libsidplayfp's own chip placement. RSID tunes that need C64 ROM images do not play, as the ROMs are not bundled.
+
+## Set up hatch and video standard
+
+MANUAL, CLICK, SID CORE and LAST.FM sit under a SET UP hatch below the speaker. Press the hatch: it dips in, swings up and vanishes. The slim tab under the keys closes it. The hatch state is remembered. The title display shows PAL or NTSC from the tune's header; when the header does not say, neither lights and PAL is used.

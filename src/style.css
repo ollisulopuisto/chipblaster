@@ -2194,5 +2194,10 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .eq-band-label:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
 
 /* The screen block is narrower than the case, so it rises between two shoulders of the case instead of the whole width folding. */
-.c64-shell .screen-carriage{--screen-inset:13%}
-@media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:26px}}
+.c64-shell .flip-stage{--neck-bg:#fff;--shell-pad:22px;--screen-inset:5%}
+.c64-shell .screen-carriage{--screen-inset:5%}
+/* The case itself is narrower where the screen is: two pieces of the page show beside the screen block and the case wall steps in. */
+.c64-shell .flip-stage::before,.c64-shell .flip-stage::after{content:'';position:absolute;top:0;height:var(--neck-h,0px);width:calc(var(--screen-inset) + var(--shell-pad) - 4px);background:var(--neck-bg);z-index:6;pointer-events:none}
+.c64-shell .flip-stage::before{left:calc(-1 * var(--shell-pad));box-shadow:inset -3px 0 4px -1px #6d6350aa,inset -1px 0 0 #8d8067}
+.c64-shell .flip-stage::after{right:calc(-1 * var(--shell-pad));box-shadow:inset 3px 0 4px -1px #6d6350aa,inset 1px 0 0 #8d8067}
+@media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:12px}.c64-shell .flip-stage{--screen-inset:12px;--shell-pad:9px;--neck-bg:#f5f1ec}}

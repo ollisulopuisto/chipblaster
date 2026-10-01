@@ -984,7 +984,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
  .c64-shell.folded .manual-sticker{box-sizing:border-box;min-width:0;width:100%;max-width:148px;padding:5px 4px;text-align:center;font-size:8px}
 }
 /* Eject opens a contained viewport panel; the folder list alone scrolls. */
-body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
+/* Only phones, where the browser takes the whole screen, lock the page; on larger screens the page scrolls so the whole panel can be reached. */
+@media(max-width:700px){body:has(.c64-shell .flip-stage.flipped){overflow:hidden}}
 .c64-shell .player-body>.flip-stage.flipped{perspective:none;z-index:100}
 .c64-shell .flip-stage.flipped .flip-front{position:relative;visibility:visible;opacity:1;transform:none;pointer-events:none}
 .c64-shell .flip-stage.flipped .flip-back{
@@ -2095,3 +2096,6 @@ body:has(.c64-shell .flip-stage.flipped){overflow:hidden}
 @media(max-width:700px){.manual-panels .manual-functions ul{grid-template-columns:1fr}}
 .c64-shell .base-keys{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
 .c64-shell .click-key{min-width:104px;justify-content:flex-start}
+
+/* The open tune browser never grows taller than the window: its list scrolls inside, and the footer with the page and queue keys stays in reach. */
+@media(min-width:701px){.c64-shell .flip-stage.flipped .flip-back{max-height:calc(100vh - 16px)!important;max-height:calc(100dvh - 16px)!important}}

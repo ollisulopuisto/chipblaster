@@ -2138,3 +2138,58 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* four plate controls: two by two on a phone */
 .c64-shell .base-keys>.core-selector{box-sizing:border-box;width:132px;height:54px;flex:0 0 132px;justify-content:center}
 @media(max-width:520px){.c64-shell .base-keys{flex-wrap:wrap;gap:6px}.c64-shell .base-keys>.manual-key,.c64-shell .base-keys>.click-selector,.c64-shell .base-keys>.core-selector{width:calc((100vw - 70px)/2);flex-basis:calc((100vw - 70px)/2);max-width:150px}}
+
+/* PAL / NTSC annunciator in the title display */
+.c64-shell .title-clock{flex:none;display:inline-flex;flex-direction:column;justify-content:center;gap:2px;padding:0 6px 0 7px;margin-left:2px;border-left:1px solid #31525a;font:700 7px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.08em;align-self:stretch}
+.c64-shell .title-clock i{font-style:normal;color:#1f4c50}
+.c64-shell .title-clock i.on{color:#5de6f0;text-shadow:0 0 4px #2cc8d4}
+.c64-shell .player-body>.now-playing-strip.title-console{min-height:36px}
+
+/* SET UP hatch: an opaque lid over MANUAL, CLICK, SID CORE and LAST.FM */
+.c64-shell .setup-hatch{position:relative;padding:8px 10px;border-radius:8px;background:linear-gradient(#2d332e,#3c443d);box-shadow:inset 0 3px 8px #000c,inset 0 -1px #fff2,0 1px #fff6;perspective:700px}
+.c64-shell .plate-slide .setup-hatch{grid-row:2;grid-column:1;justify-self:center}
+.c64-shell .setup-hatch .base-keys{grid-row:auto;grid-column:auto;justify-self:auto}
+.c64-shell .setup-lid{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;border-radius:8px;
+ background:linear-gradient(170deg,#dcd0b3,#c3b698 55%,#d3c7a9);border:1px solid #8a7e65;border-top:2px solid #f6ecd0;
+ box-shadow:inset 0 -3px #9b8f74,inset 0 1px #fff7,0 3px 5px #4b412e66;font:800 9px "Arial Narrow",Arial,sans-serif;letter-spacing:.42em;color:#5a533f;transform-origin:50% 0;touch-action:manipulation}
+.c64-shell .setup-lid span{margin-right:-.42em}
+.c64-shell .setup-lid::before{content:'';position:absolute;left:10px;right:10px;top:9px;bottom:9px;border:1px solid #a89c80;border-radius:4px;opacity:.55;pointer-events:none}
+.c64-shell .setup-lid::after{content:'';position:absolute;left:50%;bottom:7px;width:64px;height:9px;transform:translateX(-50%);background:repeating-linear-gradient(90deg,#8a7e66 0 1px,#0000 1px 4px);opacity:.8}
+.c64-shell .setup-lid:focus-visible,.c64-shell .setup-tab:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
+.c64-shell .setup-tab{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:16px;margin-top:8px;padding:0;cursor:pointer;border:1px solid #8a7e65;border-radius:0 0 8px 8px;background:linear-gradient(#d3c7a9,#b7ab8d);box-shadow:inset 0 1px #fff7,inset 0 -2px #9b8f74;font:800 7px/1 "Arial Narrow",Arial,sans-serif;letter-spacing:.36em;color:#5a533f}
+.c64-shell .setup-tab span{margin-right:-.36em}
+.c64-shell .setup-tab::before,.c64-shell .setup-tab::after{content:'';width:34px;height:7px;background:repeating-linear-gradient(90deg,#8a7e66 0 1px,#0000 1px 4px);opacity:.75}
+.c64-shell .setup-hatch.is-closed .setup-tab,.c64-shell .setup-hatch.is-open .setup-lid{display:none}
+/* press in first, then swing up and vanish; closing plays the same in reverse */
+@keyframes lid-open{
+ 0%{transform:translateY(0) scale(1) rotateX(0);opacity:1}
+ 16%{transform:translateY(2px) scale(.982) rotateX(0);opacity:1;box-shadow:inset 0 -1px #9b8f74,inset 0 1px #fff4,0 1px 2px #4b412e66}
+ 30%{transform:translateY(2px) scale(.982) rotateX(0);opacity:1;box-shadow:inset 0 -1px #9b8f74,inset 0 1px #fff4,0 1px 2px #4b412e66}
+ 78%{transform:translateY(-2px) scale(1) rotateX(-84deg);opacity:1}
+ 100%{transform:translateY(-4px) scale(1) rotateX(-90deg);opacity:0}}
+.c64-shell .setup-hatch.is-opening .setup-lid{animation:lid-open .9s cubic-bezier(.4,0,.3,1) both}
+.c64-shell .setup-hatch.is-closing .setup-lid{animation:lid-open .9s cubic-bezier(.4,0,.3,1) reverse both}
+.c64-shell .setup-hatch.is-opening .setup-tab{animation:tab-in .5s .45s ease both}
+.c64-shell .setup-hatch.is-closing .setup-tab{animation:tab-in .4s ease reverse both}
+@keyframes tab-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.c64-shell .setup-hatch .setup-lid,.c64-shell .setup-hatch .setup-tab{animation:none!important}}
+@media(max-width:520px){.c64-shell .setup-hatch .base-keys>.manual-key,.c64-shell .setup-hatch .base-keys>.click-selector,.c64-shell .setup-hatch .base-keys>.core-selector{max-width:none}}
+@media(max-width:520px){.c64-shell .setup-hatch{width:100%;box-sizing:border-box;align-self:stretch}.c64-shell .setup-hatch .base-keys{width:100%;justify-content:center}}
+@media(max-width:520px){.c64-shell .setup-hatch .base-keys{gap:6px}.c64-shell .setup-hatch .base-keys>.manual-key,.c64-shell .setup-hatch .base-keys>.click-selector,.c64-shell .setup-hatch .base-keys>.core-selector{width:calc(50% - 3px)!important;flex:0 0 calc(50% - 3px)!important;max-width:none!important}}
+
+/* PEQ panel on a phone: hang it under the whole tone strip, centred, instead of inside the clipped band */
+@media(max-width:700px){
+  .c64-shell .console>.control-top{position:relative}
+  .c64-shell .console>.control-top:has(.peq-details){overflow:visible!important}
+  .c64-shell .control-top .eq-deck .eq-band{position:static!important}
+  .c64-shell .control-top .eq-deck{position:static!important}
+  .c64-shell .control-top .eq-deck .peq-details,.c64-shell .eq-band:nth-child(n) .peq-details{position:absolute!important;left:50%!important;right:auto!important;top:calc(100% + 6px)!important;transform:translateX(-50%)!important;width:min(275px,calc(100vw - 32px))!important;max-width:none!important;box-sizing:border-box}
+}
+@media(max-width:700px){.c64-shell .flip-front:has(.peq-details){overflow:visible!important}}
+@media(max-width:700px){.c64-shell .eq-deck .peq-details .peq-knobs{display:grid!important;grid-template-columns:1fr 1fr;justify-items:center;align-items:start;gap:8px}.c64-shell .eq-deck .peq-details .peq-knobs label{justify-items:center;text-align:center}}
+
+/* tone knobs: no text selection, callout or double-tap zoom while pressing and holding (iPhone) */
+.c64-shell .eq-band,.c64-shell .rotary-wrap,.c64-shell .rotary-knob{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.c64-shell .rotary-knob{touch-action:none}
+.c64-shell .eq-band-label{cursor:pointer;touch-action:manipulation}
+.c64-shell .eq-band-label:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}

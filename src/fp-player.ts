@@ -32,7 +32,13 @@ export class FpPlayer {
   private seekWaiters = new Map<number, { done: () => void; progress?: (t: number) => void }>();
   ready: Promise<void>;
 
-  constructor(engine: FpEngine) {
+  private started = false;
+  private failed = false;
+  private onFail?: (reason: string) => void;
+
+  /** `onFail` is called once if the engine cannot start (no WebAssembly exception support, blocked worker): the caller falls back to jsSID. */
+  constructor(engine: FpEngine, onFail?: (reason: string) => void) {
+    this.onFail = onFail;
     this.engineName = 'libsidplayfp ' + (engine === 'residfp' ? 'reSIDfp' : 'SIDLite');
     const AC = window.AudioContext || (window as any).webkitAudioContext;
     const ctx: AudioContext = new AC();
@@ -51,6 +57,7 @@ export class FpPlayer {
     this.core = new (SidCore as any)(ctx.sampleRate, 0);
     this.worker = new Worker(new URL('./fp-worker.ts', import.meta.url), { type: 'module' });
     this.worker.onmessage = e => this.onWorker(e.data);
+    this.worker.onerror = e => this.fail(e.message || 'worker error');
     this.ready = ctx.audioWorklet.addModule(sinkUrl).then(() => {
       const node = new AudioWorkletNode(ctx, 'fp-sink', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
       node.port.onmessage = e => {
@@ -92,7 +99,14 @@ export class FpPlayer {
       const w = this.seekWaiters.get(m.id);
       this.seekWaiters.delete(m.id);
       w?.done();
-    } else if (m.type === 'error') console.error('fp engine', m.message);
+    } else if (m.type === 'started') this.started = true;
+    else if (m.type === 'error') { console.error('fp engine', m.message); if (!this.started) this.fail(m.message); }
+  }
+
+  private fail(reason: string) {
+    if (this.failed) return;
+    this.failed = true;
+    this.onFail?.(reason);
   }
 
   get tapeRate() { return this.tape; }

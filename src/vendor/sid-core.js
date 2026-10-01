@@ -132,6 +132,8 @@ function SidCore(samplerate, background_noise)
         //parse SID from an in-memory Uint8Array (no network / blob: URL needed)
         loaded = 0;
         this.pause();
+        // PSID v2+ flags (bytes 0x76-0x77): bits 2-3 give the clock, 2 = NTSC. Anything else plays as PAL, as libsidplayfp does by default.
+        setClock(filedata.length > 0x77 && filedata[5] >= 2 && ((filedata[0x77] >> 2) & 3) === 2);
         initSID();
         subtune = subt;
         //SID-file format information can be found at HVSC
@@ -269,8 +271,12 @@ function SidCore(samplerate, background_noise)
     var //emulated machine constants
     C64_PAL_CPUCLK = 985248
       , //Hz
-    PAL_FRAMERATE = 50
-      , //NTSC_FRAMERATE = 60;
+    C64_NTSC_CPUCLK = 1022727
+      ,
+    PAL_FRAMERATE = 50.07 // measured against libsidplayfp: no drift over two minutes
+      ,
+    NTSC_FRAMERATE = 59.87 // likewise
+      ,
     SID_CHANNEL_AMOUNT = 3
       ,
     OUTPUT_SCALEDOWN = 0x10000 * SID_CHANNEL_AMOUNT * 16;
@@ -306,8 +312,15 @@ function SidCore(samplerate, background_noise)
       , endcallback = null ,
     playtime = 0,
     ended = 0;
+    // PAL unless the PSID header says NTSC; setClock() is called when a tune is loaded.
     var clk_ratio = C64_PAL_CPUCLK / samplerate;
-    var frame_sampleperiod = samplerate / PAL_FRAMERATE;
+    var frameRate = PAL_FRAMERATE;
+    var frame_sampleperiod = samplerate / frameRate;
+    function setClock(ntsc) {
+        clk_ratio = (ntsc ? C64_NTSC_CPUCLK : C64_PAL_CPUCLK) / samplerate;
+        frameRate = ntsc ? NTSC_FRAMERATE : PAL_FRAMERATE;
+        frame_sampleperiod = samplerate / frameRate;
+    }
     //samplerate/(PAL_FRAMERATE*framespeed);
     var framecnt = 1, volume = 1.0, CPUtime = 0, pPC;
     var SIDamount = 1
@@ -335,7 +348,7 @@ function SidCore(samplerate, background_noise)
                 frame_sampleperiod = (memory[0xDC04] + memory[0xDC05] * 256) / clk_ratio;
             }
             else
-                frame_sampleperiod = samplerate / PAL_FRAMERATE;
+                frame_sampleperiod = samplerate / frameRate;
             //Vsync timing
             //frame_sampleperiod = (memory[0xDC05]!=0 || (!timermode[subtune] && playaddf))? samplerate/PAL_FRAMERATE : (memory[0xDC04] + memory[0xDC05]*256) / clk_ratio;
             if (playaddf == 0)

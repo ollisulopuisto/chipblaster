@@ -20,7 +20,7 @@ A portable SID station in the browser: browse and play the High Voltage SID Coll
 - Play PSID files with a lightweight JavaScript SID emulator; pick subtunes, switch SID 1 between 6581 and 8580 live, and choose 6581/8580/off for SID 2 on multi-SID tunes.
 - Infinite play and the queue use catalog duration estimates (three minutes when unknown) as the longest a tune may play. A background worker also scans each SID for its loop (`src/sid-loop.ts`); when a whole loop fits inside that time, the tune fades out over four seconds and ends on the loop boundary. Tunes without a detectable loop end at the estimate. A dice key loads one random tune. Infinite play plays the queue first, then draws random tunes from what the browser shows when it is switched on: the search results, the star filter or the open folder.
 - Three voice meters with waveform lamps (SID 1 amber, SID 2 cyan), a master meter, a frequency spectrum and audio-driven speaker cones.
-- Bass, mid and treble tone knobs with optional parametric frequency/Q (right-click or long-press a knob; double-click resets), plus volume on `+` / `-`.
+- Bass, mid and treble tone knobs with optional parametric frequency/Q (tap or click the knob's name, or right-click or long-press the knob; double-click resets), plus volume on `+` / `-`.
 - WIDE knob for headphones: a mono-safe stereo widener on one-SID tunes, and a chip spread (SID 1 left, SID 2 right) on multi-SID tunes.
 - Cycle visualizer presets with the thumbwheel; fold the case to hide the visualizer while music keeps playing.
 - Share a link to the current tune, and save favorites in this browser.
@@ -72,7 +72,7 @@ For local testing put `VITE_LASTFM_API_KEY` and `VITE_LASTFM_SIGNER` in `.env.lo
 
 ## Trying another SID engine
 
-The default sound comes from the jsSID emulation in an AudioWorklet. For comparison, libsidplayfp (WebAssembly, GPL-2.0-or-later, `libsidplayfp-wasm`) can be chosen with the SID CORE slide selector on the base plate (JS, LITE, RESID). The tune carries on from where it was, and the choice is remembered. The address bar does the same:
+The default sound comes from the jsSID emulation in an AudioWorklet. For comparison, libsidplayfp (WebAssembly, GPL-2.0-or-later, `libsidplayfp-wasm`) can be chosen with the SID CORE slide selector on the base plate (JS, LITE, RESID). LITE is the default. If the libsidplayfp core cannot start in a browser (no WebAssembly exception support, a blocked worker), the player falls back to JS on its own. The tune carries on from where it was, and the choice is remembered. The address bar does the same:
 
 - `?engine=sidlite` is the fast libsidplayfp engine.
 - `?engine=residfp` is the cycle-exact one (several times heavier).
@@ -81,3 +81,7 @@ The default sound comes from the jsSID emulation in an AudioWorklet. For compari
 The engine renders in a Web Worker (`src/fp-worker.ts`) and streams PCM to a small AudioWorklet (`src/fp-sink-worklet.js`); `src/fp-player.ts` presents the same surface as the default player. A readout in the lower left corner shows the engine and its load. For libsidplayfp it is the share of real time spent rendering, measured with a precise clock. For jsSID the worklet has only a coarse clock, so the value is approximate; browsers that provide `AudioContext.renderCapacity` also get the audio thread's own figure.
 
 Feature parity: voice meters and STEREO ENHANCE come from a jsSID core that plays the same tune alongside in the worker, because libsidplayfp gives only the mixed sound. The meters follow the tune, not the exact sound of the chosen core, and the width effect is the same signal added to libsidplayfp's mix. Tape speed is a resampler in the sink and is identical for all cores. Multi-SID tunes use libsidplayfp's own chip placement. RSID tunes that need C64 ROM images do not play, as the ROMs are not bundled.
+
+## Set up hatch and video standard
+
+MANUAL, CLICK, SID CORE and LAST.FM sit under a SET UP hatch below the speaker. Press the hatch: it dips in, swings up and vanishes. The slim tab under the keys closes it. The hatch state is remembered. The title display shows PAL or NTSC from the tune's header; when the header does not say, neither lights and PAL is used.

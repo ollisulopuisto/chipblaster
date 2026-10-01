@@ -2194,5 +2194,5 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .eq-band-label:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
 
 /* The screen block is narrower than the case, so it rises between two shoulders of the case instead of the whole width folding. */
-.c64-shell .screen-carriage{--screen-inset:6%}
-@media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:10px}}
+.c64-shell .screen-carriage{--screen-inset:13%}
+@media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:26px}}

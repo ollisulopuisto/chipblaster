@@ -1658,9 +1658,11 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell .flip-stage.flipped .flip-back .selector-button-block .selector-lever>.lever-label:first-child,.c64-shell .flip-stage.flipped .flip-back .selector-button-block .selector-lever>.lever-label:last-child{font-size:8px!important}}
 
 .c64-shell.unfolded{--rise:1}.c64-shell.folded{--rise:0}
+/* the slot's height, from the same --rise that moves the screen, so the case cut, the seam lips and the slot never lag a frame behind it */
+.c64-shell{--neck-h:clamp(0px,calc(var(--rise,1) * (var(--screen-height,1100px) + 20px)),calc(var(--screen-height,1100px) + 20px))}
 /* --rise is 0 (down) to 1 (up). A spring in App.tsx drives it, so it can overshoot and settle: the rest of the device stretches a little past 1 and tucks in a little past 0. */
 .c64-shell .screen-carriage{position:relative;overflow:hidden;flex:none;max-height:clamp(0px,calc(var(--rise,1) * (var(--screen-height,1100px) + 20px)),calc(var(--screen-height,1100px) + 20px));margin-bottom:calc(min(var(--rise,1), 0) * var(--screen-height,1100px) * .12);transition:none;order:1;margin-left:var(--screen-inset,6%);margin-right:var(--screen-inset,6%);background-color:color-mix(in srgb,#10150f calc(min(1, (1 - clamp(0, var(--rise,1), 1)) * 10) * 100%),transparent);border-radius:4px;box-shadow:inset 0 6px 10px color-mix(in srgb,#000 calc(min(1, (1 - clamp(0, var(--rise,1), 1)) * 10) * 70%),transparent)}
-.c64-shell .screen-carriage>.deck,.c64-shell.folded .screen-carriage>.deck{display:block!important;max-height:none!important;height:auto!important;min-height:0!important;opacity:1!important;clip-path:none!important;pointer-events:auto;position:relative;transition:none!important;animation:none!important;margin:10px 0!important;padding:10px!important;border:2px solid #686b5e!important;transform:translateY(calc((1 - clamp(0, var(--rise,1), 1)) * (1 - clamp(0, var(--rise,1), 1)) * 100%))}
+.c64-shell .screen-carriage>.deck,.c64-shell.folded .screen-carriage>.deck{display:block!important;max-height:none!important;height:auto!important;min-height:0!important;opacity:1!important;clip-path:none!important;pointer-events:auto;position:relative;transition:none!important;animation:none!important;margin:10px 0!important;padding:10px!important;border:2px solid #686b5e!important;transform:translateY(calc((1 - clamp(0, var(--rise,1), 1)) * (var(--screen-height,1100px) + 20px) * .3))}
 .c64-shell.folded .screen-carriage>.deck{pointer-events:none}
 .c64-shell .screen-carriage>.deck::before,.c64-shell .screen-carriage>.deck::after{content:'';position:absolute;top:8px;bottom:8px;width:3px;z-index:4;background:linear-gradient(90deg,#4b5148,#cbd0bd,#555a50);pointer-events:none}.c64-shell .screen-carriage>.deck::before{left:1px}.c64-shell .screen-carriage>.deck::after{right:1px}
 @media(prefers-reduced-motion:reduce){.c64-shell .screen-carriage,.c64-shell .screen-carriage>.deck{transition:none!important}}
@@ -2210,3 +2212,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell::before{top:calc(var(--neck-top,0px) - 5px);background:linear-gradient(#0000,#0000 40%,#f1e8d0 42%,#c9bc9d 55%,#8d8067 92%,#5f5644 100%);box-shadow:0 -1px 0 #0000}
 /* upper lip of the bottom piece: starts exactly on the seam */
 .c64-shell::after{top:calc(var(--neck-top,0px) + var(--neck-h,0px));background:linear-gradient(#5f5644 0,#8d8067 8%,#e6dcc2 55%,#d3c8ae 100%);box-shadow:0 2px 3px #4b412e55}
+
+/* The speaker pumps to 1.1x with the bass and its glow reaches about 30px: leave room so it never touches the SET UP hatch, in stereo or mono. */
+.c64-shell .player-body>.base-plate.plate-slide{row-gap:32px}

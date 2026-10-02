@@ -31,6 +31,8 @@ export class FpPlayer {
   private seekId = 0;
   private seekWaiters = new Map<number, { done: () => void; progress?: (t: number) => void }>();
   ready: Promise<void>;
+  /** Called once when a fade plan has run out, on the audio clock. */
+  onFadeEnd: (() => void) | null = null;
 
   private started = false;
   private failed = false;
@@ -62,6 +64,7 @@ export class FpPlayer {
       const node = new AudioWorkletNode(ctx, 'fp-sink', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
       node.port.onmessage = e => {
         const m = e.data;
+        if (m.type === 'fadeEnd') { this.onFadeEnd?.(); return; }
         if (m.type !== 'state') return;
         this.time = m.time;
         if (m.underrun) this.noteUnderrun();
@@ -137,7 +140,8 @@ export class FpPlayer {
   setFadePlan(end: number | null, seconds: number) { this.send({ type: 'fade', end, seconds }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
   start(subtune: number) { this.cancelSeeks(); this.playingSince = performance.now(); this.underruns = []; this.core.start(subtune); this.restart({ type: 'start', subtune }); }
-  stop() { this.cancelSeeks(); this.core.stop(); this.restart({ type: 'stop' }); }
+  /** Back to the start and silent, like the jsSID engine: the sink must be paused first, or it plays the rewound tune. */
+  stop() { this.cancelSeeks(); this.core.stop(); this.send({ type: 'pause' }); this.restart({ type: 'stop' }); }
   pause() { this.send({ type: 'pause' }); }
   playcont() { this.playingSince = performance.now(); this.underruns = []; this.send({ type: 'play' }); }
   gettitle(): string { return this.core.gettitle(); }

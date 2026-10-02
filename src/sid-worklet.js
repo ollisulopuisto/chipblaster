@@ -13,6 +13,8 @@ class SidProcessor extends AudioWorkletProcessor {
     this.seekTicks = 0;
     this.spread = 0;
     this.fade = null;
+    this.fadeFired = false;
+    this.gain = 1;
     // Load: time spent in process() against the time the audio lasts. The worklet scope has no performance.now(), so Date.now() is
     // summed over many calls, which averages out its one-millisecond steps.
     this.busy = 0;
@@ -28,14 +30,14 @@ class SidProcessor extends AudioWorkletProcessor {
   onMessage(m) {
     const c = this.core;
     switch (m.type) {
-      case 'load': c.loadbuffer(m.bytes, m.subtune); this.seek = null; break;
+      case 'load': c.loadbuffer(m.bytes, m.subtune); this.seek = null; this.gain = 1; this.fadeFired = false; break;
       case 'play': c.playcont(); break;
       case 'pause': c.pause(); break;
-      case 'stop': c.stop(); this.seek = null; break;
-      case 'start': this.seek = null; c.start(m.subtune); break;
+      case 'stop': c.stop(); this.seek = null; this.gain = 1; this.fadeFired = false; break;
+      case 'start': this.seek = null; this.gain = 1; this.fadeFired = false; c.start(m.subtune); break;
       case 'models': c.setSIDModels(m.primary, m.secondary); break;
       case 'tape': c.tapeRate = m.rate; break;
-      case 'fade': this.fade = m.end === null ? null : { end: m.end, len: Math.max(0.1, m.seconds) }; break;
+      case 'fade': this.fade = m.end === null ? null : { end: m.end, len: Math.max(0.1, m.seconds) }; this.fadeFired = false; if (!this.fade) this.gain = 1; break;
       case 'spread': this.spread = Math.max(0, Math.min(1, m.value)); break;
       case 'seek': this.seek = { id: m.id, target: m.seconds, remaining: null }; break;
       case 'cancelSeek': this.seek = null; break;
@@ -82,10 +84,15 @@ class SidProcessor extends AudioWorkletProcessor {
         // Linear fade against tune time, so seeking and tape speed keep it in step with the music.
         const start = c.getplaytimeExact() - out.length / sampleRate, f = this.fade;
         for (let i = 0; i < out.length; i++) {
-          const g = Math.max(0, Math.min(1, (f.end - (start + i / sampleRate)) / f.len));
+          const target = Math.max(0, Math.min(1, (f.end - (start + i / sampleRate)) / f.len));
+          // A plan that arrives late must not drop the sound in one step.
+          this.gain += Math.max(-2 / sampleRate, Math.min(2 / sampleRate, target - this.gain));
+          const g = this.gain;
           out[i] *= g;
           if (outR) outR[i] *= g;
         }
+        if (!this.fadeFired && start + out.length / sampleRate >= f.end - 0.05) { this.fadeFired = true; this.port.postMessage({ type: 'fadeEnd' }); }
+        else if (this.fadeFired && start + out.length / sampleRate < f.end - 0.5) this.fadeFired = false; // sought back or restarted
       }
       this.frames += out.length;
       if (this.frames >= METER_FRAMES) {

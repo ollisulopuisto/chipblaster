@@ -1922,10 +1922,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 }
 
 /* Subtune: the n/N cell in the title display. Left half steps back, right half steps forward. */
-.c64-shell .title-subtune.is-selectable{position:relative;cursor:pointer;padding-left:9px;padding-right:9px}
-.c64-shell .title-subtune.is-selectable::before,.c64-shell .title-subtune.is-selectable::after{content:"";position:absolute;top:50%;width:0;height:0;border:4px solid transparent;transform:translateY(-50%);opacity:.55;pointer-events:none}
-.c64-shell .title-subtune.is-selectable::before{left:0;border-right-color:#78d3ea;border-left-width:0}
-.c64-shell .title-subtune.is-selectable::after{right:0;border-left-color:#78d3ea;border-right-width:0}
 .c64-shell .title-subtune .subtune-half{position:absolute;top:-6px;bottom:-6px;width:50%;padding:0;border:0;background:transparent;cursor:pointer}
 .c64-shell .title-subtune .subtune-half.prev{left:-4px}.c64-shell .title-subtune .subtune-half.next{right:-4px}
 .c64-shell .title-subtune .subtune-half:hover{background:#78d3ea1f}
@@ -2197,8 +2193,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 /* The screen block is narrower than the case, so it rises between two shoulders of the case. Where the screen is, the case is cut away
    for real (clip-path), so the page behind it shows through; the shadow moves to the parent so it follows the cut. */
-.c64-shell .screen-carriage{--screen-inset:2.5%}
-.c64-shell{--shell-pad:22px;--cut-w:calc(2.5% + var(--shell-pad) + 4px);clip-path:polygon(-200px -400px,calc(100% + 200px) -400px,calc(100% + 200px) var(--neck-top,0px),calc(100% - var(--cut-w)) var(--neck-top,0px),calc(100% - var(--cut-w)) calc(var(--neck-top,0px) + var(--neck-h,0px)),calc(100% + 200px) calc(var(--neck-top,0px) + var(--neck-h,0px)),calc(100% + 200px) calc(100% + 400px),-200px calc(100% + 400px),-200px calc(var(--neck-top,0px) + var(--neck-h,0px)),var(--cut-w) calc(var(--neck-top,0px) + var(--neck-h,0px)),var(--cut-w) var(--neck-top,0px),-200px var(--neck-top,0px))}
+.c64-shell .screen-carriage{--screen-inset:1.25%}
+.c64-shell{--shell-pad:22px;--cut-w:calc(var(--shell-pad) + 4px);clip-path:polygon(-200px -400px,calc(100% + 200px) -400px,calc(100% + 200px) var(--neck-top,0px),calc(100% - var(--cut-w)) var(--neck-top,0px),calc(100% - var(--cut-w)) calc(var(--neck-top,0px) + var(--neck-h,0px)),calc(100% + 200px) calc(var(--neck-top,0px) + var(--neck-h,0px)),calc(100% + 200px) calc(100% + 400px),-200px calc(100% + 400px),-200px calc(var(--neck-top,0px) + var(--neck-h,0px)),var(--cut-w) calc(var(--neck-top,0px) + var(--neck-h,0px)),var(--cut-w) var(--neck-top,0px),-200px var(--neck-top,0px))}
 .device-stage{filter:drop-shadow(0 0 .7px #8d8067) drop-shadow(0 10px 11px #0003)}
 @media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:12px}.c64-shell{--shell-pad:9px;--cut-w:calc(12px + var(--shell-pad) + 4px)}}
 
@@ -2215,3 +2211,34 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 /* The speaker pumps to 1.1x with the bass and its glow reaches about 30px: leave room so it never touches the SET UP hatch, in stereo or mono. */
 .c64-shell .player-body>.base-plate.plate-slide{row-gap:32px}
+
+
+/* Status window: the video standard on the top row, the SID engine on the bottom row. */
+.c64-shell .title-clock{display:grid;grid-template-columns:auto auto auto;column-gap:6px;row-gap:3px;align-content:center;justify-items:start;font-size:7px;line-height:1}
+.c64-shell .title-clock i{display:block;text-shadow:none}
+.c64-shell .title-clock i.on{text-shadow:0 0 4px #2cc8d4}
+.c64-shell .title-clock .eng-gap{grid-column:1;grid-row:1}
+.c64-shell .title-clock i.pal{grid-column:2;grid-row:1}.c64-shell .title-clock i.ntsc{grid-column:3;grid-row:1}
+.c64-shell .title-clock i.eng-js{grid-column:1;grid-row:2}.c64-shell .title-clock i.lite{grid-column:2;grid-row:2}.c64-shell .title-clock i.resid{grid-column:3;grid-row:2}
+/* ENHANCED is a plain two-state key: pushed in when on, no lamp. */
+.c64-shell .core-key span{font-size:8px;letter-spacing:0}
+.c64-shell .core-key[aria-pressed="true"]{transform:translateY(2px);border-bottom-width:1px;background:linear-gradient(#b4bcb1,#c4c9c0);box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b,0 1px #e0e3da}
+.c64-shell .core-key[aria-pressed="true"]:active{transform:translateY(2px)}
+
+/* The deck keeps one size, folded or not. The carriage and the case cut do the hiding, so nothing inside the screen block resizes on its own
+   schedule while it rises. */
+.c64-shell.folded .display-window{height:clamp(320px,46vw,470px)}
+@media(max-width:600px){.c64-shell.folded .display-window,.c64-shell .display-window{height:390px}}
+@media(min-width:601px) and (max-width:700px){.c64-shell.folded .display-window{height:clamp(320px,46vw,470px)}}
+
+.c64-shell .meters-row.advanced-panel,.c64-shell.folded .meters-row.advanced-panel,.c64-shell.unfolded .meters-row.advanced-panel{max-height:none!important;opacity:1!important;transform:none!important;transition:none!important}
+
+
+/* Sub-tune keys live on the console, in the transport heading; the display only shows the number. */
+.c64-shell .transport-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.c64-shell .transport-head .sub-keys{display:inline-flex;align-items:center;gap:4px;font-size:7px;letter-spacing:.14em;color:#3f4943}
+.c64-shell .sub-key{position:relative;width:30px;height:20px;padding:0;border:1px solid #718078;border-bottom-width:3px;border-radius:2px;background:linear-gradient(#f3f2e7,#aeb7ad);color:#24392d;font:800 10px/1 Arial,sans-serif;cursor:pointer;box-shadow:0 2px 1px #35443a55}
+.c64-shell .sub-key::before{content:'';position:absolute;inset:-9px -4px}
+.c64-shell .sub-key:active:not(:disabled){transform:translateY(2px);border-bottom-width:1px}
+.c64-shell .sub-key:disabled{opacity:.45;cursor:default;box-shadow:none}
+.c64-shell .sub-key:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}

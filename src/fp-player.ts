@@ -64,6 +64,7 @@ export class FpPlayer {
         const m = e.data;
         if (m.type !== 'state') return;
         this.time = m.time;
+        if (m.underrun) this.noteUnderrun();
         if (m.levels) { for (let i = 0; i < 7; i++) this.voiceLevels[i] = m.levels[i] ?? 0; for (let i = 0; i < 6; i++) this.voiceWaveforms[i] = m.waves[i] ?? 0; }
       };
       node.connect(entry);
@@ -87,6 +88,8 @@ export class FpPlayer {
   private send(m: Message) { if (this.node) this.dispatch(m); else this.queue.push(m); }
   private restart(m: Message) {
     this.gen++;
+    this.playingSince = performance.now();
+    this.underruns = [];
     this.time = 0;
     this.send({ ...m, gen: this.gen });
   }
@@ -101,6 +104,17 @@ export class FpPlayer {
       w?.done();
     } else if (m.type === 'started') this.started = true;
     else if (m.type === 'error') { console.error('fp engine', m.message); if (!this.started) this.fail(m.message); }
+  }
+
+  private underruns: number[] = [];
+  private playingSince = 0;
+  /** The sink ran out of sound. A few misses while a tune starts or seeks are normal; a steady run of them means this engine is too heavy here. */
+  private noteUnderrun() {
+    const now = performance.now();
+    if (now - this.playingSince < 2500) return;
+    this.underruns.push(now);
+    while (this.underruns.length && now - this.underruns[0] > 3000) this.underruns.shift();
+    if (this.underruns.length >= 40) this.fail('too slow: the sound ran out repeatedly');
   }
 
   private fail(reason: string) {
@@ -122,10 +136,10 @@ export class FpPlayer {
   setChipSpread(value: number) { this.send({ type: 'spread', value }); }
   setFadePlan(end: number | null, seconds: number) { this.send({ type: 'fade', end, seconds }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
-  start(subtune: number) { this.cancelSeeks(); this.core.start(subtune); this.restart({ type: 'start', subtune }); }
+  start(subtune: number) { this.cancelSeeks(); this.playingSince = performance.now(); this.underruns = []; this.core.start(subtune); this.restart({ type: 'start', subtune }); }
   stop() { this.cancelSeeks(); this.core.stop(); this.restart({ type: 'stop' }); }
   pause() { this.send({ type: 'pause' }); }
-  playcont() { this.send({ type: 'play' }); }
+  playcont() { this.playingSince = performance.now(); this.underruns = []; this.send({ type: 'play' }); }
   gettitle(): string { return this.core.gettitle(); }
   getauthor(): string { return this.core.getauthor(); }
   getinfo(): string { return this.core.getinfo(); }

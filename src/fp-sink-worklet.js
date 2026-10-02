@@ -4,6 +4,7 @@
 const LOW = 0.35, HIGH = 0.8; // seconds of audio kept buffered
 const STATE_FRAMES = 1024;
 const METER_FRAMES = 1024;
+const GAIN_STEP = 2 / sampleRate; // per sample
 const WIDE_GAIN = 1; // the side signal is already scaled for amount 1
 
 class FpSink extends AudioWorkletProcessor {
@@ -17,6 +18,8 @@ class FpSink extends AudioWorkletProcessor {
     this.playing = false;
     this.loaded = false;
     this.fade = null;
+    this.fadeFired = false;
+    this.gain = 1;
     this.since = 0;
     this.worker = null;
     this.rate = 1;
@@ -30,11 +33,11 @@ class FpSink extends AudioWorkletProcessor {
       if (m.type === 'worker') { this.worker = m.port; this.worker.onmessage = ev => this.onWorker(ev.data); this.top(); }
       else if (m.type === 'gen') {
         this.gen = m.gen; this.queue = []; this.pos = 0; this.buffered = 0; this.requested = 0; this.loaded = false;
-        this.ready = false; this.frac = 0; this.prev.t = this.next.t = m.time || 0; this.prev.chunk = this.next.chunk = null;
+        this.ready = false; this.fadeFired = false; this.gain = 1; this.frac = 0; this.prev.t = this.next.t = m.time || 0; this.prev.chunk = this.next.chunk = null;
       }
       else if (m.type === 'play') { this.playing = true; this.top(); }
       else if (m.type === 'pause') this.playing = false;
-      else if (m.type === 'fade') this.fade = m.end === null ? null : { end: m.end, len: Math.max(0.1, m.seconds) };
+      else if (m.type === 'fade') { this.fade = m.end === null ? null : { end: m.end, len: Math.max(0.1, m.seconds) }; this.fadeFired = false; }
       else if (m.type === 'tape') this.rate = Math.max(0.28, Math.min(2, m.rate));
       else if (m.type === 'spread') this.spread = Math.max(0, Math.min(1, m.value));
     };
@@ -83,6 +86,9 @@ class FpSink extends AudioWorkletProcessor {
       l += side; r -= side;
       let g = 1;
       if (this.fade) g = Math.max(0, Math.min(1, (this.fade.end - a.t) / this.fade.len));
+      // A plan that arrives late (the loop scan is still running) must not drop the sound in one step: the gain may move at most half a second per whole range.
+      this.gain += Math.max(-GAIN_STEP, Math.min(GAIN_STEP, g - this.gain));
+      g = this.gain;
       L[i] = l * g;
       if (R) R[i] = r * g;
       this.frac += this.rate;
@@ -92,6 +98,9 @@ class FpSink extends AudioWorkletProcessor {
         if (!this.pull(b)) { underrun = true; this.frac = 0; break; }
       }
     }
+    // The fade has run out: say so now, so the player moves on at once instead of at the next whole second of the clock.
+    if (this.fade && !this.fadeFired && a.t >= this.fade.end - 0.05) { this.fadeFired = true; this.port.postMessage({ type: 'fadeEnd' }); }
+    else if (this.fade && this.fadeFired && a.t < this.fade.end - 0.5) this.fadeFired = false; // sought back or restarted
     this.since += n;
     if (this.since >= STATE_FRAMES) {
       this.since = 0;

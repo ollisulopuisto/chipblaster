@@ -31,6 +31,8 @@ export class FpPlayer {
   private seekId = 0;
   private seekWaiters = new Map<number, { done: () => void; progress?: (t: number) => void }>();
   ready: Promise<void>;
+  /** Called once when a fade plan has run out, on the audio clock. */
+  onFadeEnd: (() => void) | null = null;
 
   private started = false;
   private failed = false;
@@ -62,6 +64,7 @@ export class FpPlayer {
       const node = new AudioWorkletNode(ctx, 'fp-sink', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
       node.port.onmessage = e => {
         const m = e.data;
+        if (m.type === 'fadeEnd') { this.onFadeEnd?.(); return; }
         if (m.type !== 'state') return;
         this.time = m.time;
         if (m.underrun) this.noteUnderrun();

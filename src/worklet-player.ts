@@ -26,6 +26,8 @@ export class WorkletPlayer {
   private seekId = 0;
   private seekWaiters = new Map<number, { done: () => void; progress?: (t: number) => void }>();
   ready: Promise<void>;
+  /** Called once when a fade plan has run out, on the audio clock. */
+  onFadeEnd: (() => void) | null = null;
 
   constructor() {
     const AC = window.AudioContext || (window as any).webkitAudioContext;
@@ -64,6 +66,8 @@ export class WorkletPlayer {
       this.time = m.time;
       this.load = m.load ?? 0;
       this.peak = m.peak ?? 0;
+    } else if (m.type === 'fadeEnd') {
+      this.onFadeEnd?.();
     } else if (m.type === 'seekProgress') {
       this.time = m.time;
       this.seekWaiters.get(m.id)?.progress?.(m.time);

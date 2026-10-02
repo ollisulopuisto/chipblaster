@@ -140,7 +140,8 @@ export class FpPlayer {
   setFadePlan(end: number | null, seconds: number) { this.send({ type: 'fade', end, seconds }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
   start(subtune: number) { this.cancelSeeks(); this.playingSince = performance.now(); this.underruns = []; this.core.start(subtune); this.restart({ type: 'start', subtune }); }
-  stop() { this.cancelSeeks(); this.core.stop(); this.restart({ type: 'stop' }); }
+  /** Back to the start and silent, like the jsSID engine: the sink must be paused first, or it plays the rewound tune. */
+  stop() { this.cancelSeeks(); this.core.stop(); this.send({ type: 'pause' }); this.restart({ type: 'stop' }); }
   pause() { this.send({ type: 'pause' }); }
   playcont() { this.playingSince = performance.now(); this.underruns = []; this.send({ type: 'play' }); }
   gettitle(): string { return this.core.gettitle(); }

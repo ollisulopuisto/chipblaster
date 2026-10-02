@@ -830,7 +830,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* The operating leaflet floats above the whole chassis without altering its height. */
 .manual-overlay{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:16px;background:#101713b8;box-sizing:border-box}
 .manual-overlay .manual-portal{width:min(900px,100%);max-height:calc(100dvh - 32px);min-height:0;padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important;transform:none!important;overflow:visible!important}
-.manual-overlay .manual-plate.manual-sheet{box-sizing:border-box;width:100%!important;max-height:calc(100dvh - 32px)!important;overflow:auto!important;margin:0!important;animation:none!important;transform:none!important;position:relative!important;z-index:1!important}
+.manual-overlay .manual-plate.manual-sheet{box-sizing:border-box;width:100%!important;max-height:calc(100dvh - 32px)!important;overflow:auto!important;margin:0!important;position:relative!important;z-index:1!important}
 .manual-overlay .manual-panels{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:700px){.manual-overlay{padding:12px}.manual-overlay .manual-portal,.manual-overlay .manual-plate.manual-sheet{max-height:calc(100dvh - 24px)!important}.manual-overlay .manual-panels{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Changer typography and controls inherit the player hardware language. */
@@ -2243,3 +2243,36 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .sub-key:disabled{opacity:.45;cursor:default;box-shadow:none}
 .c64-shell .sub-key:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block button:has(.saved-heart)[aria-pressed="true"]{transform:translateY(2px);border-bottom-width:1px!important;background:linear-gradient(#b4bcb1,#c4c9c0)!important;box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b,0 1px #e0e3da!important}
+
+/* Manual: the whole sheet is one piece of paper. It stands up from its top edge while still folded in quarters, then the creases open. Closing plays the same in reverse. */
+.manual-overlay .manual-head,.manual-overlay .manual-panels section,.manual-overlay .manual-foot,.manual-overlay.is-closing .manual-head,.manual-overlay.is-closing .manual-panels section,.manual-overlay.is-closing .manual-foot{animation:none!important}
+.manual-overlay .manual-plate.manual-sheet{transform-origin:50% 0!important;animation:manual-sheet .62s cubic-bezier(.3,.6,.25,1) both!important;backface-visibility:hidden}
+.manual-overlay.is-closing .manual-plate.manual-sheet{animation:manual-sheet .62s cubic-bezier(.3,.6,.25,1) reverse both!important}
+.manual-overlay .manual-plate.manual-sheet::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:3;background:linear-gradient(90deg,transparent calc(25% - 6px),#0000002e calc(25% - 1px),#ffffff55 25%,transparent calc(25% + 7px),transparent calc(50% - 6px),#0000002e calc(50% - 1px),#ffffff55 50%,transparent calc(50% + 7px),transparent calc(75% - 6px),#0000002e calc(75% - 1px),#ffffff55 75%,transparent calc(75% + 7px)),linear-gradient(0deg,transparent calc(50% - 6px),#0000002e calc(50% - 1px),#ffffff55 50%,transparent calc(50% + 7px));animation:manual-creases .62s ease-out both}
+.manual-overlay.is-closing .manual-plate.manual-sheet::after{animation:manual-creases .62s ease-out reverse both}
+@keyframes manual-sheet{0%{opacity:0;transform:perspective(1600px) rotateX(-88deg) scaleX(.3);filter:brightness(.7)}35%{opacity:1;transform:perspective(1600px) rotateX(-8deg) scaleX(.3);filter:brightness(.88)}55%{transform:perspective(1600px) rotateX(0) scaleX(.3);filter:brightness(.95)}100%{opacity:1;transform:perspective(1600px) rotateX(0) scaleX(1);filter:none}}
+@keyframes manual-creases{0%,55%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.manual-overlay .manual-plate.manual-sheet,.manual-overlay .manual-plate.manual-sheet::after{animation:none!important}}
+
+/* Manual typography after 1970s and 80s Japanese audio instruction booklets: plain grotesque, black on warm white, inverse number blocks, boxed NOTE and CAUTION. */
+.manual-overlay .manual-plate.manual-sheet{background:#f4f2ea!important;border:1px solid #9d9a8e!important;padding:14px 16px!important;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.manual-overlay .manual-head{border-bottom:3px double #1b1b1b!important;padding:4px 2px 10px!important;color:#111!important;align-items:flex-end}
+.manual-overlay .manual-head strong{font:900 30px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;letter-spacing:-.01em!important;font-style:italic}
+.manual-overlay .manual-head span{font:700 10px/1.5 "Helvetica Neue",Helvetica,Arial,sans-serif!important;letter-spacing:.16em!important;text-align:right;text-transform:uppercase}
+.manual-overlay .manual-head button{border:1.5px solid #111!important;background:#f4f2ea!important;color:#111;font:700 10px Helvetica,Arial,sans-serif;letter-spacing:.1em;border-radius:0}
+.manual-overlay .manual-intro{margin:9px 2px 10px;font:italic 11px/1.5 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#222;max-width:62ch}
+.manual-overlay .manual-panels{border-left:0!important;border-top:1.5px solid #1b1b1b!important;gap:0}
+.manual-overlay .manual-panels section{border:0!important;border-right:1px solid #c3c0b4!important;border-bottom:1px solid #c3c0b4!important;padding:11px 12px 12px!important}
+.manual-overlay .manual-panels section:nth-child(4n){border-right:0!important}
+.manual-overlay .manual-panels b{display:flex;align-items:center;gap:7px;font:800 10.5px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif!important;letter-spacing:.06em!important;color:#111!important;text-transform:uppercase}
+.manual-overlay .manual-panels b i{font:900 11px/1 Helvetica,Arial,sans-serif;font-style:normal;color:#f4f2ea;background:#111;min-width:17px;height:17px;display:inline-grid;place-items:center;flex:none}
+.manual-overlay .manual-panels p{font:10.5px/1.5 "Helvetica Neue",Helvetica,Arial,sans-serif!important;color:#1b1b1b!important;text-align:justify;hyphens:auto;margin:7px 0 0}
+.manual-overlay .manual-panels p.manual-note{border:1px solid #111;padding:5px 7px;font-size:10px!important;text-align:left;hyphens:manual}
+.manual-overlay .manual-panels p.manual-note em{font-style:normal;font-weight:900;letter-spacing:.1em}
+.manual-overlay .manual-panels .manual-functions li{font:10.5px/1.45 "Helvetica Neue",Helvetica,Arial,sans-serif!important;color:#1b1b1b!important}
+.manual-overlay .manual-panels .manual-functions li strong{letter-spacing:.05em;color:#111!important}
+.manual-overlay .manual-panels .manual-functions{border-right:0!important;border-bottom:0!important;border-top:1.5px solid #1b1b1b!important}
+.manual-overlay .manual-foot{color:#111!important;border-top:3px double #1b1b1b;margin-top:6px;text-align:center!important;font:700 8.5px Helvetica,Arial,sans-serif!important;letter-spacing:.16em!important}
+.manual-overlay .manual-plate.manual-sheet::after{mix-blend-mode:multiply}
+.manual-overlay .manual-portal{clip-path:none!important}
+.manual-overlay .manual-portal::before,.manual-overlay .manual-portal::after{display:none!important}

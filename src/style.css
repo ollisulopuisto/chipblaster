@@ -2295,3 +2295,66 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Phones: a few pixels of the page show on both sides of the case, so it reads as an object and not as the screen edge. */
 @media(max-width:700px){.device-stage{padding-left:6px;padding-right:6px;box-sizing:border-box}}
 @media(max-width:700px){.device-stage>.c64-shell{border-radius:26px 26px 16px 16px}}
+
+/* ==== Design direction A: a 1970s Japanese silver-face receiver. Three materials and one accent.
+   brushed aluminium faceplates, walnut cabinet (the side cheeks and the speaker baffle), black for windows, keys, grille cloth and the handle,
+   amber for the backlight. The CRT keeps its colours. ==== */
+:root{--alu-grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.85' numOctaves='2' seed='5'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 .22'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");--wood:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='420'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5 0.008' numOctaves='3' seed='11'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 .13  0 0 0 0 .06  0 0 0 0 .02  1.9 0 0 0 -.55'/%3E%3C/filter%3E%3Cfilter id='b' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.004' numOctaves='2' seed='3'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 .55  0 0 0 0 .32  0 0 0 0 .14  1.2 0 0 0 -.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%235a3820'/%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");--cloth:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23131312'/%3E%3Crect width='2' height='2' fill='%23262624'/%3E%3Crect x='2' y='2' width='2' height='2' fill='%23262624'/%3E%3C/svg%3E");--screw:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cdefs%3E%3CradialGradient id='s' cx='.35' cy='.3' r='.8'%3E%3Cstop offset='0' stop-color='%23f4f2ec'/%3E%3Cstop offset='.6' stop-color='%23b4b1a8'/%3E%3Cstop offset='1' stop-color='%237d7a72'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='6' cy='6' r='5' fill='url(%23s)' stroke='%235e5b54' stroke-width='.8'/%3E%3Cpath d='M3.2 6h5.6M6 3.2v5.6' stroke='%2347453f' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E");
+ --alu-hi:#ecebe5;--alu-mid:#d2d0c9;--alu-lo:#b4b2aa;--alu-edge:#8d8b84;--ink:#1c1c1a;--black-1:#3a3a38;--black-2:#1e1e1d;--black-3:#121211}
+/* Shell: aluminium face, walnut cheeks */
+.device-stage>.c64-shell,.c64-shell{background:var(--wood) left top/var(--shell-pad,22px) 100% repeat-y,var(--wood) right top/var(--shell-pad,22px) 100% repeat-y,linear-gradient(100deg,transparent 18%,#ffffff55 42%,transparent 62%),var(--alu-grain),linear-gradient(180deg,var(--alu-hi),var(--alu-mid) 38%,var(--alu-lo))!important;border:1px solid #6f6d66!important;border-radius:14px 14px 9px 9px!important;box-shadow:inset 0 1px 0 #fffc,inset 0 -2px 4px #0003!important}
+.c64-shell::before{background:linear-gradient(#0000,#0000 40%,#f4f2ec 42%,#c9c6be 55%,#8d8b84 92%,#4f4d47 100%)!important}
+.c64-shell::after{background:linear-gradient(#4f4d47 0,#8d8b84 8%,#e7e5df 55%,#cfcdc5 100%)!important;box-shadow:0 2px 3px #0004!important}
+/* Handle: black rubber grip */
+.c64-shell .handle-pocket::before{border-color:#1c1c1a!important;box-shadow:inset 0 3px 4px #ffffff38,inset 0 -3px 4px #000a,0 -2px 2px #fff7,0 2px 4px #0006!important}
+/* Header: a STEREO badge instead of the rainbow, ventilation slots either side */
+.c64-shell .boombox-brand .c64-rainbow{width:auto!important;height:auto!important;flex:none!important;display:inline-flex;align-items:center;padding:3px 6px 2px;border:1px solid #6d6a63;border-radius:2px;background:linear-gradient(#34342f,#111110)!important;box-shadow:inset 0 1px #ffffff33}
+.c64-shell .boombox-brand .c64-rainbow::after{content:'STEREO';font:800 7px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.16em;color:#e2c46d}
+.c64-shell .boombox-top{position:relative}
+.c64-shell .boombox-top::before,.c64-shell .boombox-top::after{content:'';position:absolute;top:50%;width:clamp(36px,13%,140px);height:21px;transform:translateY(-50%);background:repeating-linear-gradient(0deg,#1a1a18 0 2px,transparent 2px 5px);border-radius:2px;opacity:.75;pointer-events:none}
+.c64-shell .boombox-top::before{left:3%}.c64-shell .boombox-top::after{right:3%}
+/* Windows: black, with a silver edge */
+.c64-shell .now-playing-strip{outline:3px solid #151514;outline-offset:0;border-radius:3px}
+.c64-shell .screen-carriage>.deck{background:linear-gradient(115deg,#2b2b29,#161615 50%,#242422)!important;border:2px solid #98958d!important;border-radius:8px!important;box-shadow:inset 0 1px 0 #ffffff22,inset 0 0 0 1px #000,0 1px 0 #fff8!important}
+/* Control panel: brushed aluminium with four screws */
+.c64-shell .console{background:var(--screw) 9px 9px/12px 12px no-repeat,var(--screw) right 9px top 9px/12px 12px no-repeat,var(--screw) 9px bottom 9px/12px 12px no-repeat,var(--screw) right 9px bottom 9px/12px 12px no-repeat,linear-gradient(100deg,transparent 18%,#ffffff55 42%,transparent 62%),var(--alu-grain),linear-gradient(180deg,#e8e6e0,#cfcdc5 50%,#c1beb6)!important;border-color:#8d8b84!important;border-radius:6px!important}
+.c64-shell .control-top{background:linear-gradient(180deg,#dad8d1,#c6c3bb)!important;border-color:#98958d!important;border-radius:5px!important}
+/* Keys: black piano keys with light legends */
+.c64-shell .console>.controls.transport-controls>button{background:linear-gradient(#41413f,#232321 52%,#161615)!important;color:#ece9e1!important;border:1px solid #060606!important;border-bottom:3px solid #000!important;border-radius:2px!important;box-shadow:inset 0 1px 0 #ffffff40,inset 0 0 0 1px #ffffff12,0 2px 3px #0007!important}
+.c64-shell .console>.controls.transport-controls>button:active:not(:disabled){transform:translateY(1px)!important;border-bottom-width:1px!important;background:linear-gradient(#1a1a19,#2a2a28)!important;box-shadow:inset 0 3px 5px #000c!important}
+/* Speaker baffle: walnut with grille cloth */
+.c64-shell .base-plate{background:linear-gradient(180deg,#ffffff1c,transparent 30%,#00000038),var(--wood) 0 0/160px 420px!important;border:1px solid #28160b!important;border-radius:3px!important;box-shadow:inset 0 2px 5px #000a,0 1px 0 #fff7!important}
+/* Setup hatch: black lid */
+.c64-shell .setup-lid{background:linear-gradient(#3b3b39,#1d1d1c 55%,#2a2a28)!important;color:#d9d6ce!important;border:1px solid #060606!important}
+.c64-shell .setup-hatch{background:linear-gradient(#0d0d0c,#1a1a19)!important}
+/* Icons and small keys follow the black keys */
+.c64-shell .console .transport-controls .deck-icon,.c64-shell .console .transport-controls .tape-button.pressed .deck-icon{color:#ece9e1!important;fill:#ece9e1!important}
+.c64-shell .console .transport-controls button:disabled .deck-icon{opacity:.4}
+.c64-shell .sid-model-keys button,.c64-shell button[aria-label="Stereo enhance"],.c64-shell .sub-key,.c64-shell .manual-key{background:linear-gradient(#41413f,#232321 52%,#161615)!important;color:#e6e3db!important;border:1px solid #060606!important;border-bottom:3px solid #000!important;border-radius:2px!important;box-shadow:inset 0 1px 0 #ffffff40,inset 0 0 0 1px #ffffff12,0 2px 3px #0007!important;text-shadow:none!important}
+.c64-shell .sid-model-keys button[aria-pressed="true"],.c64-shell button[aria-label="Stereo enhance"][aria-pressed="true"],.c64-shell .manual-key[aria-pressed="true"],.c64-shell .sid-model-keys button:active:not(:disabled),.c64-shell .sub-key:active:not(:disabled),.c64-shell .manual-key:active:not(:disabled){background:linear-gradient(#0b0b0a,#1f1f1e)!important;transform:translateY(2px);border-bottom-width:1px!important;box-shadow:inset 0 3px 5px #000d,0 1px 0 #fff6!important}
+.c64-shell .sub-key:disabled{opacity:.5}
+/* Silver a little deeper, speaker rings in chrome, nameplate and lid without the old tan */
+.device-stage>.c64-shell,.c64-shell{background:var(--wood) left top/var(--shell-pad,22px) 100% repeat-y,var(--wood) right top/var(--shell-pad,22px) 100% repeat-y,linear-gradient(100deg,transparent 18%,#ffffff40 42%,transparent 62%),var(--alu-grain),linear-gradient(180deg,#e1dfd8,#c9c6be 38%,#adaba3)!important}
+.c64-shell .speaker-recess{border-color:#b9b7ae!important}
+.c64-shell .base-nameplate{background:var(--alu-grain),linear-gradient(#e6e4de,#c3c0b8)!important;border-color:#7d7b74!important}
+.c64-shell .setup-lid{box-shadow:inset 0 1px #ffffff33,0 2px 0 #55524a,0 3px 4px #0008!important}
+/* Screws on the faceplate corners, a TONE group legend with its rule, disabled keys stay black */
+.device-stage>.c64-shell,.c64-shell{background:var(--screw) left var(--screw-x,calc(var(--shell-pad,22px) + 10px)) top 14px/12px 12px no-repeat,var(--screw) right var(--screw-x,calc(var(--shell-pad,22px) + 10px)) top 14px/12px 12px no-repeat,var(--screw) left var(--screw-x,calc(var(--shell-pad,22px) + 10px)) bottom 10px/12px 12px no-repeat,var(--screw) right var(--screw-x,calc(var(--shell-pad,22px) + 10px)) bottom 10px/12px 12px no-repeat,var(--wood) left top/var(--shell-pad,22px) 100% repeat-y,var(--wood) right top/var(--shell-pad,22px) 100% repeat-y,linear-gradient(100deg,transparent 18%,#ffffff40 42%,transparent 62%),var(--alu-grain),linear-gradient(180deg,#e1dfd8,#c9c6be 38%,#adaba3)!important}
+.c64-shell .console>.controls.transport-controls>button:disabled{background:linear-gradient(#2b2b29,#1a1a19)!important;opacity:1!important}
+.c64-shell .control-top .eq-deck{position:relative}
+.c64-shell .control-top .eq-deck::before{content:'TONE';position:absolute;left:10px;top:3px;font:700 8px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.2em;color:#1c1c1a}
+.c64-shell .control-top .eq-deck::after{content:'';position:absolute;left:52px;right:10px;top:7px;border-top:1px solid #8d8b84}
+@media(max-width:700px){.c64-shell .control-top .eq-deck::before,.c64-shell .control-top .eq-deck::after{display:none}}
+.c64-shell .setup-tab{background:var(--alu-grain),linear-gradient(#e0ded7,#b6b3ab)!important;border-color:#6d6a63!important;color:#1c1c1a!important}
+/* The tune browser follows the same materials: charcoal panels, black keys, warm paper list */
+.c64-shell .flip-back .hvsc .selector-block:not(#k){background:linear-gradient(#2a2a28,#1d1d1c)!important;border-color:#76736c!important}
+.c64-shell .flip-back .hvsc .selector-button-block button:not(#k),.c64-shell .flip-back .hvsc .loader-pagination button:not(#k){background:linear-gradient(#41413f,#232321 52%,#161615)!important;color:#ece9e1!important;border:1px solid #060606!important;border-bottom:3px solid #000!important;border-radius:2px!important;box-shadow:inset 0 1px 0 #ffffff40,inset 0 0 0 1px #ffffff12,0 2px 3px #0007!important}
+.c64-shell .flip-back .hvsc .selector-button-block button:not(#k) svg,.c64-shell .flip-back .hvsc .loader-pagination button:not(#k) svg{color:#ece9e1!important;fill:#ece9e1!important}
+.c64-shell .flip-back .hvsc .selector-button-block button:not(#k)[aria-pressed="true"],.c64-shell .flip-back .hvsc .selector-button-block button:not(#k):active:not(:disabled),.c64-shell .flip-back .hvsc .loader-pagination button:not(#k):active:not(:disabled){background:linear-gradient(#0b0b0a,#1f1f1e)!important;transform:translateY(2px);border-bottom-width:1px!important;box-shadow:inset 0 3px 5px #000d,0 1px 0 #fff6!important}
+.c64-shell .flip-back .hvsc .loader-pagination button:not(#k):disabled{opacity:.45}
+.c64-shell .flip-back .hvsc .hvsc-list:not(#k),.c64-shell .flip-back .hvsc .hvsc-row:not(#k),.c64-shell .flip-back .queue-panel .playlist-rows:not(#k){background-color:#e6e4dd!important;border-color:#c3c0b7!important;color:#232321!important}
+/* Rating plate on the baffle */
+.c64-shell .base-plate{position:relative}
+.c64-shell .base-plate::after{content:'MODEL CB-64 · STEREO · SID 6581 / 8580 · NO. 0064';position:absolute;left:50%;bottom:8px;transform:translateX(-50%);white-space:nowrap;padding:3px 8px 2px;font:700 6.5px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.14em;color:#1c1c1a;background:var(--alu-grain),linear-gradient(#dedcd5,#b7b4ac);border:1px solid #6d6a63;border-radius:1px;box-shadow:inset 0 1px #fff9,0 1px 2px #0008;pointer-events:none}
+@media(max-width:700px){.c64-shell .base-plate::after{display:none}}
+@media(max-width:700px){.c64-shell{--screw-x:calc(var(--shell-pad,9px) + 4px)}}

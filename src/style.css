@@ -2291,3 +2291,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell.folded .meters-row .spectrum{height:126px!important;min-height:126px!important;max-height:126px!important}}
 /* The case top is 27 px taller when open on phones; it follows --rise instead of snapping with the class, so nothing jumps while the screen starts to move. */
 @media(max-width:700px){.c64-shell.folded .boombox-top,.c64-shell.unfolded .boombox-top{min-height:calc(28px + 27px * clamp(0, var(--rise,1), 1));padding:calc(2px * clamp(0, var(--rise,1), 1)) 8px calc(6px * clamp(0, var(--rise,1), 1))}}
+
+/* Phones: a few pixels of the page show on both sides of the case, so it reads as an object and not as the screen edge. */
+@media(max-width:700px){.device-stage{padding-left:6px;padding-right:6px;box-sizing:border-box}}

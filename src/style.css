@@ -2358,3 +2358,5 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .base-plate::after{content:'MODEL CB-64 · STEREO · SID 6581 / 8580 · NO. 0064';position:absolute;left:50%;bottom:8px;transform:translateX(-50%);white-space:nowrap;padding:3px 8px 2px;font:700 6.5px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.14em;color:#1c1c1a;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(#dedcd5,#b7b4ac);border:1px solid #6d6a63;border-radius:1px;box-shadow:inset 0 1px #fff9,0 1px 2px #0008;pointer-events:none}
 @media(max-width:700px){.c64-shell .base-plate::after{display:none}}
 @media(max-width:700px){.c64-shell{--screw-x:calc(var(--shell-pad,9px) + 4px)}}
+/* SID 1 and SID 2 legends share one left edge above their keys (phones) */
+@media(max-width:700px){.c64-shell .control-top .sid-model-pair{align-items:flex-start!important}.c64-shell .control-top .sid-model-pair fieldset{align-items:flex-start!important;text-align:left!important}.c64-shell .control-top .sid-model-pair legend{float:none!important;width:auto!important;min-width:0!important;margin:0 0 2px!important;padding:0!important;text-align:left!important}}

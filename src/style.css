@@ -2514,9 +2514,9 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell.jp .c64-only{display:none!important}
 /* Function keys: the label is large and the symbol small, on a taller cap with a dished top. */
 .c64-shell:not(.jp).c64-shell.c64-shell .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k){--cap:radial-gradient(ellipse 72% 50% at 50% 34%,#ffffff22,transparent 72%),linear-gradient(180deg,#94805f,#6b573f 70%,#5f4d37);--sk:9px;min-height:70px;border-radius:8px 8px 3px 3px!important;gap:5px!important}
-.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k) span.c64-legend{font-size:24px!important;letter-spacing:.02em!important;order:-1;line-height:1!important}
-.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k) svg:not(.pet-glyph){width:12px!important;height:12px!important;opacity:.8}
-@media(max-width:560px){.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k) span.c64-legend{font-size:20px!important}.c64-shell:not(.jp).c64-shell.c64-shell .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k){min-height:62px}}
+.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k) span.c64-legend{font-size:19px!important;letter-spacing:.02em!important;order:-1;line-height:1!important}
+.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k) svg:not(.pet-glyph){width:24px!important;height:24px!important;opacity:.92}
+@media(max-width:560px){.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k) span.c64-legend{font-size:17px!important}.c64-shell:not(.jp).c64-shell.c64-shell .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k){min-height:62px}}
 .manual-sheet .proto-key{display:inline-block;width:auto;height:auto;min-height:0;margin:2px 0 4px;padding:8px 16px}
 .c64-shell:not(.jp).c64-shell.c64-shell .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k){height:68px!important;min-height:68px!important;padding:6px 0 4px!important;justify-content:center!important;overflow:hidden}
 @media(max-width:560px){.c64-shell:not(.jp).c64-shell.c64-shell .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k){height:60px!important;min-height:60px!important}}
@@ -2530,3 +2530,13 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .base-nameplate{cursor:pointer;animation:nameplate-wiggle 60s ease-in-out 20s infinite}
 @keyframes nameplate-wiggle{0%,3%,100%{transform:none}.4%{transform:rotate(-3deg) translateX(-3px)}.9%{transform:rotate(2.6deg) translateX(3px)}1.4%{transform:rotate(-2deg) translateX(-2px)}1.9%{transform:rotate(1.2deg)}2.4%{transform:rotate(-.6deg)}}
 @media(prefers-reduced-motion:reduce){.c64-shell .base-nameplate{animation:none}}
+/* The cap's flat top sits inside a raised rim, as on the real keys. */
+.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k){position:relative}
+.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k)::before{content:'';position:absolute;inset:4px 5px 11px;border-radius:6px 6px 9px 9px;border:1px solid #ffffff24;border-bottom-color:#00000030;background:linear-gradient(#ffffff18,#0000000d);pointer-events:none}
+/* CRSR keys after the real ones: a small arrow above the word and one below; the arrow that the key performs is the strong one. */
+.c64-shell:not(.jp) .crsr-stack{display:flex;flex-direction:column;align-items:center;gap:2px}
+.c64-shell:not(.jp) .console>.controls.transport-controls>button .crsr-stack .pet-glyph{width:11px;height:11px}
+.c64-shell:not(.jp) .crsr-prev .pet-glyph:last-child,.c64-shell:not(.jp) .crsr-next .pet-glyph:first-child{opacity:.28}
+/* A raised rim around the flat top of every transport key, as on the photographed caps. */
+.c64-shell:not(.jp) .console>.controls.transport-controls>button:not(#k):not(.favorite-key):not(.share-key):not(.dice-key):not(.radio-button){position:relative}
+.c64-shell:not(.jp) .console>.controls.transport-controls>button:not(#k):not(.favorite-key):not(.share-key):not(.dice-key):not(.radio-button)::before{content:'';position:absolute;inset:4px 5px 10px;border-radius:6px 6px 9px 9px;border:1px solid #ffffff3a;border-bottom-color:#0000001f;background:linear-gradient(#ffffff2a,#0000000a);pointer-events:none}

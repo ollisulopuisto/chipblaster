@@ -25,7 +25,7 @@ class SidProcessor extends AudioWorkletProcessor {
   }
   state() {
     const c = this.core;
-    this.port.postMessage({ type: 'state', levels: Array.from(c.voiceLevels), waves: Array.from(c.voiceWaveforms), time: c.getplaytimeExact(), running: c.isRunning(), load: this.load, peak: this.peak });
+    this.port.postMessage({ type: 'state', levels: Array.from(c.voiceLevels), waves: Array.from(c.voiceWaveforms), freqs: Array.from(c.voiceFreqs), time: c.getplaytimeExact(), running: c.isRunning(), load: this.load, peak: this.peak });
   }
   onMessage(m) {
     const c = this.core;

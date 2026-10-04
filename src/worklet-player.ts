@@ -12,6 +12,7 @@ export class WorkletPlayer {
   masterAnalyser?: AnalyserNode;
   voiceLevels = [0, 0, 0, 0, 0, 0, 0];
   voiceWaveforms = [0, 0, 0, 0, 0, 0];
+  voiceFreqs = [0, 0, 0, 0, 0, 0];
   engineName = 'jsSID (AudioWorklet)';
   /** Share of the audio's duration that process() takes, averaged over half a second; `peak` decays slowly. */
   load = 0;
@@ -63,6 +64,7 @@ export class WorkletPlayer {
     if (m.type === 'state') {
       for (let i = 0; i < this.voiceLevels.length; i++) this.voiceLevels[i] = m.levels[i] ?? 0;
       for (let i = 0; i < this.voiceWaveforms.length; i++) this.voiceWaveforms[i] = m.waves[i] ?? 0;
+      for (let i = 0; i < this.voiceFreqs.length; i++) this.voiceFreqs[i] = m.freqs?.[i] ?? 0;
       this.time = m.time;
       this.load = m.load ?? 0;
       this.peak = m.peak ?? 0;

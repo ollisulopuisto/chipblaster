@@ -110,6 +110,7 @@ class FpSink extends AudioWorkletProcessor {
         const k = Math.min(c.blocks - 1, Math.floor(a.at / METER_FRAMES));
         m.levels = Array.from(c.levels.subarray(k * 7, k * 7 + 7));
         m.waves = Array.from(c.waves.subarray(k * 6, k * 6 + 6));
+        if (c.freqs) m.freqs = Array.from(c.freqs.subarray(k * 6, k * 6 + 6));
       }
       this.port.postMessage(m);
       this.top();

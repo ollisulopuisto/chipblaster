@@ -65,7 +65,7 @@ async function pump() {
       const spent = performance.now() - a;
       if (myGen !== gen) { continue; }
       const l = new Float32Array(CHUNK), r = new Float32Array(CHUNK), side = new Float32Array(CHUNK);
-      const blocks = CHUNK / BLOCK, levels = new Float32Array(blocks * 7), waves = new Float32Array(blocks * 6);
+      const blocks = CHUNK / BLOCK, levels = new Float32Array(blocks * 7), waves = new Float32Array(blocks * 6), freqs = new Float32Array(blocks * 6);
       for (let i = 0; i < CHUNK; i++) { l[i] = pcm[2 * i] / 32768; r[i] = pcm[2 * i + 1] / 32768; }
       if (analysis) {
         const chips = analysis.stereoActive();
@@ -74,11 +74,11 @@ async function pump() {
           if (!chips) for (let i = 0; i < BLOCK; i++) side[k * BLOCK + i] = (tmpL[i] - tmpR[i]) / 2;
           analysis.finishMeters(BLOCK);
           for (let v = 0; v < 7; v++) levels[k * 7 + v] = analysis.voiceLevels[v];
-          for (let v = 0; v < 6; v++) waves[k * 6 + v] = analysis.voiceWaveforms[v];
+          for (let v = 0; v < 6; v++) { waves[k * 6 + v] = analysis.voiceWaveforms[v]; freqs[k * 6 + v] = analysis.voiceFreqs[v]; }
           analysis.resetMeters();
         }
       }
-      sink.postMessage({ type: 'chunk', gen: myGen, t0, l, r, s: side, levels, waves, blocks }, [l.buffer, r.buffer, side.buffer]);
+      sink.postMessage({ type: 'chunk', gen: myGen, t0, l, r, s: side, levels, waves, freqs, blocks }, [l.buffer, r.buffer, side.buffer]);
       wanted -= CHUNK;
       renderMs += spent; renderFrames += CHUNK;
       const ratio = spent / (CHUNK / sampleRate * 1000);

@@ -1,7 +1,7 @@
 // CRT visualizer in the manner of the C64's VIC-II: a picture with a 320x200 display window inside a border that overscan trims,
 // the 16 Pepto colours only, 8x8 character cells, 2x1 multicolour pixels, hardware sprites (24x21, expandable, 8 per
 // scanline) multiplexed into two bands, raster bars and per-line border colours. The analogue CRT faults are always on but
-// mostly asleep: a faint bass wobble, hum bar and noise, a tiny tick every ~17 s and one real glitch about once a minute.
+// mostly asleep: a faint bass wobble, hum bar and noise, a tiny tick every ~45 s and one real glitch about every two and a half minutes.
 // The effects are drawn at the C64's own size: 368x240 with a 24x20 border around the 320x200 window. A second pass stretches
 // that to the tube: the border keeps a fixed thickness on screen (8.5% of the shorter side, the same on all four sides) and
 // the window takes whatever is left, so its pixels may come out wider or taller than square.
@@ -686,7 +686,7 @@ float scene(vec2 p){
       if(bit>.5)idx=14.;
       if(cell.x==scrCur.x&&cell.y==scrCur.y&&scrCur.z>.5)idx=14.;
     }
-    if(scrLoad>.5){float r=hash2(vec2(floor(c.y/2.),floor(vtime*50.)));bidx=r<.4?0.:(r<.7?6.:14.);}
+    if(scrLoad>.5){float r=hash2(vec2(floor(c.y/5.),floor(vtime*14.)));bidx=r<.35?6.:14.;}
   }else if(md==25){
     // Piano roll: every voice leaves a trail of its pitch (up is higher) that scrolls to the left; the trail is thicker when louder.
     bidx=0.;
@@ -756,14 +756,14 @@ void main(){
   gSet=floor(seed.y*4.);
   float x=floor(gl_FragCoord.x),y=res.y-1.-floor(gl_FragCoord.y);
   float b=bass,tt=vtime;
-  float dx=0.,cs=1.;
+  float dx=0.,cs=0.;
   // The tube is clean most of the time: only a faint bass wobble, a barely visible hum bar and a little noise.
-  dx+=floor(sin(y*.12+tt*9.)*b*.9+.5);
-  // Rare small tick: a few scanlines flick sideways, about every 17 s.
-  float e2=floor(tt/17.),l2=tt-e2*17.-hash(e2+9.)*13.;
+  dx+=floor(sin(y*.12+tt*9.)*b*.45+.5);
+  // Rare small tick: a few scanlines flick sideways, about every 45 s.
+  float e2=floor(tt/45.),l2=tt-e2*45.-hash(e2+9.)*40.;
   if(l2>=0.&&l2<.1){float y2=floor(hash(e2+4.)*(res.y-8.));if(y>=y2&&y<y2+3.)dx+=5.;}
-  // Very rare real glitch, about once a minute: tearing bands, wide colour split, a flash and a burst of snow.
-  float ev=floor(tt/55.),lt=tt-ev*55.-(4.+hash(ev+3.)*45.);
+  // Very rare real glitch, about every two and a half minutes: tearing bands, wide colour split, a flash and a burst of snow.
+  float ev=floor(tt/150.),lt=tt-ev*150.-(4.+hash(ev+3.)*140.);
   float k=0.;
   if(lt>=0.&&lt<.55){
     k=1.-lt/.55;
@@ -773,13 +773,13 @@ void main(){
       float y0=floor(hash(ev*3.+fi*7.+step_)*(res.y-24.)),hh=6.+floor(hash(ev+fi+step_)*18.);
       if(y>=y0&&y<y0+hh)dx+=floor((hash2(vec2(y,step_+fi))-.5)*64.*k);
     }
-    cs=1.+floor(3.*k);
+    cs=floor(3.*k);
   }
   vec2 p=vec2(x+dx,y);
   vec3 col=vec3(pc(scene(p+vec2(cs,0.))).r,pc(scene(p)).g,pc(scene(p-vec2(cs,0.))).b);
   float yb=mod(tt*18.,res.y+80.)-40.;
-  col*=1.+.05*(1.-smoothstep(0.,36.,abs(y-yb)))-.03;
-  col+=(hash2(vec2(x,y)+floor(tt*60.))-.5)*(.03+.42*k*k);
+  col*=1.+.03*(1.-smoothstep(0.,36.,abs(y-yb)))-.02;
+  col+=(hash2(vec2(x,y)+floor(tt*60.))-.5)*(.015+.42*k*k);
   col+=.14*k;
   gl_FragColor=vec4(clamp(col,0.,1.),1.);
 }`;

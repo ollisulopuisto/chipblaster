@@ -2430,3 +2430,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* The picture ends where the thumbwheel strip begins, so its right border is not hidden under it */
 .c64-shell .display-window .visual{width:calc(100% - 108px);margin-right:96px}
 @media(max-width:700px){.c64-shell .display-window .visual{width:calc(100% - 84px);margin-right:76px}}
+/* Hidden BASIC prompt in the title display (press the quote key, or hold the logo): the text goes into the scrollers */
+.c64-shell .title-console .basic-prompt{display:flex;align-items:center;flex:1 1 auto;min-width:0;gap:0;font:600 15px/1 "Courier New",monospace;letter-spacing:.06em;color:#8be9f4;text-shadow:0 0 6px #38b6c855}
+.c64-shell .title-console .basic-prompt input{flex:1;min-width:0;background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;padding:0!important;margin:0;font:inherit;letter-spacing:inherit;color:inherit;text-transform:uppercase;caret-color:#8be9f4;caret-shape:block}

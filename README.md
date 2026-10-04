@@ -24,6 +24,12 @@ A portable SID station in the browser: browse and play the High Voltage SID Coll
 - WIDE knob for headphones: a mono-safe stereo widener on one-SID tunes, and a chip spread (SID 1 left, SID 2 right) on multi-SID tunes.
 - The CRT visualizer imitates the C64's VIC-II: a 368x240 picture drawn at the C64's own size, with a border around a 320x200 window; a second pass stretches it to the tube so that the border keeps a fixed thickness on all four sides (8.5% of the shorter side) while the window takes the rest and its pixels may come out wider or taller than square, only the 16 Pepto colours, 8x8 character cells, 2x1 multicolour pixels, hardware sprites multiplexed in two bands (at most 8 per scanline), raster bars and border flashes on bass hits. Analogue CRT faults (line jitter, tracking glitches, colour bleed, hum bar, noise) are always on. The effects are in `src/c64-viz.ts`.
 
+### Scroller text and the hidden BASIC prompt
+
+The three scroller effects (DYCP scroller, Zoomscroll, Circle scroll) draw the C64 character-ROM letters and show the name of the tune and its author, followed by an optional message of your own (up to 256 characters). Several effects also take a seed from the tune (its HVSC path, or its title and author for local files): it shifts the phase, rotates the colour ramps and changes the sprite colours, so each tune gets its own look.
+
+The message is an Easter egg. Press the quote key (Shift-2) anywhere on the page, or hold the CHIPBLASTER logo for a moment on a phone. The title display turns into a BASIC prompt, `10 PRINT "`, where you type the text; Enter keeps it (and remembers it in the browser), Esc cancels. The share link carries the message as `&m=...`, so whoever opens the link sees it in the scrollers.
+
 ### Visualizer effects and their sources
 
 The thumbwheel cycles 25 effects built after the demoscene's best-rated C64 productions (ranking from CSDb, 2026). They are my own GLSL imitations running under the C64's limits (16 Pepto colours, 8x8 cells, sprite limits, per-effect frame rates), not ports of the original code:

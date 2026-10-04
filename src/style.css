@@ -2374,3 +2374,10 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* The EJECT key sits on the logo's centre line and on the display's left edge */
 .c64-shell .eject-fixed{left:calc(var(--shell-pad,22px) + 22px);top:33px}
 @media(max-width:700px){.c64-shell .eject-fixed{left:calc(var(--shell-pad,9px) + 24px);top:17px}}
+/* One set of edges: the housings share the deck's width, everything inside them shares the screen's width */
+.c64-shell .player-body>.now-playing-strip.title-console{width:auto!important;align-self:stretch!important;margin-left:24px!important;margin-right:24px!important}
+@media(min-width:701px){.c64-shell .flip-stage.flipped .flip-back{left:calc(var(--lid-left,0px) + 12px)!important;width:calc(var(--lid-w,100%) - 24px)!important}}
+@media(max-width:700px){.c64-shell .flip-stage.flipped .flip-back{left:28px!important;right:28px!important;width:auto!important}}
+@media(min-width:701px){.c64-shell .flip-stage.flipped::before{left:calc(var(--lid-left,0px) + 12px);width:calc(var(--lid-w,0px) - 24px)}}
+.c64-shell .flip-stage.flipped .flip-back>.catalog-panel.catalog-open{padding:0!important}
+.c64-shell .flip-stage.flipped .flip-back{padding-left:9px!important;padding-right:9px!important}

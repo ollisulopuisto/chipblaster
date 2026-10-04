@@ -1,9 +1,11 @@
-// CRT visualizer in the manner of the C64's VIC-II: a 384x272 PAL picture (320x200 display window inside a border),
+// CRT visualizer in the manner of the C64's VIC-II: a picture with a 320x200 display window inside a border that overscan trims,
 // the 16 Pepto colours only, 8x8 character cells, 2x1 multicolour pixels, hardware sprites (24x21, expandable, 8 per
 // scanline) multiplexed into two bands, raster bars and per-line border colours. The analogue CRT faults (line jitter,
 // tracking glitches, colour bleed, hum bar, noise) are always on.
-export const C64_W = 384;
-export const C64_H = 272;
+// The buffer takes the shape of the tube. The 320x200 window sits in the middle; the border is what the glass leaves
+// visible after overscan: 232 rows tall, and at least 355 wide so the window always fits.
+export const C64_OVERSCAN_ROWS = 232;
+export const C64_MIN_W = 355;
 export const C64_BANDS = 40;
 
 export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun'];
@@ -60,7 +62,8 @@ float flashCol(float n){
 float scene(vec2 p){
   float t=time*.8,b=bass,m=mids,h=treble;
   float x=floor(p.x),y=floor(p.y);
-  vec2 c=vec2(x-32.,y-36.);
+  vec2 org=floor((res-vec2(320.,200.))*.5);
+  vec2 c=vec2(x,y)-org;
   bool inside=c.x>=0.&&c.x<320.&&c.y>=0.&&c.y<200.;
   float bidx=14.,idx=0.;
   float flash=step(.72,b);
@@ -73,7 +76,7 @@ float scene(vec2 p){
     for(int i=0;i<8;i++){
       float fi=float(i);
       float ph=t*(.8+fi*.11)+fi*.8;
-      float cy=136.+sin(ph)*(60.+b*55.)+sin(t*.5+fi*1.7)*18.;
+      float cy=res.y*.5+sin(ph)*(res.y*.22+b*res.y*.2)+sin(t*.5+fi*1.7)*res.y*.065;
       float hh=9.+b*7.+m*3.;
       float d=abs(y-cy)/hh;
       if(d<1.){float z=cos(ph);if(z>depth){depth=z;o=rampIdx(fi,(1.-d)*1.12);}}
@@ -188,14 +191,14 @@ void main(){
   dx+=floor(sin(y*.12+tt*9.)*b*1.6+.5);
   float g=floor(tt*3.);
   if(hash(g)>.74&&fract(tt*3.)<.3){
-    float y0=floor(hash(g+1.)*240.),hh=5.+floor(hash(g+2.)*14.);
+    float y0=floor(hash(g+1.)*(res.y-30.)),hh=5.+floor(hash(g+2.)*14.);
     if(y>=y0&&y<y0+hh)dx+=floor((hash2(vec2(y,floor(tt*30.)))-.5)*36.);
   }
   vec2 p=vec2(x+dx,y);
   // colour bleed: red sampled a pixel to the right, blue a pixel to the left
   vec3 col=vec3(pc(scene(p+vec2(1.,0.))).r,pc(scene(p)).g,pc(scene(p-vec2(1.,0.))).b);
   // hum bar and noise
-  float yb=mod(tt*18.,360.)-40.;
+  float yb=mod(tt*18.,res.y+80.)-40.;
   col*=1.+.1*(1.-smoothstep(0.,36.,abs(y-yb)))-.05;
   col+=(hash2(vec2(x,y)+floor(tt*60.))-.5)*.07;
   gl_FragColor=vec4(clamp(col,0.,1.),1.);

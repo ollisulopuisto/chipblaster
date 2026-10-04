@@ -66,6 +66,44 @@ GLYPH_ROWS.forEach((rows, g) => {
   for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) C64_ATLAS[r * C64_ATLAS_W + g * 8 + c] = (rows[r] >> (7 - c)) & 1 ? 255 : 0;
 });
 export const C64_SCROLL_MAX = 512;
+export const C64_SCREEN_COLS = 40;
+export const C64_SCREEN_ROWS = 25;
+/** A 40x25 text screen as glyph numbers, one byte per character cell. */
+export function encodeScreen(rows: string[]): Uint8Array {
+  const out = new Uint8Array(C64_SCREEN_COLS * C64_SCREEN_ROWS);
+  for (let r = 0; r < Math.min(rows.length, C64_SCREEN_ROWS); r++) {
+    const line = rows[r].toUpperCase();
+    for (let c = 0; c < Math.min(line.length, C64_SCREEN_COLS); c++) out[r * C64_SCREEN_COLS + c] = Math.max(0, GLYPH_CHARS.indexOf(line[c]));
+  }
+  return out;
+}
+export const C64_BOOT_ROWS = ['', '    **** CHIPBLASTER 64 BASIC V2 ****', '', ' 64K RAM SYSTEM  38911 BASIC BYTES FREE', '', 'READY.', ''];
+/**
+ * The screen while the next effect "loads from the built-in drive": the LOAD command is typed, the drive searches and loads
+ * (the border stripes for a moment), READY. comes back and RUN is typed. `fromBoot` keeps the start-up text above the command.
+ */
+export function loadScreen(t: number, name: string, fromBoot: boolean): { rows: string[]; cx: number; cy: number; load: number; done: boolean } {
+  const rows = fromBoot ? C64_BOOT_ROWS.slice(0, 6) : ['READY.'];
+  const nm = name.toUpperCase().replace(/[^A-Z0-9 ]/g, '').slice(0, 22);
+  const cmd = 'LOAD"' + nm + '",8,1';
+  const typeAt = 0.15, per = 0.03;
+  const typed = Math.max(0, Math.min(cmd.length, Math.floor((t - typeAt) / per)));
+  const tSearch = typeAt + cmd.length * per + 0.2, tLoad = tSearch + 0.45, tReady = tSearch + 1.05;
+  rows.push(cmd.slice(0, typed));
+  let cx = typed, load = 0;
+  if (t >= tSearch) {
+    rows.push('', 'SEARCHING FOR ' + nm);
+    if (t >= tLoad) rows.push('LOADING');
+    if (t >= tLoad && t < tReady) load = 1;
+    if (t >= tReady) {
+      rows.push('READY.', '');
+      const n = Math.max(0, Math.min(3, Math.floor((t - tReady - 0.15) / 0.07)));
+      rows[rows.length - 1] = 'RUN'.slice(0, n);
+      cx = n;
+    } else { rows.push(''); cx = 0; }
+  }
+  return { rows, cx, cy: rows.length - 1, load, done: t >= tReady + 0.7 };
+}
 /** Text to glyph numbers: uppercase, accents stripped, anything the C64 set lacks becomes a space. */
 export function encodeScroll(text: string): { data: Uint8Array; len: number } {
   const clean = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().slice(0, C64_SCROLL_MAX);
@@ -93,6 +131,9 @@ uniform float vw[6];
 uniform float vp[6];
 uniform sampler2D hist;
 uniform float histHead;
+uniform sampler2D scrTex;
+uniform vec3 scrCur;
+uniform float scrLoad;
 uniform sampler2D fontTex;
 uniform sampler2D msgTex;
 uniform float msgLen;
@@ -597,6 +638,16 @@ float scene(vec2 p){
       }
     }
     if(best>=0.)idx=best;
+  }else if(md==26){
+    // The C64 text screen: blue paper, light blue ink and border, a blinking block cursor.
+    bidx=14.;canFlash=false;idx=6.;
+    if(inside){
+      vec2 cell=floor(c/8.);
+      float g=floor(texture2D(scrTex,vec2((cell.x+.5)/40.,(cell.y+.5)/25.)).r*255.+.5);
+      if(glyphBit(g,mod(c.x,8.),mod(c.y,8.))>.5)idx=14.;
+      if(cell.x==scrCur.x&&cell.y==scrCur.y&&scrCur.z>.5)idx=14.;
+    }
+    if(scrLoad>.5){float r=hash2(vec2(floor(c.y/2.),floor(vtime*50.)));bidx=r<.4?0.:(r<.7?6.:14.);}
   }else if(md==25){
     // Piano roll: every voice leaves a trail of its pitch (up is higher) that scrolls to the left; the trail is thicker when louder.
     bidx=0.;
@@ -650,7 +701,7 @@ float scene(vec2 p){
   }
   if(canFlash&&flash>.5)bidx=flashCol(floor(time*14.));
   // The border carries a small meter per voice: bars grow from the middle of the bottom and top borders in the voice's colour.
-  if(!inside&&!openAll&&md!=8){
+  if(!inside&&!openAll&&md!=8&&md!=26){
     float bd=c.y>=200.?c.y-200.:(c.y<0.?c.y+20.:-1.);
     if(bd>=0.&&c.x>=0.&&c.x<320.){
       float row=floor(bd/6.);

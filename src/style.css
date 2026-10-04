@@ -1560,7 +1560,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 }
 
 /* Five momentary utility keys align beneath the five transport keys. */
-.c64-shell .console>.controls.transport-controls>button:nth-child(n+6){grid-column:span 4!important}
+.c64-shell .console>.controls.transport-controls>button:nth-child(n+6){grid-column:span 5!important}
 .c64-shell .console>.controls.transport-controls>button.favorite-key{position:relative;transform:none!important;border:1px solid #718078!important;border-bottom:2px solid #52655b!important;border-radius:2px;background:#c8ccc5;box-shadow:inset 1px 1px 1px #f8f9ee,2px 3px 2px #26332b66!important;transition:transform .12s,border-bottom-width .12s,box-shadow .12s}
 .c64-shell .console>.controls.transport-controls>button.favorite-key:active:not(:disabled){transform:translateY(1px)!important;border-bottom-width:1px!important;box-shadow:inset 1px 1px 3px #32443799,2px 3px 2px #26332b66!important}
 .c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#71c875;box-shadow:0 0 5px #6dbb6d,inset 0 1px #e0f5d7}
@@ -2320,18 +2320,12 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .console{background:var(--screw) 9px 9px/12px 12px no-repeat,var(--screw) right 9px top 9px/12px 12px no-repeat,var(--screw) 9px bottom 9px/12px 12px no-repeat,var(--screw) right 9px bottom 9px/12px 12px no-repeat,linear-gradient(100deg,transparent 18%,#ffffff55 42%,transparent 62%),var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#e8e6e0,#cfcdc5 50%,#c1beb6)!important;border-color:#8d8b84!important;border-radius:6px!important}
 .c64-shell .control-top{background:linear-gradient(180deg,#dad8d1,#c6c3bb)!important;border-color:#98958d!important;border-radius:5px!important}
 /* Keys: black piano keys with light legends */
-.c64-shell .console>.controls.transport-controls>button{background:linear-gradient(#41413f,#232321 52%,#161615)!important;color:#ece9e1!important;border:1px solid #060606!important;border-bottom:3px solid #000!important;border-radius:2px!important;box-shadow:inset 0 1px 0 #ffffff40,inset 0 0 0 1px #ffffff12,0 2px 3px #0007!important}
-.c64-shell .console>.controls.transport-controls>button:active:not(:disabled){transform:translateY(1px)!important;border-bottom-width:1px!important;background:linear-gradient(#1a1a19,#2a2a28)!important;box-shadow:inset 0 3px 5px #000c!important}
 /* Speaker baffle: walnut with grille cloth */
 .c64-shell .base-plate{background:linear-gradient(180deg,#ffffff1c,transparent 30%,#00000038),var(--wood) 0 0/160px 420px!important;border:1px solid #28160b!important;border-radius:3px!important;box-shadow:inset 0 2px 5px #000a,0 1px 0 #fff7!important}
 /* Setup hatch: black lid */
 .c64-shell .setup-lid{background:linear-gradient(#3b3b39,#1d1d1c 55%,#2a2a28)!important;color:#d9d6ce!important;border:1px solid #060606!important}
 .c64-shell .setup-hatch{background:linear-gradient(#0d0d0c,#1a1a19)!important}
 /* Icons and small keys follow the black keys */
-.c64-shell .console .transport-controls .deck-icon,.c64-shell .console .transport-controls .tape-button.pressed .deck-icon{color:#ece9e1!important;fill:#ece9e1!important}
-.c64-shell .console .transport-controls button:disabled .deck-icon{opacity:.4}
-.c64-shell .sid-model-keys button,.c64-shell button[aria-label="Stereo enhance"],.c64-shell .sub-key,.c64-shell .manual-key{background:linear-gradient(#41413f,#232321 52%,#161615)!important;color:#e6e3db!important;border:1px solid #060606!important;border-bottom:3px solid #000!important;border-radius:2px!important;box-shadow:inset 0 1px 0 #ffffff40,inset 0 0 0 1px #ffffff12,0 2px 3px #0007!important;text-shadow:none!important}
-.c64-shell .sid-model-keys button[aria-pressed="true"],.c64-shell button[aria-label="Stereo enhance"][aria-pressed="true"],.c64-shell .manual-key[aria-pressed="true"],.c64-shell .sid-model-keys button:active:not(:disabled),.c64-shell .sub-key:active:not(:disabled),.c64-shell .manual-key:active:not(:disabled){background:linear-gradient(#0b0b0a,#1f1f1e)!important;transform:translateY(2px);border-bottom-width:1px!important;box-shadow:inset 0 3px 5px #000d,0 1px 0 #fff6!important}
 .c64-shell .sub-key:disabled{opacity:.5}
 /* Silver a little deeper, speaker rings in chrome, nameplate and lid without the old tan */
 .device-stage>.c64-shell,.c64-shell{background:var(--wood) left top/var(--shell-pad,22px) 420px repeat-y,var(--wood) right top/var(--shell-pad,22px) 420px repeat-y,linear-gradient(100deg,transparent 18%,#ffffff40 42%,transparent 62%),var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#e1dfd8,#c9c6be 38%,#adaba3)!important}
@@ -2340,7 +2334,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .setup-lid{box-shadow:inset 0 1px #ffffff33,0 2px 0 #55524a,0 3px 4px #0008!important}
 /* Screws on the faceplate corners, a TONE group legend with its rule, disabled keys stay black */
 .device-stage>.c64-shell,.c64-shell{background:var(--screw) left var(--screw-x,calc(var(--shell-pad,22px) + 10px)) top 14px/12px 12px no-repeat,var(--screw) right var(--screw-x,calc(var(--shell-pad,22px) + 10px)) top 14px/12px 12px no-repeat,var(--screw) left var(--screw-x,calc(var(--shell-pad,22px) + 10px)) bottom 10px/12px 12px no-repeat,var(--screw) right var(--screw-x,calc(var(--shell-pad,22px) + 10px)) bottom 10px/12px 12px no-repeat,var(--wood) left top/var(--shell-pad,22px) 420px repeat-y,var(--wood) right top/var(--shell-pad,22px) 420px repeat-y,linear-gradient(100deg,transparent 18%,#ffffff40 42%,transparent 62%),var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#e1dfd8,#c9c6be 38%,#adaba3)!important}
-.c64-shell .console>.controls.transport-controls>button:disabled{background:linear-gradient(#2b2b29,#1a1a19)!important;opacity:1!important}
 .c64-shell .control-top .eq-deck{position:relative}
 .c64-shell .control-top .eq-deck::before{content:'TONE';position:absolute;left:10px;top:3px;font:700 8px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.2em;color:#1c1c1a}
 .c64-shell .control-top .eq-deck::after{content:'';position:absolute;left:52px;right:10px;top:7px;border-top:1px solid #8d8b84}
@@ -2348,9 +2341,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .setup-tab{background:var(--alu-grain) 0 0/300px 300px,linear-gradient(#e0ded7,#b6b3ab)!important;border-color:#6d6a63!important;color:#1c1c1a!important}
 /* The tune browser follows the same materials: charcoal panels, black keys, warm paper list */
 .c64-shell .flip-back .hvsc .selector-block:not(#k){background:linear-gradient(#2a2a28,#1d1d1c)!important;border-color:#76736c!important}
-.c64-shell .flip-back .hvsc .selector-button-block button:not(#k),.c64-shell .flip-back .hvsc .loader-pagination button:not(#k){background:linear-gradient(#41413f,#232321 52%,#161615)!important;color:#ece9e1!important;border:1px solid #060606!important;border-bottom:3px solid #000!important;border-radius:2px!important;box-shadow:inset 0 1px 0 #ffffff40,inset 0 0 0 1px #ffffff12,0 2px 3px #0007!important}
-.c64-shell .flip-back .hvsc .selector-button-block button:not(#k) svg,.c64-shell .flip-back .hvsc .loader-pagination button:not(#k) svg{color:#ece9e1!important;fill:#ece9e1!important}
-.c64-shell .flip-back .hvsc .selector-button-block button:not(#k)[aria-pressed="true"],.c64-shell .flip-back .hvsc .selector-button-block button:not(#k):active:not(:disabled),.c64-shell .flip-back .hvsc .loader-pagination button:not(#k):active:not(:disabled){background:linear-gradient(#0b0b0a,#1f1f1e)!important;transform:translateY(2px);border-bottom-width:1px!important;box-shadow:inset 0 3px 5px #000d,0 1px 0 #fff6!important}
 .c64-shell .flip-back .hvsc .loader-pagination button:not(#k):disabled{opacity:.45}
 .c64-shell .flip-back .hvsc .hvsc-list:not(#k),.c64-shell .flip-back .hvsc .hvsc-row:not(#k),.c64-shell .flip-back .queue-panel .playlist-rows:not(#k){background-color:#e6e4dd!important;border-color:#c3c0b7!important;color:#232321!important}
 /* Rating plate on the baffle */
@@ -2360,3 +2350,22 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell{--screw-x:calc(var(--shell-pad,9px) + 4px)}}
 /* SID 1 and SID 2 legends share one left edge above their keys (phones) */
 @media(max-width:700px){.c64-shell .control-top .sid-model-pair{align-items:flex-start!important}.c64-shell .control-top .sid-model-pair fieldset{align-items:flex-start!important;text-align:left!important}.c64-shell .control-top .sid-model-pair legend{float:none!important;width:auto!important;min-width:0!important;margin:0 0 2px!important;padding:0!important;text-align:left!important}}
+/* No dark slot: the screen housing rises out of the control panel in front of the aluminium face, so there is only one panel to see. */
+.c64-shell .screen-carriage{background-color:transparent!important;box-shadow:none!important}
+.c64-shell .screen-carriage::after{border-top-color:transparent!important;box-shadow:none!important}
+/* Keys: brushed metal, a little lighter than the face, with dark edges. Pushed in = darker metal, lower, with an inset shadow, so the state reads at a glance. */
+.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed):not(#k){background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#f5f3ed,#d8d5cd 46%,#c0bdb5)!important;color:#1c1c1a!important;border:1px solid #4d4b46!important;border-bottom:3px solid #3a3935!important;border-radius:3px!important;box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px #ffffff55,0 2px 3px #0008!important;text-shadow:0 1px 0 #fff8!important;transform:none}
+.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed):not(#k):is([aria-pressed="true"],.pressed,.favorite-active,.lit,:active:not(:disabled)){background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#97948b,#b1aea5 40%,#c3c0b7)!important;transform:translateY(2px)!important;border-bottom-width:1px!important;box-shadow:inset 0 3px 7px #000a,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}
+.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed):not(#k):disabled{opacity:.5!important}
+.c64-shell :is(.console .transport-controls>button,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed):not(#k) svg{color:#1c1c1a!important;fill:#1c1c1a!important}
+.c64-shell .console .transport-controls .deck-icon,.c64-shell .console .transport-controls .tape-button.pressed .deck-icon,.c64-shell .flip-back .hvsc .deck-icon,.c64-shell .eject-fixed .deck-icon{color:#1c1c1a!important;fill:#1c1c1a!important}
+.c64-shell .key-legend{color:#1c1c1a!important}
+/* One EJECT key on the case top, outside the part that flips, so it never moves: press it again without moving the pointer */
+.c64-shell .eject-fixed{position:absolute!important;left:calc(var(--shell-pad,22px) + 34px);top:11px;width:66px!important;min-width:0!important;height:34px!important;min-height:0!important;padding:0!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:1px;z-index:6;cursor:pointer}
+.c64-shell .eject-fixed .deck-icon{width:15px!important;height:15px!important;margin:0!important}
+.c64-shell .eject-fixed .key-legend{display:block!important;font:700 6.5px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;letter-spacing:.14em;margin:0!important}
+.c64-shell .boombox-top::before{display:none}
+@media(max-width:700px){.c64-shell .eject-fixed{left:calc(var(--shell-pad,9px) + 24px);top:13px;width:52px!important;height:30px!important}}
+
+/* The lower half moves with the screen block's height every frame; its own layers move without being repainted */
+.c64-shell .console,.c64-shell .player-body>.base-plate{will-change:transform}

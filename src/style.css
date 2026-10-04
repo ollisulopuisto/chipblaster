@@ -2336,7 +2336,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .device-stage>.c64-shell,.c64-shell{background:var(--screw) left var(--screw-x,calc(var(--shell-pad,22px) + 10px)) top 14px/12px 12px no-repeat,var(--screw) right var(--screw-x,calc(var(--shell-pad,22px) + 10px)) top 14px/12px 12px no-repeat,var(--screw) left var(--screw-x,calc(var(--shell-pad,22px) + 10px)) bottom 10px/12px 12px no-repeat,var(--screw) right var(--screw-x,calc(var(--shell-pad,22px) + 10px)) bottom 10px/12px 12px no-repeat,var(--wood) left top/var(--shell-pad,22px) 420px repeat-y,var(--wood) right top/var(--shell-pad,22px) 420px repeat-y,linear-gradient(100deg,transparent 18%,#ffffff40 42%,transparent 62%),var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#e1dfd8,#c9c6be 38%,#adaba3)!important}
 .c64-shell .control-top .eq-deck{position:relative}
 .c64-shell .control-top .eq-deck::before{content:'TONE';position:absolute;left:10px;top:3px;font:700 8px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.2em;color:#1c1c1a}
-.c64-shell .control-top .eq-deck::after{content:'';position:absolute;left:52px;right:10px;top:7px;border-top:1px solid #8d8b84}
+.c64-shell .control-top .eq-deck::after{content:'';position:absolute;left:52px;right:190px;top:7px;border-top:1px solid #8d8b84}
 @media(max-width:700px){.c64-shell .control-top .eq-deck::before,.c64-shell .control-top .eq-deck::after{display:none}}
 .c64-shell .setup-tab{background:var(--alu-grain) 0 0/300px 300px,linear-gradient(#e0ded7,#b6b3ab)!important;border-color:#6d6a63!important;color:#1c1c1a!important}
 /* The tune browser follows the same materials: charcoal panels, black keys, warm paper list */
@@ -2399,7 +2399,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(min-width:701px){
   .c64-shell .console>.control-top{position:relative}
   .c64-shell .console>.control-top:has(.peq-details),.c64-shell .flip-front:has(.peq-details){overflow:visible!important}
-  .c64-shell .control-top .eq-deck .eq-band,.c64-shell .control-top .eq-deck{position:static!important}
+  .c64-shell .control-top .eq-deck .eq-band{position:static!important}
+  .c64-shell .control-top .eq-deck{position:relative!important}
   .c64-shell .control-top .eq-deck .eq-band.space-band{position:relative!important}
   .c64-shell .control-top .eq-deck .peq-details,.c64-shell .eq-band:nth-child(n) .peq-details{position:absolute!important;left:50%!important;right:auto!important;top:calc(100% + 6px)!important;transform:translateX(-50%)!important;width:300px!important;max-width:none!important;box-sizing:border-box;z-index:20}
 }

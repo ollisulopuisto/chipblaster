@@ -22,6 +22,7 @@ A portable SID station in the browser: browse and play the High Voltage SID Coll
 - Three voice meters with waveform lamps (SID 1 amber, SID 2 cyan), a master meter, a frequency spectrum and audio-driven speaker cones.
 - Bass, mid and treble tone knobs with optional parametric frequency/Q (tap or click the knob's name, or right-click or long-press the knob; double-click resets), plus volume on `+` / `-`.
 - WIDE knob for headphones: a mono-safe stereo widener on one-SID tunes, and a chip spread (SID 1 left, SID 2 right) on multi-SID tunes.
+- The CRT visualizer imitates the C64's VIC-II: a 384x272 PAL picture with a border and a 320x200 window, only the 16 Pepto colours, 8x8 character cells, 2x1 multicolour pixels, hardware sprites multiplexed in two bands (at most 8 per scanline), raster bars and border flashes on bass hits. Analogue CRT faults (line jitter, tracking glitches, colour bleed, hum bar, noise) are always on. The effects are in `src/c64-viz.ts`.
 - Cycle visualizer presets with the thumbwheel; fold the case to hide the visualizer while music keeps playing.
 - Share a link to the current tune, and save favorites in this browser.
 - An in-app manual (MANUAL key on the base plate) lists the controls and shortcuts.

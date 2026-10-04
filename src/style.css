@@ -2410,4 +2410,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .boombox-brand .c64-rainbow.lit{background:#10261a!important}
 .c64-shell .boombox-brand .c64-rainbow.lit::after{color:#9cf2b2;text-shadow:0 0 5px #5fe08088}
 /* The VIC-II picture keeps its 384x272 shape inside the tube and is scaled with hard pixels */
-.c64-shell .display-window .visual{object-fit:contain;image-rendering:pixelated;background:#030405}
+.c64-shell .display-window .visual{object-fit:fill;image-rendering:pixelated;background:#030405}
+/* SID keys: the label takes only the width of its text, so label and keys together sit in the middle of the panel */
+@media(min-width:701px){.c64-shell .control-top .sid-model-pair legend{width:auto!important;min-width:0!important}}

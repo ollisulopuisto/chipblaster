@@ -72,8 +72,10 @@ export const C64_SCREEN_ROWS = 25;
 export function encodeScreen(rows: string[]): Uint8Array {
   const out = new Uint8Array(C64_SCREEN_COLS * C64_SCREEN_ROWS);
   for (let r = 0; r < Math.min(rows.length, C64_SCREEN_ROWS); r++) {
-    const line = rows[r].toUpperCase();
-    for (let c = 0; c < Math.min(line.length, C64_SCREEN_COLS); c++) out[r * C64_SCREEN_COLS + c] = Math.max(0, GLYPH_CHARS.indexOf(line[c]));
+    let line = rows[r].toUpperCase();
+    const rev = line[0] === '\u0001';
+    if (rev) line = line.slice(1).padEnd(C64_SCREEN_COLS, ' ');
+    for (let c = 0; c < Math.min(line.length, C64_SCREEN_COLS); c++) out[r * C64_SCREEN_COLS + c] = Math.max(0, GLYPH_CHARS.indexOf(line[c])) + (rev ? 64 : 0);
   }
   return out;
 }
@@ -103,6 +105,40 @@ export function loadScreen(t: number, name: string, fromBoot: boolean): { rows: 
     } else { rows.push(''); cx = 0; }
   }
   return { rows, cx, cy: rows.length - 1, load, done: t >= tReady + 0.7 };
+}
+/** The start of a scroll through the effects: LOAD"$",8, the drive reads the directory, LIST. */
+export function dirIntro(t: number, fromBoot: boolean): { rows: string[]; cx: number; cy: number; load: number; done: boolean } {
+  const rows = fromBoot ? C64_BOOT_ROWS.slice(0, 6) : ['READY.'];
+  const cmd = 'LOAD"$",8';
+  const typed = Math.max(0, Math.min(cmd.length, Math.floor((t - 0.05) / 0.03)));
+  const tS = 0.05 + cmd.length * 0.03 + 0.12, tL = tS + 0.15, tR = tS + 0.45;
+  rows.push(cmd.slice(0, typed));
+  let cx = typed, load = 0;
+  if (t >= tS) {
+    rows.push('', 'SEARCHING FOR $');
+    if (t >= tL) rows.push('LOADING');
+    if (t >= tL && t < tR) load = 1;
+    if (t >= tR) {
+      rows.push('READY.', '');
+      const n = Math.max(0, Math.min(4, Math.floor((t - tR - 0.08) / 0.05)));
+      rows[rows.length - 1] = 'LIST'.slice(0, n);
+      cx = n;
+    } else { rows.push(''); cx = 0; }
+  }
+  return { rows, cx, cy: rows.length - 1, load, done: t >= tR + 0.35 };
+}
+/** The directory of the effects, as LIST would print it; the chosen one is in reverse video. */
+export function dirScreen(sel: number): { rows: string[]; cx: number; cy: number; load: number; done: boolean } {
+  const n = c64Presets.length, vis = 22;
+  const start = Math.max(0, Math.min(n - vis, sel - 10));
+  const rows = ['\u00010 "CHIPBLASTER 64   " CB 2A'];
+  for (let i = start; i < Math.min(n, start + vis); i++) {
+    const blk = String(2 + ((i * 37 + 11) % 48)).padEnd(5);
+    const nm = c64Presets[i].toUpperCase().replace(/[^A-Z0-9 ]/g, '').padEnd(16);
+    rows.push((i === sel ? '\u0001' : '') + blk + '"' + nm + '" PRG');
+  }
+  if (start + vis >= n) rows.push('664 BLOCKS FREE.');
+  return { rows, cx: 0, cy: 24, load: 0, done: false };
 }
 /** Text to glyph numbers: uppercase, accents stripped, anything the C64 set lacks becomes a space. */
 export function encodeScroll(text: string): { data: Uint8Array; len: number } {
@@ -644,7 +680,10 @@ float scene(vec2 p){
     if(inside){
       vec2 cell=floor(c/8.);
       float g=floor(texture2D(scrTex,vec2((cell.x+.5)/40.,(cell.y+.5)/25.)).r*255.+.5);
-      if(glyphBit(g,mod(c.x,8.),mod(c.y,8.))>.5)idx=14.;
+      float rv=step(63.5,g);g-=rv*64.;
+      float bit=glyphBit(g,mod(c.x,8.),mod(c.y,8.));
+      if(rv>.5)bit=1.-bit;
+      if(bit>.5)idx=14.;
       if(cell.x==scrCur.x&&cell.y==scrCur.y&&scrCur.z>.5)idx=14.;
     }
     if(scrLoad>.5){float r=hash2(vec2(floor(c.y/2.),floor(vtime*50.)));bidx=r<.4?0.:(r<.7?6.:14.);}

@@ -18,7 +18,10 @@ function SidCore(samplerate, background_noise)
     // Pre-filter per-voice taps and post-mix master level, accumulated between resetMeters() and finishMeters().
     this.voiceLevels = [0, 0, 0, 0, 0, 0, 0];
     this.voiceWaveforms = [0, 0, 0, 0, 0, 0];
+    // The 16-bit frequency register of each voice (SID 1 voices 0-2, SID 2 voices 3-5).
+    this.voiceFreqs = [0, 0, 0, 0, 0, 0];
     var waveformTaps = this.voiceWaveforms;
+    var freqTaps = this.voiceFreqs;
     var meterLevels = this.voiceLevels;
     var meterEnergy = [0, 0, 0, 0, 0, 0, 0];
     var running = false;
@@ -1031,7 +1034,7 @@ function SidCore(samplerate, background_noise)
             chnadd = SIDaddr + (channel - num * SID_CHANNEL_AMOUNT) * 7;
             ctrl = memory[chnadd + 4];
             wf = ctrl & 0xF0;
-            if (num < 2) waveformTaps[channel] = wf;
+            if (num < 2) { waveformTaps[channel] = wf; freqTaps[channel] = memory[chnadd] | (memory[chnadd + 1] << 8); }
             test = ctrl & TEST_BITMASK;
             SR = memory[chnadd + 6];
             tmp = 0;

@@ -15,6 +15,7 @@ export class FpPlayer {
   masterAnalyser?: AnalyserNode;
   voiceLevels = [0, 0, 0, 0, 0, 0, 0];
   voiceWaveforms = [0, 0, 0, 0, 0, 0];
+  voiceFreqs = [0, 0, 0, 0, 0, 0];
   engineName: string;
   /** Render time as a share of audio time, from the worker: average and worst chunk over the last half second. */
   load = 0;
@@ -68,7 +69,7 @@ export class FpPlayer {
         if (m.type !== 'state') return;
         this.time = m.time;
         if (m.underrun) this.noteUnderrun();
-        if (m.levels) { for (let i = 0; i < 7; i++) this.voiceLevels[i] = m.levels[i] ?? 0; for (let i = 0; i < 6; i++) this.voiceWaveforms[i] = m.waves[i] ?? 0; }
+        if (m.levels) { for (let i = 0; i < 7; i++) this.voiceLevels[i] = m.levels[i] ?? 0; for (let i = 0; i < 6; i++) this.voiceWaveforms[i] = m.waves[i] ?? 0; for (let i = 0; i < 6; i++) this.voiceFreqs[i] = m.freqs?.[i] ?? 0; }
       };
       node.connect(entry);
       this.node = node;

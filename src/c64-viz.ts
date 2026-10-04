@@ -27,11 +27,11 @@ void main(){
 }`;
 export const C64_BANDS = 40;
 
-export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons'];
-export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons'];
+export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons', 'Piano roll'];
+export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll'];
 // What a PAL C64 could manage: 50 frames a second for raster and sprite work, every second frame for full-screen
 // bitmap and char effects, every third frame for the chunky rotozoomer and tunnel.
-export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50];
+export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50, 50];
 
 // The C64 character ROM shapes (uppercase set) that the scrollers draw, as an 8-pixel-high atlas texture, plus the text as a
 // row of glyph numbers. The text is whatever the scrollers should say: the tune's name and an optional message.
@@ -90,6 +90,9 @@ uniform float spec[40];
 uniform float peaks[40];
 uniform float vl[6];
 uniform float vw[6];
+uniform float vp[6];
+uniform sampler2D hist;
+uniform float histHead;
 uniform sampler2D fontTex;
 uniform sampler2D msgTex;
 uniform float msgLen;
@@ -149,6 +152,12 @@ float vwv(float j){
   j=mod(floor(j+.5),6.);
   if(j<.5)return vw[0];if(j<1.5)return vw[1];if(j<2.5)return vw[2];if(j<3.5)return vw[3];if(j<4.5)return vw[4];return vw[5];
 }
+float vpv(float j){
+  j=mod(floor(j+.5),6.);
+  float p;
+  if(j<.5)p=vp[0];else if(j<1.5)p=vp[1];else if(j<2.5)p=vp[2];else if(j<3.5)p=vp[3];else if(j<4.5)p=vp[4];else p=vp[5];
+  return p;
+}
 // The shape of a sprite follows the voice's waveform: round without data, diamond for triangle, wedge for saw, square for pulse, dithered disc for noise.
 float shapeIn(vec2 q,float w,vec2 pix){
   if(w<.5)return step(length(q),1.);
@@ -163,7 +172,7 @@ vec3 rotX(vec3 v,float a){float c=cos(a),s=sin(a);return vec3(v.x,c*v.y-s*v.z,s*
 float dseg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}
 // Scope: one trace per voice, in the voice's own waveform.
 float scopeW(float x,float wv,float fv,float t){
-  float p=x*(.028+.011*mod(fv,3.))+t*(.9+.37*fv);
+  float p=x*(.012+.085*vpv(fv))+t*(.9+.37*fv);
   if(wv<.5)return sin(p*6.2831853);
   if(wv<1.5)return abs(fract(p)*4.-2.)-1.;
   if(wv<2.5)return fract(p)*2.-1.;
@@ -171,7 +180,7 @@ float scopeW(float x,float wv,float fv,float t){
   return hash(floor(x/2.)+floor(t*40.)*7.13+fv*31.)*2.-1.;
 }
 // Stick dancer: how big and how the figure moves follows one voice. Pulse snaps between poses, saw hops, noise shakes.
-float dancer(vec2 pp,float lv,float wv,float t,float fj){
+float dancer(vec2 pp,float lv,float wv,float t,float fj,float pn){
   float A=.35+.9*lv;
   float s6=t*5.+fj*1.7;
   if(wv>2.5&&wv<3.5)s6=floor(s6*1.4)/1.4;
@@ -181,7 +190,8 @@ float dancer(vec2 pp,float lv,float wv,float t,float fj){
   vec2 neck=hip+vec2(sin(s6*.5+1.)*4.*A,40.);
   vec2 head=neck+vec2(sin(s6*.5)*3.*A,11.);
   vec2 shL=neck+vec2(-9.,-3.),shR=neck+vec2(9.,-3.);
-  vec2 haL=shL+vec2(-16.-sin(s6)*6.*A,6.+cos(s6)*16.*A),haR=shR+vec2(16.+sin(s6+2.)*6.*A,6.+cos(s6+2.)*16.*A);
+  float up=(pn-.45)*18.*lv;
+  vec2 haL=shL+vec2(-16.-sin(s6)*6.*A,6.+cos(s6)*16.*A+up),haR=shR+vec2(16.+sin(s6+2.)*6.*A,6.+cos(s6+2.)*16.*A+up);
   vec2 kL=hip+vec2(-9.,-22.+sin(s6)*3.*A),kR=hip+vec2(9.,-22.-sin(s6)*3.*A);
   vec2 fL=kL+vec2(-5.+sin(s6)*9.*A,-22.+max(0.,sin(s6))*7.*A),fR=kR+vec2(5.+sin(s6+3.14)*9.*A,-22.+max(0.,sin(s6+3.14))*7.*A);
   float d=min(dseg(pp,hip,neck),dseg(pp,shL,shR));
@@ -273,7 +283,7 @@ float scene(vec2 p){
       float ph=t*(.7+.09*k)+k*.85+band*2.1;
       float sz=floor(12.+lv*22.);
       float sx=floor(160.-sz+sin(ph)*(118.-sz*.6));
-      float sy=floor(band*100.+3.+(.5+.5*sin(ph*1.31+k))*(94.-sz*2.)-lv*6.);
+      float sy=floor(band*100.+3.+mix(.5+.5*sin(ph*1.31+k),1.-vpv(vo),.65)*(94.-sz*2.)-lv*6.);
       float px=c.x-sx,py=c.y-sy;
       if(spr<0.&&px>=0.&&px<sz*2.&&py>=0.&&py<sz*2.){
         vec2 q=vec2(floor(px)+.5-sz,floor(py)+.5-sz)/sz;
@@ -524,7 +534,7 @@ float scene(vec2 p){
       float lv=vlv(fj),wv=vwv(fj);
       float zm=.62+lv*.16;
       vec2 pp=vec2(c.x-160.-(fj-1.)*104.,112.-c.y)/zm;
-      float d=dancer(pp,lv,wv,t,fj)*zm;
+      float d=dancer(pp,lv,wv,t,fj,vpv(fj))*zm;
       if(d<bestd){bestd=d;who=fj;}
     }
     if(bestd<1.4)idx=1.;else if(bestd<3.2&&bayer(c)<.5)idx=spriteCol(who*2.+1.);
@@ -587,6 +597,33 @@ float scene(vec2 p){
       }
     }
     if(best>=0.)idx=best;
+  }else if(md==25){
+    // Piano roll: every voice leaves a trail of its pitch (up is higher) that scrolls to the left; the trail is thicker when louder.
+    bidx=0.;
+    idx=mod(190.-c.y,30.)<1.&&mod(c.x,4.)<2.?11.:0.;
+    float cx=floor(c.x/2.);
+    float col=mod(histHead-(159.-cx)+320.,160.);
+    float colP=mod(col+159.,160.);
+    float age=159.-cx;
+    for(int v=0;v<6;v++){
+      float fv=float(v);
+      vec4 h0=texture2D(hist,vec2((col+.5)/160.,(fv+.5)/6.));
+      vec4 h1=texture2D(hist,vec2((colP+.5)/160.,(fv+.5)/6.));
+      float l0=h0.g;
+      if(l0<.05)continue;
+      float wv=floor(h0.b*255./60.+.5);
+      float y0=190.-h0.r*180.,y1=h1.g>.05?190.-h1.r*180.:y0;
+      float lo=min(y0,y1),hi=max(y0,y1);
+      float th=1.+l0*4.5;
+      if(c.y>=lo-th&&c.y<=hi+th){
+        float bright=age>110.?0.:1.;
+        float vc=fv<3.?spriteCol(fv*2.+1.):spriteDark(fv*2.+1.);
+        float body=bright>.5?vc:spriteDark(fv*2.+1.);
+        if(wv>3.5&&mod(floor(c.x)+floor(c.y),2.)<1.)body=0.;
+        if(wv>2.5&&wv<3.5&&abs(c.y-y0)>th*.6)body=spriteDark(fv*2.+1.);
+        idx=(age<3.&&abs(c.y-y0)<th*.5)?1.:body;
+      }
+    }
   }else{
     bidx=0.;
     float hor=104.;
@@ -612,6 +649,17 @@ float scene(vec2 p){
     }
   }
   if(canFlash&&flash>.5)bidx=flashCol(floor(time*14.));
+  // The border carries a small meter per voice: bars grow from the middle of the bottom and top borders in the voice's colour.
+  if(!inside&&!openAll&&md!=8){
+    float bd=c.y>=200.?c.y-200.:(c.y<0.?c.y+20.:-1.);
+    if(bd>=0.&&c.x>=0.&&c.x<320.){
+      float row=floor(bd/6.);
+      if(row<3.&&mod(bd,6.)>=1.&&mod(bd,6.)<5.){
+        float lvb=vlv(row);
+        if(abs(c.x-160.)<2.+lvb*154.)bidx=spriteCol(row*2.+1.);
+      }
+    }
+  }
   return (inside||openAll)?idx:bidx;
 }
 void main(){

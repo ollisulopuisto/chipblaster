@@ -23,6 +23,19 @@ A portable SID station in the browser: browse and play the High Voltage SID Coll
 - Bass, mid and treble tone knobs with optional parametric frequency/Q (tap or click the knob's name, or right-click or long-press the knob; double-click resets), plus volume on `+` / `-`.
 - WIDE knob for headphones: a mono-safe stereo widener on one-SID tunes, and a chip spread (SID 1 left, SID 2 right) on multi-SID tunes.
 - The CRT visualizer imitates the C64's VIC-II: a 384x272 PAL picture with a border and a 320x200 window, only the 16 Pepto colours, 8x8 character cells, 2x1 multicolour pixels, hardware sprites multiplexed in two bands (at most 8 per scanline), raster bars and border flashes on bass hits. Analogue CRT faults (line jitter, tracking glitches, colour bleed, hum bar, noise) are always on. The effects are in `src/c64-viz.ts`.
+
+### Visualizer effects and their sources
+
+The thumbwheel cycles 25 effects built after the demoscene's best-rated C64 productions (ranking from CSDb, 2026). They are my own GLSL imitations running under the C64's limits (16 Pepto colours, 8x8 cells, sprite limits, per-effect frame rates), not ports of the original code:
+
+- Edge of Disgrace (Booze Design): chess zoomer with sprites, AFLI double-sine plasma, dot plotter morphing between sphere, torus and heart.
+- Coma Light 13 (Oxyron): parallax hills and floor, flat-shaded cube with a real-time shadow.
+- Uncensored (Booze Design): 360-degree rotating raster bars, zoomscroll through all borders.
+- Comaland (Censor Design, Oxyron): vector stick figure.
+- Next Level (Performers): noise fader.
+- Viva Las Vegas (Censor Design): Chips DNA helix, circle scroll.
+- The Hat (Fairlight, Genesis Project): balloon sprites.
+- The classics: raster bars, sprite multiplexing, char plasma, rotozoomer, tunnel, open borders, DYCP, FLD, FLI and linecrunch.
 - Cycle visualizer presets with the thumbwheel; fold the case to hide the visualizer while music keeps playing.
 - Share a link to the current tune, and save favorites in this browser.
 - An in-app manual (MANUAL key on the base plate) lists the controls and shortcuts.

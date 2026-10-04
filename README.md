@@ -79,6 +79,8 @@ No server component is needed. The player fetches individual SID files from the 
 
 The UI code in `src/App.tsx` and `src/style.css` was written for this project. Bundled third-party code: Hermit's jsSID emulator (`src/vendor/hermit-jsSID.js`, permissive use with credit: https://github.com/og2t/jsSID/blob/master/README.txt), and 16-segment glyphs based on David Madison's MIT-licensed [LED-Segment-ASCII](https://github.com/dmadison/LED-Segment-ASCII) (`src/vendor/LED-SEGMENT-ASCII-LICENSE.txt`). This repository makes no blanket license claim over third-party code or the HVSC metadata.
 
+Credits, as listed in the in-app manual: libsidplayfp (Leandro Nini and contributors, from Simon White's sidplay2; GPL-2.0-or-later) with SIDLite and reSIDfp (reSID by Dag Lem, reSIDfp by Antti Lankila), built for the web by [libsidplayfp-wasm](https://github.com/chrisgleissner/libsidplayfp-wasm); jsSID by Hermit; Game Music Emu (Shay Green) and a VGM player (LGPL-2.1, `src/vendor/chip/LICENSE`) for NES, GB, AY and VGM files; the Silkscreen pixel font (SIL OFL, `src/fonts/OFL.txt`); the HVSC catalog served from the Modland mirror; the demoscene productions listed under the visualizer effects, found through CSDb; and the VIC-II palette as measured by Pepto.
+
 HVSC tunes are copyrighted and are not included; see https://hvsc.c64.org/download/C64Music/DOCUMENTS/HVSC.txt. This is an independent fan project, not affiliated with HVSC or the library authors.
 
 ## Last.fm scrobbling (optional)

@@ -2478,3 +2478,9 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   .c64-shell .visual-thumbwheel .wheel-readout{position:static;transform:none;pointer-events:none}
   .c64-shell .visual-thumbwheel .viz-step{display:flex;align-items:center;justify-content:center;flex:none;width:44px;height:30px;padding:0;font-size:12px;line-height:1;touch-action:manipulation}
 }
+/* C64 hybrid: the PREV/NEXT keys are breadbin keycaps (beige, dark skirt) with the glyph drawn on the C64 8x8 character grid, as PETSCII would */
+@media(max-width:700px){
+  .c64-shell .visual-thumbwheel .viz-step.viz-step:not(#k){width:48px;height:32px;border:1px solid #6b6048;border-bottom:4px solid #4a4132;border-radius:3px;background:linear-gradient(#e2dcc6,#c4bb9f 70%,#b3aa8d);color:#3a3326;box-shadow:inset 0 1px 0 #fffbe8,inset 0 -2px 0 #9b9179,0 1px 0 #0009}
+  .c64-shell .visual-thumbwheel .viz-step.viz-step:not(#k):is(:active:not(:disabled)){transform:translateY(3px);border-bottom-width:1px}
+  .c64-shell .viz-step .pet-glyph{width:16px;height:16px;fill:#3a3326;display:block;filter:drop-shadow(0 1px 0 #fff8)}
+}

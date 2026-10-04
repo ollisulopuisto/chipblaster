@@ -2540,3 +2540,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* A raised rim around the flat top of every transport key, as on the photographed caps. */
 .c64-shell:not(.jp) .console>.controls.transport-controls>button:not(#k):not(.favorite-key):not(.share-key):not(.dice-key):not(.radio-button){position:relative}
 .c64-shell:not(.jp) .console>.controls.transport-controls>button:not(#k):not(.favorite-key):not(.share-key):not(.dice-key):not(.radio-button)::before{content:'';position:absolute;inset:4px 5px 10px;border-radius:6px 6px 9px 9px;border:1px solid #ffffff3a;border-bottom-color:#0000001f;background:linear-gradient(#ffffff2a,#0000000a);pointer-events:none}
+/* The Commodore key does the stereo enhancing: the C= mark is large, the function is written small beneath it. */
+.c64-shell:not(.jp) .eq-deck .wide-key .c64-key-c{display:flex;flex-direction:column;align-items:center;gap:3px}
+.c64-shell:not(.jp) .eq-deck .wide-key .c64-key-c b{font:800 24px/1 "Barlow Condensed","Arial Narrow",Arial,sans-serif;letter-spacing:.04em}
+.c64-shell:not(.jp) .eq-deck .wide-key .c64-key-c i{font:700 7px/1 "Barlow Condensed","Arial Narrow",Arial,sans-serif;font-style:normal;letter-spacing:.14em;white-space:nowrap}

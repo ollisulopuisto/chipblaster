@@ -2413,3 +2413,17 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .display-window .visual{object-fit:fill;image-rendering:pixelated;background:#030405}
 /* SID keys: the label takes only the width of its text, so label and keys together sit in the middle of the panel */
 @media(min-width:701px){.c64-shell .control-top .sid-model-pair legend{width:auto!important;min-width:0!important}}
+/* On a phone the case top grows with the rising screen, so the EJECT key follows the logo's centre line instead of a fixed offset */
+@media(max-width:700px){.c64-shell .eject-fixed{top:calc(17px + 11.6px * clamp(0, var(--rise,1), 1))}}
+/* Narrow phones: three knobs share the top row; STEREO ENHANCE and the SID keys get a second row of their own */
+@media(max-width:560px){
+  .c64-shell .console>.control-top.control-top{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;align-items:stretch!important;padding:10px 4px 0!important}
+  .c64-shell .console>.control-top .eq-deck.eq-deck,.c64-shell .console>.control-top .eq-bands.eq-bands{display:contents!important}
+  .c64-shell .console>.control-top .eq-band.eq-band:not(.space-band){grid-row:1!important;grid-column:auto!important;align-self:center;padding:6px 0 12px}
+  .c64-shell .console>.control-top .eq-band.space-band{grid-column:1!important;grid-row:2!important;align-self:stretch;display:flex;justify-content:center;border-left:0!important;border-top:1px solid #a5afa5!important;padding:10px 4px!important;top:0!important;margin:0!important}
+  .c64-shell .console>.control-top>.sid-model-panel.sid-model-panel{grid-column:2/4!important;grid-row:2!important;width:auto!important;min-width:0!important;max-width:none!important;flex:none!important;border-left:1px solid #a5afa5!important;border-top:1px solid #a5afa5!important;border-bottom:0!important;padding:8px 6px!important;align-self:stretch;overflow:visible!important;margin:0!important}
+  .c64-shell .console>.control-top .sid-model-pair.sid-model-pair{align-items:center!important;margin:0 auto!important;transform:none!important}
+}
+@media(max-width:560px){
+  .c64-shell .console>.control-top .eq-band.space-band button[aria-label="Stereo enhance"]{width:calc(100% - 14px)!important;min-width:0!important;height:46px!important;min-height:0!important;padding:4px!important;font-size:9.5px!important;line-height:1.25!important;letter-spacing:.07em!important}
+}

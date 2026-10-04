@@ -2459,3 +2459,14 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   .c64-shell .visual-thumbwheel .wheel-readout .segment-text{display:flex;flex-wrap:nowrap;gap:1px;width:auto;overflow:hidden}
   .c64-shell .visual-thumbwheel .wheel-readout .segment-text svg{width:9px!important;height:16px!important;flex:none}
 }
+/* Keys: every pressed property moves together and at the same speed (the border and the shift used to ease at different rates, which
+   read as flicker), and a released key waits a moment so that a toggle's new state can arrive before the key lifts. */
+.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed):not(#k){transition:transform .05s linear .07s,border-bottom-width .05s linear .07s,box-shadow .05s linear .07s!important}
+.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed):not(#k):is([aria-pressed="true"],.pressed,.favorite-active,.lit,:active:not(:disabled)){transition:transform .05s linear,border-bottom-width .05s linear,box-shadow .05s linear!important}
+@media(prefers-reduced-motion:reduce){.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],.sub-key,.manual-key,.eject-fixed):not(#k){transition:none!important}}
+/* Phone: the SID labels sit in one column to the left of the keys, so SID 1 and SID 2 and their keys line up */
+@media(max-width:560px){
+  .c64-shell .console>.control-top .sid-model-pair.sid-model-pair{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important;width:max-content!important}
+  .c64-shell .console>.control-top .sid-model-pair fieldset{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;text-align:left!important;min-width:0!important}
+  .c64-shell .console>.control-top .sid-model-pair legend{float:left!important;width:36px!important;min-width:36px!important;margin:0!important;padding:0!important;text-align:right!important;white-space:nowrap}
+}

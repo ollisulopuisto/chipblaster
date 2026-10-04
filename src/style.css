@@ -2381,3 +2381,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(min-width:701px){.c64-shell .flip-stage.flipped::before{left:calc(var(--lid-left,0px) + 12px);width:calc(var(--lid-w,0px) - 24px)}}
 .c64-shell .flip-stage.flipped .flip-back>.catalog-panel.catalog-open{padding:0!important}
 .c64-shell .flip-stage.flipped .flip-back{padding-left:9px!important;padding-right:9px!important}
+/* The speaker housings stay put; only the cones inside them pump, and they glow warm as the bass nears overload. */
+.c64-shell .speaker-recess{scale:none!important;--heat:clamp(0, calc((var(--bass,0) - .6) * 2.8), 1);box-shadow:inset 0 4px 12px #000,inset 0 0 calc(var(--heat) * 26px) calc(var(--heat) * 7px) rgba(255,106,28,.85),0 1px 1px #fff9,0 0 0 2px #91866e!important}
+.c64-shell .speaker-recess .speaker-grille{animation:none!important;translate:none!important;filter:sepia(var(--heat)) saturate(calc(1 + var(--heat) * 3)) brightness(calc(1 + var(--heat) * .35))}
+.c64-shell .speaker-recess .speaker-cone>.speaker-diaphragm{box-shadow:inset 0 0 3px #0008,0 0 calc(var(--heat) * 14px) calc(var(--heat) * 3px) rgba(255,120,40,.9)!important}
+.c64-shell .speaker-recess .speaker-grille{box-shadow:inset 0 0 calc(var(--heat) * 34px) calc(var(--heat) * 6px) rgba(255,96,24,calc(var(--heat) * .9));background-color:rgba(255,86,20,calc(var(--heat) * .34))}

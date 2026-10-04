@@ -2369,3 +2369,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 /* The lower half moves with the screen block's height every frame; its own layers move without being repainted */
 .c64-shell .console,.c64-shell .player-body>.base-plate{will-change:transform}
+/* The screen housing hangs from the top shell: its top edge is the bottom edge of the header at every moment, and the bottom edge (the control panel) is what moves. Nothing slides separately. */
+.c64-shell .screen-carriage>.deck{transform:none!important}
+/* The EJECT key sits on the logo's centre line and on the display's left edge */
+.c64-shell .eject-fixed{left:calc(var(--shell-pad,22px) + 22px);top:33px}
+@media(max-width:700px){.c64-shell .eject-fixed{left:calc(var(--shell-pad,9px) + 24px);top:17px}}

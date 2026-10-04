@@ -2413,3 +2413,5 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .display-window .visual{object-fit:fill;image-rendering:pixelated;background:#030405}
 /* SID keys: the label takes only the width of its text, so label and keys together sit in the middle of the panel */
 @media(min-width:701px){.c64-shell .control-top .sid-model-pair legend{width:auto!important;min-width:0!important}}
+/* On a phone the case top grows with the rising screen, so the EJECT key follows the logo's centre line instead of a fixed offset */
+@media(max-width:700px){.c64-shell .eject-fixed{top:calc(17px + 11.6px * clamp(0, var(--rise,1), 1))}}

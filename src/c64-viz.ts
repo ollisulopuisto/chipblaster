@@ -161,6 +161,36 @@ float bayer(vec2 p){vec2 q=mod(floor(p),4.);return (bay2(mod(q.x,2.),mod(q.y,2.)
 vec3 rotY(vec3 v,float a){float c=cos(a),s=sin(a);return vec3(c*v.x+s*v.z,v.y,-s*v.x+c*v.z);}
 vec3 rotX(vec3 v,float a){float c=cos(a),s=sin(a);return vec3(v.x,c*v.y-s*v.z,s*v.y+c*v.z);}
 float dseg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}
+// Scope: one trace per voice, in the voice's own waveform.
+float scopeW(float x,float wv,float fv,float t){
+  float p=x*(.028+.011*mod(fv,3.))+t*(.9+.37*fv);
+  if(wv<.5)return sin(p*6.2831853);
+  if(wv<1.5)return abs(fract(p)*4.-2.)-1.;
+  if(wv<2.5)return fract(p)*2.-1.;
+  if(wv<3.5)return fract(p)<.5+.25*sin(t*.8+fv)?1.:-1.;
+  return hash(floor(x/2.)+floor(t*40.)*7.13+fv*31.)*2.-1.;
+}
+// Stick dancer: how big and how the figure moves follows one voice. Pulse snaps between poses, saw hops, noise shakes.
+float dancer(vec2 pp,float lv,float wv,float t,float fj){
+  float A=.35+.9*lv;
+  float s6=t*5.+fj*1.7;
+  if(wv>2.5&&wv<3.5)s6=floor(s6*1.4)/1.4;
+  if(wv>3.5)s6+=hash(floor(t*14.)+fj*17.)*2.2;
+  float jump=(wv>1.5&&wv<2.5)?abs(sin(s6*.5))*lv*11.:0.;
+  vec2 hip=vec2(sin(s6*.5)*5.*A,-8.+sin(s6)*3.*A+jump);
+  vec2 neck=hip+vec2(sin(s6*.5+1.)*4.*A,40.);
+  vec2 head=neck+vec2(sin(s6*.5)*3.*A,11.);
+  vec2 shL=neck+vec2(-9.,-3.),shR=neck+vec2(9.,-3.);
+  vec2 haL=shL+vec2(-16.-sin(s6)*6.*A,6.+cos(s6)*16.*A),haR=shR+vec2(16.+sin(s6+2.)*6.*A,6.+cos(s6+2.)*16.*A);
+  vec2 kL=hip+vec2(-9.,-22.+sin(s6)*3.*A),kR=hip+vec2(9.,-22.-sin(s6)*3.*A);
+  vec2 fL=kL+vec2(-5.+sin(s6)*9.*A,-22.+max(0.,sin(s6))*7.*A),fR=kR+vec2(5.+sin(s6+3.14)*9.*A,-22.+max(0.,sin(s6+3.14))*7.*A);
+  float d=min(dseg(pp,hip,neck),dseg(pp,shL,shR));
+  d=min(d,min(dseg(pp,shL,haL),dseg(pp,shR,haR)));
+  d=min(d,min(dseg(pp,hip,kL),dseg(pp,hip,kR)));
+  d=min(d,min(dseg(pp,kL,fL),dseg(pp,kR,fR)));
+  d=min(d,abs(length(pp-head)-6.));
+  return d;
+}
 float boxHit(vec3 o,vec3 d,vec3 h,out vec3 n){
   vec3 inv=1./d;vec3 t1=(-h-o)*inv,t2=(h-o)*inv;
   vec3 tn=min(t1,t2),tf=max(t1,t2);
@@ -283,12 +313,22 @@ float scene(vec2 p){
     idx=rampIdx(floor(a*2./PI+2.)+floor(t*1.2),(v*.8+stripe*.2)*fog+b*.1);
   }else if(md==6){
     bidx=14.;
-    float trace=100.+sin(c.x*.05+t*3.)*(14.+m*40.)+sin(c.x*.19-t*2.)*(5.+h*20.)+sin(c.x*.011+t)*b*30.;
-    float dy=abs(c.y-trace);
     idx=6.;
     if(mod(c.x,40.)==0.&&mod(c.y,25.)==0.)idx=14.;
-    if(c.y==100.&&mod(c.x,4.)<1.)idx=14.;
-    if(dy<1.)idx=1.;else if(dy<3.&&mod(c.x+c.y,2.)<1.)idx=14.;
+    for(int j=0;j<3;j++){if(mod(c.x,4.)<1.&&abs(c.y-(36.+float(j)*64.))<.5)idx=14.;}
+    for(int v=0;v<6;v++){
+      float fv=float(v);
+      float lv=vlv(fv),wv=vwv(fv);
+      if(v>=3&&lv<.04)continue;
+      float amp=5.+lv*24.;
+      float cy=36.+mod(fv,3.)*64.;
+      float y0=-scopeW(c.x-1.,wv,fv,t)*amp,y1=-scopeW(c.x,wv,fv,t)*amp,y2=-scopeW(c.x+1.,wv,fv,t)*amp;
+      float lo=min(y0,min(y1,y2)),hi=max(y0,max(y1,y2));
+      float yy=c.y-cy;
+      float vc=v<3?spriteCol(fv*2.+1.):spriteDark(fv*2.+1.);
+      if(yy>=lo-.5&&yy<=hi+.5)idx=v<3?1.:vc;
+      else if(yy>=lo-2.5&&yy<=hi+2.5&&mod(c.x+c.y,2.)<1.)idx=vc;
+    }
   }else if(md==8){
     // Open borders: the top, bottom and side borders are hacked away. Sprites fly through the border, the side
     // borders show idle-state garbage from $3fff, and the whole area shares one raster-split background.
@@ -396,9 +436,15 @@ float scene(vec2 p){
       vec3 A=sh<.5?S0:(sh<1.5?S1:S2);
       vec3 B=sh<.5?S1:(sh<1.5?S2:S0);
       vec3 pos=rotX(rotY(mix(A,B,f),a1),a2);
+      float vo=mod(float(i),3.);
+      float lv=vlv(vo),wv=vwv(vo);
+      float sc=1.+lv*.3;
+      if(wv>2.5&&wv<3.5)sc=1.+step(.45,lv)*.3;
+      pos*=sc;
+      if(wv>3.5)pos+=vec3(hash(float(i)+floor(t*20.))-.5,hash(float(i)*1.7+floor(t*20.))-.5,0.)*.16*lv;
       vec2 sp=vec2(160.,100.)+vec2(pos.x,-pos.y)*100./(1.9-pos.z*.45);
       float d=length(c-sp);
-      if(d<1.5+(pos.z+1.)*.8&&pos.z>bestz){bestz=pos.z;idx=rampIdx(floor(t*.5+u*3.),.35+.6*(pos.z*.5+.5));}
+      if(d<1.5+(pos.z+1.)*.8+lv*1.6&&pos.z>bestz){bestz=pos.z;idx=pos.z>.35?1.:(pos.z>-.2?spriteCol(vo*2.+1.):spriteDark(vo*2.+1.));}
     }
   }else if(md==16){
     // Parallax floor (Coma Light 13): hill layers sliding at different speeds above a floor whose raster lines scroll at their own speed.
@@ -472,22 +518,16 @@ float scene(vec2 p){
     // Stick dancer (Comaland): a zoomed vector stick figure dancing to the bass.
     bidx=6.;
     idx=mod(floor(c.y/4.),2.)<1.?rampIdx(0.,.07):0.;
-    float zm=1.+b*.35;
-    vec2 pp=vec2(c.x-160.,110.-c.y)/zm;
-    float s6=t*5.;
-    vec2 hip=vec2(sin(s6*.5)*5.,-8.+sin(s6)*3.);
-    vec2 neck=hip+vec2(sin(s6*.5+1.)*4.,40.);
-    vec2 head=neck+vec2(sin(s6*.5)*3.,11.);
-    vec2 shL=neck+vec2(-9.,-3.),shR=neck+vec2(9.,-3.);
-    vec2 haL=shL+vec2(-16.-sin(s6)*6.,6.+cos(s6)*16.),haR=shR+vec2(16.+sin(s6+2.)*6.,6.+cos(s6+2.)*16.);
-    vec2 kL=hip+vec2(-9.,-22.+sin(s6)*3.),kR=hip+vec2(9.,-22.-sin(s6)*3.);
-    vec2 fL=kL+vec2(-5.+sin(s6)*9.,-22.+max(0.,sin(s6))*7.),fR=kR+vec2(5.+sin(s6+3.14)*9.,-22.+max(0.,sin(s6+3.14))*7.);
-    float d=min(dseg(pp,hip,neck),dseg(pp,shL,shR));
-    d=min(d,min(dseg(pp,shL,haL),dseg(pp,shR,haR)));
-    d=min(d,min(dseg(pp,hip,kL),dseg(pp,hip,kR)));
-    d=min(d,min(dseg(pp,kL,fL),dseg(pp,kR,fR)));
-    d=min(d,abs(length(pp-head)-6.));
-    if(d<1.4)idx=1.;else if(d<3.2&&bayer(c)<.5)idx=14.;
+    float bestd=99.,who=0.;
+    for(int j=0;j<3;j++){
+      float fj=float(j);
+      float lv=vlv(fj),wv=vwv(fj);
+      float zm=.62+lv*.16;
+      vec2 pp=vec2(c.x-160.-(fj-1.)*104.,112.-c.y)/zm;
+      float d=dancer(pp,lv,wv,t,fj)*zm;
+      if(d<bestd){bestd=d;who=fj;}
+    }
+    if(bestd<1.4)idx=1.;else if(bestd<3.2&&bayer(c)<.5)idx=spriteCol(who*2.+1.);
   }else if(md==21){
     // Noisefader (Next Level): two effects dissolve into each other through a pixel noise threshold.
     bidx=11.;

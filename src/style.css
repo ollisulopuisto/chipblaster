@@ -2394,4 +2394,10 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(min-width:701px){
   .c64-shell .control-top .sid-model-pair{transform:none!important}
   .c64-shell .eq-deck .space-band{top:-9px!important}
+/* PEQ panel on a wide screen: hangs under the tone strip like on a phone instead of being clipped by the strip */
+@media(min-width:701px){
+  .c64-shell .console>.control-top{position:relative}
+  .c64-shell .console>.control-top:has(.peq-details),.c64-shell .flip-front:has(.peq-details){overflow:visible!important}
+  .c64-shell .control-top .eq-deck .eq-band,.c64-shell .control-top .eq-deck{position:static!important}
+  .c64-shell .control-top .eq-deck .peq-details,.c64-shell .eq-band:nth-child(n) .peq-details{position:absolute!important;left:50%!important;right:auto!important;top:calc(100% + 6px)!important;transform:translateX(-50%)!important;width:300px!important;max-width:none!important;box-sizing:border-box;z-index:20}
 }

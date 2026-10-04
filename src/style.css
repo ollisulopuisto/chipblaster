@@ -2526,3 +2526,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell:not(.jp).c64-shell.c64-shell.c64-shell .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k){--cap:radial-gradient(ellipse 72% 50% at 50% 34%,#ffffff1c,transparent 72%),linear-gradient(180deg,#968f7e,#7c7662 70%,#6b6655);--skc:linear-gradient(180deg,#524e42,#3d3a31);color:#ece7d6!important;align-items:flex-start!important;justify-content:space-between!important;padding:8px 10px 6px!important;text-shadow:0 1px 0 #0006!important}
 .c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k) span.c64-legend{align-self:flex-start;color:#f1ecdc!important}
 .c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k) svg:not(.pet-glyph){align-self:flex-end;margin:0 0 4px!important;color:#d9d3c1!important;opacity:.85}
+/* The name on the base plate gives a small wiggle once a minute: an invitation to click it. */
+.c64-shell .base-nameplate{cursor:pointer;animation:nameplate-wiggle 60s ease-in-out 20s infinite}
+@keyframes nameplate-wiggle{0%,3%,100%{transform:none}.4%{transform:rotate(-3deg) translateX(-3px)}.9%{transform:rotate(2.6deg) translateX(3px)}1.4%{transform:rotate(-2deg) translateX(-2px)}1.9%{transform:rotate(1.2deg)}2.4%{transform:rotate(-.6deg)}}
+@media(prefers-reduced-motion:reduce){.c64-shell .base-nameplate{animation:none}}

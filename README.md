@@ -33,6 +33,8 @@ The message is an Easter egg. Press the quote key (Shift-2) anywhere on the page
 
 ### Visualizer effects and their sources
 
+Sprite multiplex and Balloons follow the SID voices: each sprite belongs to one voice (SID 1 voices 1-3, SID 2 voices 4-6; one-SID tunes repeat the first three). The voice's level sets the sprite's size and bounce, and its waveform sets the shape: round without data, diamond for triangle, wedge for sawtooth, square for pulse, dithered disc for noise. On Balloons the waveform shows as a pattern instead (checks, diagonal stripes, a white band, dither). The levels come from the same pre-filter voice taps as the voice meters and are held at each effect's own frame rate. Non-SID files fall back to the three frequency bands.
+
 The thumbwheel cycles 25 effects built after the demoscene's best-rated C64 productions (ranking from CSDb, 2026). They are my own GLSL imitations running under the C64's limits (16 Pepto colours, 8x8 cells, sprite limits, per-effect frame rates), not ports of the original code:
 
 - Edge of Disgrace (Booze Design): chess zoomer with sprites, AFLI double-sine plasma, dot plotter morphing between sphere, torus and heart.

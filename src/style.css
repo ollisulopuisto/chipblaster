@@ -2433,3 +2433,24 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Hidden BASIC prompt in the title display (press the quote key, or hold the logo): the text goes into the scrollers */
 .c64-shell .title-console .basic-prompt{display:flex;align-items:center;flex:1 1 auto;min-width:0;gap:0;font:600 15px/1 "Courier New",monospace;letter-spacing:.06em;color:#8be9f4;text-shadow:0 0 6px #38b6c855}
 .c64-shell .title-console .basic-prompt input{flex:1;min-width:0;background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;padding:0!important;margin:0;font:inherit;letter-spacing:inherit;color:inherit;text-transform:uppercase;caret-color:#8be9f4;caret-shape:block}
+/* Phone: the CRT is 4:3 and full width; the preset wheel lies under it as a horizontal strip, and the four meters share one row */
+@media(max-width:700px){
+  .c64-shell .display-window{height:auto!important;display:flex!important;flex-direction:column;padding:8px!important;gap:8px;box-sizing:border-box}
+  .c64-shell .display-window .visual{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;aspect-ratio:4 / 3;margin:0!important;flex:none}
+  .c64-shell .display-window .crt-glow{inset:8px 8px auto 8px!important;height:auto!important;aspect-ratio:4 / 3}
+  .c64-shell .display-window:not(.screen-sleep)::before{top:8px!important;left:8px!important;right:8px!important;bottom:auto!important;height:auto!important;aspect-ratio:4 / 3}
+  .c64-shell .display-window .visual-thumbwheel{position:relative!important;inset:auto!important;width:100%!important;height:40px!important;flex:none;border-radius:20px!important;border:0!important;overflow:hidden;cursor:ew-resize;touch-action:none;background:linear-gradient(#0b1111,#1a2422 50%,#0b1111)!important;box-shadow:inset 0 3px 6px #000b,0 1px 0 #ffffff22}
+  .c64-shell .display-window .visual-thumbwheel::after{background:linear-gradient(90deg,#0b1414db,transparent 14% 86%,#0b1414db)!important}
+  .c64-shell .visual-thumbwheel .wheel-grooves{position:absolute!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;width:30px!important;height:300px!important;margin:0!important;transform:translate(-50%,-50%) rotate(90deg);border-radius:9% / 50%!important;background:linear-gradient(90deg,#202b28,#84938a 25%,#c6d4ca 43%,#85958b 70%,#26342d)!important}
+  .c64-shell .visual-thumbwheel .wheel-caption{position:absolute!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%);width:auto!important;height:auto!important;clip:auto!important;overflow:visible!important;margin:0!important;padding:3px 12px!important;background:#0d1d19;border-radius:3px;font:700 12px/1.2 "Courier New",monospace!important;letter-spacing:.14em;color:#8be9f4!important;white-space:nowrap!important;z-index:2;pointer-events:none;text-shadow:0 0 6px #38b6c855}
+  .c64-shell .visual-thumbwheel .wheel-caption strong{display:inline!important;font:inherit!important;margin:0;color:inherit}
+  .c64-shell .meters-row .vu-group{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important}
+}
+@media(max-width:700px){
+  .c64-shell .visual-thumbwheel .wheel-caption{font-size:0!important;max-width:none!important}
+  .c64-shell .visual-thumbwheel .wheel-caption strong{font:700 12px/1.2 "Courier New",monospace!important;text-transform:uppercase}
+  .c64-shell .meters-row .wave-apertures{padding:0 3px!important;gap:2px!important}
+  .c64-shell .meters-row .wave-apertures .wave-aperture{flex:1 1 0!important;width:auto!important;min-width:0!important;height:16px!important;max-height:16px!important}
+  .c64-shell .meters-row .waveform-readout .output-label .segment-text{gap:1px!important}
+  .c64-shell .meters-row .waveform-readout .output-label .segment-text svg,.c64-shell .meters-row .waveform-readout .output-label .segment-text .segment-glyph{width:9px!important;min-width:0!important;height:14px!important}
+}

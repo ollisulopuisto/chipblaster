@@ -2,11 +2,29 @@
 // the 16 Pepto colours only, 8x8 character cells, 2x1 multicolour pixels, hardware sprites (24x21, expandable, 8 per
 // scanline) multiplexed into two bands, raster bars and per-line border colours. The analogue CRT faults are always on but
 // mostly asleep: a faint bass wobble, hum bar and noise, a tiny tick every ~17 s and one real glitch about once a minute.
-// The buffer is 368 wide (a 24 px border at the sides) and between 230 and 283 rows tall, so the 320x200 window always has a thin
-// C64-sized border on every side. The tube stretches it to its own shape, so pixels may come out wider or taller than square.
-export const C64_BUF_W = 368;
-export const C64_ASPECT_MIN = 1.3;
-export const C64_ASPECT_MAX = 1.6;
+// The effects are drawn at the C64's own size: 368x240 with a 24x20 border around the 320x200 window. A second pass stretches
+// that to the tube: the border keeps a fixed thickness on screen (8.5% of the shorter side, the same on all four sides) and
+// the window takes whatever is left, so its pixels may come out wider or taller than square.
+export const C64_TEX_W = 368;
+export const C64_TEX_H = 240;
+const C64_BORDER_X = 24;
+const C64_BORDER_Y = 20;
+export const C64_PRESENT = `precision highp float;
+uniform sampler2D tex;
+uniform vec2 outRes;
+uniform float bpx;
+float mapAxis(float o,float outLen,float texLen,float bl){
+  if(o<bpx)return o/bpx*bl;
+  if(o>=outLen-bpx)return texLen-bl+(o-(outLen-bpx))/bpx*bl;
+  return bl+(o-bpx)/(outLen-2.*bpx)*(texLen-2.*bl);
+}
+void main(){
+  vec2 o=vec2(gl_FragCoord.x,outRes.y-gl_FragCoord.y);
+  vec2 texRes=vec2(${C64_TEX_W}.,${C64_TEX_H}.);
+  vec2 u=vec2(mapAxis(o.x,outRes.x,texRes.x,${C64_BORDER_X}.),mapAxis(o.y,outRes.y,texRes.y,${C64_BORDER_Y}.));
+  vec2 f=(floor(u)+.5)/texRes;
+  gl_FragColor=texture2D(tex,vec2(f.x,1.-f.y));
+}`;
 export const C64_BANDS = 40;
 
 export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons'];

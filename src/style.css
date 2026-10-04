@@ -2470,3 +2470,11 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   .c64-shell .console>.control-top .sid-model-pair fieldset{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;text-align:left!important;min-width:0!important}
   .c64-shell .console>.control-top .sid-model-pair legend{float:left!important;width:36px!important;min-width:36px!important;margin:0!important;padding:0!important;text-align:right!important;white-space:nowrap}
 }
+/* Phone: the strip under the screen is a selector, not a wheel: PREV key, fixed-size name display, NEXT key. */
+.c64-shell .visual-thumbwheel .viz-step{display:none}
+@media(max-width:700px){
+  .c64-shell .display-window .visual-thumbwheel{display:flex!important;align-items:center;justify-content:space-between;padding:0 10px;cursor:default;border-radius:8px!important}
+  .c64-shell .visual-thumbwheel .wheel-grooves,.c64-shell .display-window .visual-thumbwheel::after{display:none!important}
+  .c64-shell .visual-thumbwheel .wheel-readout{position:static;transform:none;pointer-events:none}
+  .c64-shell .visual-thumbwheel .viz-step{display:flex;align-items:center;justify-content:center;flex:none;width:44px;height:30px;padding:0;font-size:12px;line-height:1;touch-action:manipulation}
+}

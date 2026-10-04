@@ -33,47 +33,66 @@ export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 
 // bitmap and char effects, every third frame for the chunky rotozoomer and tunnel.
 export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50];
 
-// The C64's own character ROM shapes for the letters of the scroll text (8 rows each) and the text, packed for the shader.
-const GLYPHS: Record<string, number[]> = {
-  ' ': [0, 0, 0, 0, 0, 0, 0, 0],
-  A: [0x18, 0x3c, 0x66, 0x7e, 0x66, 0x66, 0x66, 0],
-  B: [0x7c, 0x66, 0x66, 0x7c, 0x66, 0x66, 0x7c, 0],
-  C: [0x3c, 0x66, 0x60, 0x60, 0x60, 0x66, 0x3c, 0],
-  D: [0x78, 0x6c, 0x66, 0x66, 0x66, 0x6c, 0x78, 0],
-  E: [0x7e, 0x60, 0x60, 0x78, 0x60, 0x60, 0x7e, 0],
-  H: [0x66, 0x66, 0x66, 0x7e, 0x66, 0x66, 0x66, 0],
-  I: [0x3c, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3c, 0],
-  L: [0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x7e, 0],
-  P: [0x7c, 0x66, 0x66, 0x7c, 0x60, 0x60, 0x60, 0],
-  R: [0x7c, 0x66, 0x66, 0x7c, 0x78, 0x6c, 0x66, 0],
-  S: [0x3c, 0x66, 0x60, 0x3c, 0x06, 0x66, 0x3c, 0],
-  T: [0x7e, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0],
-};
-const GLYPH_ORDER = Object.keys(GLYPHS);
-export const C64_FONT = new Float32Array(GLYPH_ORDER.length * 3);
-GLYPH_ORDER.forEach((ch, g) => {
-  const rows = GLYPHS[ch];
-  for (let w = 0; w < 3; w++) {
-    let v = 0;
-    for (let r = 0; r < 3; r++) v = v * 256 + (rows[w * 3 + r] ?? 0);
-    C64_FONT[g * 3 + w] = v;
-  }
+// The C64 character ROM shapes (uppercase set) that the scrollers draw, as an 8-pixel-high atlas texture, plus the text as a
+// row of glyph numbers. The text is whatever the scrollers should say: the tune's name and an optional message.
+const GLYPH_CHARS = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!"#$%&\'()*+,-./:;<=>?@';
+const GLYPH_ROWS: number[][] = [
+  [0, 0, 0, 0, 0, 0, 0, 0],
+  [0x18, 0x3c, 0x66, 0x7e, 0x66, 0x66, 0x66, 0], [0x7c, 0x66, 0x66, 0x7c, 0x66, 0x66, 0x7c, 0], [0x3c, 0x66, 0x60, 0x60, 0x60, 0x66, 0x3c, 0],
+  [0x78, 0x6c, 0x66, 0x66, 0x66, 0x6c, 0x78, 0], [0x7e, 0x60, 0x60, 0x78, 0x60, 0x60, 0x7e, 0], [0x7e, 0x60, 0x60, 0x78, 0x60, 0x60, 0x60, 0],
+  [0x3c, 0x66, 0x60, 0x6e, 0x66, 0x66, 0x3c, 0], [0x66, 0x66, 0x66, 0x7e, 0x66, 0x66, 0x66, 0], [0x3c, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3c, 0],
+  [0x1e, 0x0c, 0x0c, 0x0c, 0x0c, 0x6c, 0x38, 0], [0x66, 0x6c, 0x78, 0x70, 0x78, 0x6c, 0x66, 0], [0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x7e, 0],
+  [0x63, 0x77, 0x7f, 0x6b, 0x63, 0x63, 0x63, 0], [0x66, 0x76, 0x7e, 0x7e, 0x6e, 0x66, 0x66, 0], [0x3c, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3c, 0],
+  [0x7c, 0x66, 0x66, 0x7c, 0x60, 0x60, 0x60, 0], [0x3c, 0x66, 0x66, 0x66, 0x66, 0x3c, 0x0e, 0], [0x7c, 0x66, 0x66, 0x7c, 0x78, 0x6c, 0x66, 0],
+  [0x3c, 0x66, 0x60, 0x3c, 0x06, 0x66, 0x3c, 0], [0x7e, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0], [0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3c, 0],
+  [0x66, 0x66, 0x66, 0x66, 0x66, 0x3c, 0x18, 0], [0x63, 0x63, 0x63, 0x6b, 0x7f, 0x77, 0x63, 0], [0x66, 0x66, 0x3c, 0x18, 0x3c, 0x66, 0x66, 0],
+  [0x66, 0x66, 0x66, 0x3c, 0x18, 0x18, 0x18, 0], [0x7e, 0x06, 0x0c, 0x18, 0x30, 0x60, 0x7e, 0],
+  [0x3c, 0x66, 0x6e, 0x76, 0x66, 0x66, 0x3c, 0], [0x18, 0x18, 0x38, 0x18, 0x18, 0x18, 0x7e, 0], [0x3c, 0x66, 0x06, 0x0c, 0x30, 0x60, 0x7e, 0],
+  [0x3c, 0x66, 0x06, 0x1c, 0x06, 0x66, 0x3c, 0], [0x06, 0x0e, 0x1e, 0x66, 0x7f, 0x06, 0x06, 0], [0x7e, 0x60, 0x7c, 0x06, 0x06, 0x66, 0x3c, 0],
+  [0x3c, 0x66, 0x60, 0x7c, 0x66, 0x66, 0x3c, 0], [0x7e, 0x66, 0x0c, 0x18, 0x18, 0x18, 0x18, 0], [0x3c, 0x66, 0x66, 0x3c, 0x66, 0x66, 0x3c, 0],
+  [0x3c, 0x66, 0x66, 0x3e, 0x06, 0x66, 0x3c, 0],
+  [0x18, 0x18, 0x18, 0x18, 0, 0, 0x18, 0], [0x66, 0x66, 0x66, 0, 0, 0, 0, 0], [0x66, 0x66, 0xff, 0x66, 0xff, 0x66, 0x66, 0],
+  [0x18, 0x3e, 0x60, 0x3c, 0x06, 0x7c, 0x18, 0], [0x62, 0x66, 0x0c, 0x18, 0x30, 0x66, 0x46, 0], [0x3c, 0x66, 0x3c, 0x38, 0x67, 0x66, 0x3f, 0],
+  [0x06, 0x0c, 0x18, 0, 0, 0, 0, 0], [0x0c, 0x18, 0x30, 0x30, 0x30, 0x18, 0x0c, 0], [0x30, 0x18, 0x0c, 0x0c, 0x0c, 0x18, 0x30, 0],
+  [0, 0x66, 0x3c, 0xff, 0x3c, 0x66, 0, 0], [0, 0x18, 0x18, 0x7e, 0x18, 0x18, 0, 0], [0, 0, 0, 0, 0, 0x18, 0x18, 0x30],
+  [0, 0, 0, 0x7e, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0x18, 0x18, 0], [0, 0x03, 0x06, 0x0c, 0x18, 0x30, 0x60, 0],
+  [0, 0, 0x18, 0, 0, 0x18, 0, 0], [0, 0, 0x18, 0, 0, 0x18, 0x18, 0x30], [0x0e, 0x18, 0x30, 0x60, 0x30, 0x18, 0x0e, 0],
+  [0, 0, 0x7e, 0, 0x7e, 0, 0, 0], [0x70, 0x18, 0x0c, 0x06, 0x0c, 0x18, 0x70, 0], [0x3c, 0x66, 0x06, 0x0c, 0x18, 0, 0x18, 0],
+  [0x3c, 0x66, 0x6e, 0x6e, 0x60, 0x62, 0x3c, 0],
+];
+export const C64_ATLAS_W = GLYPH_CHARS.length * 8;
+export const C64_ATLAS = new Uint8Array(C64_ATLAS_W * 8);
+GLYPH_ROWS.forEach((rows, g) => {
+  for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) C64_ATLAS[r * C64_ATLAS_W + g * 8 + c] = (rows[r] >> (7 - c)) & 1 ? 255 : 0;
 });
-const SCROLL = '  CHIPBLASTER  SID  BLAST  ';
-export const C64_SCROLL_LEN = SCROLL.length;
-export const C64_MSG = new Float32Array(4);
-for (let i = 0; i < SCROLL.length; i++) {
-  const g = Math.max(0, GLYPH_ORDER.indexOf(SCROLL[i]));
-  C64_MSG[Math.floor(i / 6)] += g * Math.pow(13, i % 6);
+export const C64_SCROLL_MAX = 512;
+/** Text to glyph numbers: uppercase, accents stripped, anything the C64 set lacks becomes a space. */
+export function encodeScroll(text: string): { data: Uint8Array; len: number } {
+  const clean = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().slice(0, C64_SCROLL_MAX);
+  const data = new Uint8Array(C64_SCROLL_MAX);
+  const len = Math.max(1, clean.length);
+  for (let i = 0; i < clean.length; i++) data[i] = Math.max(0, GLYPH_CHARS.indexOf(clean[i]));
+  return { data, len };
 }
+/** Three numbers in 0..1 from any string (the tune's name or path): they vary phases, palettes and speeds per tune. */
+export function seedFrom(text: string): [number, number, number] {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+  const f = (x: number) => ((Math.imul(x ^ (x >>> 15), 2246822519) >>> 0) % 10007) / 10007;
+  return [f(h), f(h + 1013), f(h + 2027)];
+}
+
 
 export const C64_FRAGMENT = `precision highp float;
 uniform vec2 res;
 uniform float time, vtime, bass, mids, treble, mode;
 uniform float spec[40];
 uniform float peaks[40];
-uniform vec3 font[13];
-uniform vec4 msg;
+uniform sampler2D fontTex;
+uniform sampler2D msgTex;
+uniform float msgLen;
+uniform vec3 seed;
+float gSet=0.;
 #define PI 3.14159265
 vec3 pc(float i){
   i=floor(i+.5);
@@ -98,17 +117,19 @@ float hash(float n){return fract(sin(n*127.1)*43758.5453);}
 float hash2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float rampIdx(float set,float v){
   float s=clamp(floor(v*6.),0.,5.);
-  float k=floor(mod(set,4.)+.5);
+  float k=floor(mod(set+gSet,4.)+.5);
   if(k<.5){if(s<.5)return 0.;if(s<1.5)return 6.;if(s<2.5)return 14.;if(s<3.5)return 3.;if(s<4.5)return 15.;return 1.;}
   if(k<1.5){if(s<.5)return 0.;if(s<1.5)return 9.;if(s<2.5)return 2.;if(s<3.5)return 8.;if(s<4.5)return 7.;return 1.;}
   if(k<2.5){if(s<.5)return 0.;if(s<1.5)return 11.;if(s<2.5)return 5.;if(s<3.5)return 13.;if(s<4.5)return 7.;return 1.;}
   if(s<.5)return 0.;if(s<1.5)return 6.;if(s<2.5)return 4.;if(s<3.5)return 10.;if(s<4.5)return 7.;return 1.;
 }
 float spriteCol(float k){
+  k=mod(k+floor(seed.y*8.),8.);
   if(k<.5)return 10.;if(k<1.5)return 7.;if(k<2.5)return 13.;if(k<3.5)return 3.;
   if(k<4.5)return 4.;if(k<5.5)return 14.;if(k<6.5)return 15.;return 8.;
 }
 float spriteDark(float k){
+  k=mod(k+floor(seed.y*8.),8.);
   if(k<.5)return 2.;if(k<1.5)return 8.;if(k<2.5)return 5.;if(k<3.5)return 6.;
   if(k<4.5)return 6.;if(k<5.5)return 6.;if(k<6.5)return 11.;return 9.;
 }
@@ -160,22 +181,15 @@ float specIdx(vec2 c){
   return o;
 }
 float glyphBit(float g,float gx,float gy){
-  vec3 f=vec3(0.);
-  for(int i=0;i<13;i++){if(float(i)==g)f=font[i];}
-  float w=floor(gy/3.);
-  float word=w<.5?f.x:(w<1.5?f.y:f.z);
-  float bit=(2.-mod(gy,3.))*8.+(7.-gx);
-  return mod(floor(word/exp2(bit)),2.);
+  return texture2D(fontTex,vec2((g*8.+gx+.5)/${C64_ATLAS_W}.,(gy+.5)/8.)).r>.5?1.:0.;
 }
 float msgGlyph(float n){
-  n=mod(n,${C64_SCROLL_LEN}.);
-  float word=floor(n/6.),d=mod(n,6.);
-  float v=word<.5?msg.x:(word<1.5?msg.y:(word<2.5?msg.z:msg.w));
-  return mod(floor(v/pow(13.,d)+.001),13.);
+  n=mod(n,msgLen);
+  return floor(texture2D(msgTex,vec2((n+.5)/${C64_SCROLL_MAX}.,.5)).r*255.+.5);
 }
 // Returns a palette index for the pixel at p (top-left origin), border included.
 float scene(vec2 p){
-  float t=time*.8,b=bass,m=mids,h=treble;
+  float t=time*.8+seed.x*37.,b=bass,m=mids,h=treble;
   float x=floor(p.x),y=floor(p.y);
   vec2 org=floor((res-vec2(320.,200.))*.5);
   vec2 c=vec2(x,y)-org;
@@ -294,7 +308,7 @@ float scene(vec2 p){
     idx=mod(floor(c.y/6.),2.)<1.?rampIdx(0.,.1):0.;
     float sx=c.x+floor(t*46.);
     float n=floor(sx/24.);
-    float dy=floor(sin(n*.62+t*2.6)*(34.+b*30.)+sin(n*.21+t)*12.);
+    float dy=floor(sin(n*(.5+seed.z*.3)+t*2.6)*(34.+b*30.)+sin(n*.21+t)*12.);
     float py=floor((c.y-(78.+dy))/3.),gx=floor(mod(sx,24.)/3.);
     if(py>=0.&&py<8.&&glyphBit(msgGlyph(n),gx,py)>.5)idx=rampIdx(floor(c.y/36.+t*.6),.45+.5*fract(c.y/36.));
   }else if(md==10){
@@ -476,7 +490,7 @@ float scene(vec2 p){
     float R0=51.6;
     if(r>=R0&&r<R0+16.){
       float sc=mod(ang,6.2831853)*R0;
-      float n=floor(sc/12.);
+      float n=floor(sc/12.)+floor(t*2.);
       float gx=floor(mod(sc,12.)/1.5),gy=floor((R0+16.-r)/2.);
       if(glyphBit(msgGlyph(n),gx,gy)>.5)idx=rampIdx(floor(ang*1.3+t),.55+.4*sin(ang*3.));
     }
@@ -528,6 +542,7 @@ float scene(vec2 p){
   return (inside||openAll)?idx:bidx;
 }
 void main(){
+  gSet=floor(seed.y*4.);
   float x=floor(gl_FragCoord.x),y=res.y-1.-floor(gl_FragCoord.y);
   float b=bass,tt=vtime;
   float dx=0.,cs=1.;

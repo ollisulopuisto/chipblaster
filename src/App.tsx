@@ -146,19 +146,19 @@ function VUMeter({player,active,side,chipSource,position,label,master,calibratio
 function Spectrum({player,active}:{player:Player|null,active:boolean}){
   const ref=useRef<HTMLCanvasElement>(null);const st=useRef({player,active});st.current={player,active};
   useEffect(()=>{const canvas=ref.current!;const ctx=canvas.getContext('2d');if(!ctx)return;
-    let raf=0;const N=28,peaks=new Array(N).fill(0);let last=performance.now();
+    let raf=0;const N=28,segs=22,peaks=new Array(N).fill(0),hold=new Array(N).fill(0),smooth=new Array(N).fill(0),glow=new Float32Array(N*segs);let last=performance.now();
     const draw=(now:number)=>{const dpr=Math.min(2,devicePixelRatio||1),w=Math.floor(canvas.clientWidth*dpr),h=Math.floor(canvas.clientHeight*dpr);if(w<4||h<4){raf=requestAnimationFrame(draw);return}if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
       const s=st.current,dt=Math.min(.12,(now-last)/1000);last=now;const vals=new Array(N).fill(0);
       if(s.player&&s.active){const an=s.player.analyser,bins=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(bins);const ny=(s.player.audioContext.sampleRate||44100)/2;
         for(let b=0;b<N;b++){const f0=40*Math.pow(350,b/N),f1=40*Math.pow(350,(b+1)/N),i0=Math.max(1,Math.floor(f0/ny*bins.length)),i1=Math.min(bins.length,Math.max(i0+1,Math.ceil(f1/ny*bins.length)));let m=0;for(let i=i0;i<i1;i++)if(bins[i]>m)m=bins[i];vals[b]=Math.pow(m/255,1.15)}}
       else{for(let b=0;b<N;b++)vals[b]=.035+.025*Math.sin(now/1100+b*1.9)}
-      for(let b=0;b<N;b++){peaks[b]=Math.max(vals[b],peaks[b]-dt*.35)}
+      for(let b=0;b<N;b++){smooth[b]=Math.max(vals[b],smooth[b]-dt*1.5);if(smooth[b]>=peaks[b]){peaks[b]=smooth[b];hold[b]=.7}else if(hold[b]>0)hold[b]-=dt;else peaks[b]=Math.max(smooth[b],peaks[b]-dt*.4)}
       ctx.filter='none';ctx.fillStyle='#03100a';ctx.fillRect(0,0,w,h);ctx.filter='none';
-      const gap=Math.max(1,2*dpr),bw=(w-gap*(N+1))/N,top=3*dpr,bot=h-3*dpr,usable=bot-top,segs=22,sh=usable/segs;
-      for(let b=0;b<N;b++){const x=gap+b*(bw+gap),v=Math.min(1,vals[b]);
-        for(let sg=0;sg<segs;sg++){if((sg+1)/segs>v)break;const frac=sg/(segs-1);
+      const gap=Math.max(1,2*dpr),bw=(w-gap*(N+1))/N,top=3*dpr,bot=h-3*dpr,usable=bot-top,sh=usable/segs,fall=Math.exp(-dt/.24);
+      for(let b=0;b<N;b++){const x=gap+b*(bw+gap),v=Math.min(1,smooth[b]);
+        for(let sg=0;sg<segs;sg++){const gi=b*segs+sg,lit=(sg+1)/segs<=v;glow[gi]=lit?1:glow[gi]*fall;const frac=sg/(segs-1);
           ctx.fillStyle=frac<.62?'#21563b':frac<.85?'#327a53':'#589467';
-          ctx.fillRect(x,bot-(sg+1)*sh,bw,Math.max(1,sh-2*dpr));}
+          ctx.globalAlpha=Math.max(.07,glow[gi]);ctx.fillRect(x,bot-(sg+1)*sh,bw,Math.max(1,sh-2*dpr));}ctx.globalAlpha=1;
         const pv=peaks[b];if(pv>.02){const py=bot-Math.min(1,pv)*usable;ctx.fillStyle='rgba(108,161,108,.9)';ctx.fillRect(x,Math.max(top,py),bw,Math.max(1,1.6*dpr));}}
       raf=requestAnimationFrame(draw)};raf=requestAnimationFrame(draw);return()=>cancelAnimationFrame(raf)},[]);
   return <canvas ref={ref} className="spectrum" aria-label="Frequency band spectrum display"/>;

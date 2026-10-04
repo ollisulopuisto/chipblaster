@@ -88,6 +88,8 @@ uniform vec2 res;
 uniform float time, vtime, bass, mids, treble, mode;
 uniform float spec[40];
 uniform float peaks[40];
+uniform float vl[6];
+uniform float vw[6];
 uniform sampler2D fontTex;
 uniform sampler2D msgTex;
 uniform float msgLen;
@@ -138,6 +140,23 @@ float flashCol(float n){
   if(n<.5)return 1.;if(n<1.5)return 7.;if(n<2.5)return 3.;if(n<3.5)return 13.;return 10.;
 }
 float bay2(float a,float b){return mod(a*2.+b*3.,4.);}
+// SID voices: vl is each voice's level (0..1, SID 1 voices 0-2, SID 2 voices 3-5), vw its waveform: 0 none, 1 triangle, 2 saw, 3 pulse, 4 noise.
+float vlv(float j){
+  j=mod(floor(j+.5),6.);
+  if(j<.5)return vl[0];if(j<1.5)return vl[1];if(j<2.5)return vl[2];if(j<3.5)return vl[3];if(j<4.5)return vl[4];return vl[5];
+}
+float vwv(float j){
+  j=mod(floor(j+.5),6.);
+  if(j<.5)return vw[0];if(j<1.5)return vw[1];if(j<2.5)return vw[2];if(j<3.5)return vw[3];if(j<4.5)return vw[4];return vw[5];
+}
+// The shape of a sprite follows the voice's waveform: round without data, diamond for triangle, wedge for saw, square for pulse, dithered disc for noise.
+float shapeIn(vec2 q,float w,vec2 pix){
+  if(w<.5)return step(length(q),1.);
+  if(w<1.5)return step(abs(q.x)+abs(q.y),1.);
+  if(w<2.5)return step(-1.,q.x)*step(q.x,1.)*step(abs(q.y),(q.x+1.)*.5);
+  if(w<3.5)return step(max(abs(q.x),abs(q.y)),.9);
+  return step(length(q),1.)*max(step(mod(floor(pix.x)+floor(pix.y),2.),.5),step(length(q),.5));
+}
 float bayer(vec2 p){vec2 q=mod(floor(p),4.);return (bay2(mod(q.x,2.),mod(q.y,2.))*4.+bay2(floor(q.x/2.),floor(q.y/2.))+.5)/16.;}
 vec3 rotY(vec3 v,float a){float c=cos(a),s=sin(a);return vec3(c*v.x+s*v.z,v.y,-s*v.x+c*v.z);}
 vec3 rotX(vec3 v,float a){float c=cos(a),s=sin(a);return vec3(v.x,c*v.y-s*v.z,s*v.y+c*v.z);}
@@ -219,18 +238,21 @@ float scene(vec2 p){
       float fi=float(i);
       float band=floor(fi/8.);
       float k=mod(fi,8.);
+      float vo=mod(fi,6.);
+      float lv=.2+.8*vlv(vo),wv=vwv(vo);
       float ph=t*(.7+.09*k)+k*.85+band*2.1;
-      float ex=mod(k,2.)<.5?step(.7,b):step(.58,m);
-      float sw=24.*(1.+ex),sh=21.*(1.+ex);
-      float sx=floor(160.-sw*.5+sin(ph)*(118.-sw*.3));
-      float sy=floor(band*100.+3.+(.5+.5*sin(ph*1.31+k))*(94.-sh));
+      float sz=floor(12.+lv*22.);
+      float sx=floor(160.-sz+sin(ph)*(118.-sz*.6));
+      float sy=floor(band*100.+3.+(.5+.5*sin(ph*1.31+k))*(94.-sz*2.)-lv*6.);
       float px=c.x-sx,py=c.y-sy;
-      if(spr<0.&&px>=0.&&px<sw&&py>=0.&&py<sh){
-        float u=floor(px/(1.+ex)),v=floor(py/(1.+ex));
-        float u2=floor(u/2.);
-        vec2 q=vec2((u2+.5-6.)*2.,v+.5-10.5)/10.5;
-        float e=length(q),e2=length(q-vec2(-.3,-.3));
-        if(e<1.){spr=e2<.28?1.:(e<.66?spriteCol(k):(e<.88?spriteDark(k):11.));}
+      if(spr<0.&&px>=0.&&px<sz*2.&&py>=0.&&py<sz*2.){
+        vec2 q=vec2(floor(px)+.5-sz,floor(py)+.5-sz)/sz;
+        float m1=shapeIn(q,wv,c);
+        if(m1>.5){
+          float m2=shapeIn(q/.7,wv,c);
+          float hi=wv<.5?step(length(q-vec2(-.3,-.3)),.2):0.;
+          spr=hi>.5?1.:(m2>.5?spriteCol(vo*2.+1.):spriteDark(vo*2.+1.));
+        }
       }
     }
     if(spr>=0.)idx=spr;
@@ -503,13 +525,24 @@ float scene(vec2 p){
     for(int i=0;i<12;i++){
       float k=float(i);
       float hs=hash(k+1.);
+      float vo=mod(k,6.);
+      float lv=vlv(vo),wv=vwv(vo);
       float bx=24.+hash(k+40.)*272.+sin(t*(.6+hs)+k)*10.;
-      float by=mod(260.-(t*(14.+hs*26.)+hash(k+80.)*260.),260.)-30.;
-      float rr=9.+hash(k+120.)*9.;
+      float by=mod(260.-(t*(14.+hs*26.)+hash(k+80.)*260.),260.)-30.-lv*14.;
+      float rr=(9.+hash(k+120.)*9.)*(.8+.45*lv);
       vec2 d=vec2(c.x-bx,(c.y-by)/1.25);
       float e=length(d)/rr;
       if(best<0.){
-        if(e<1.){best=length(d/rr-vec2(-.3,-.3))<.25?1.:(e<.7?spriteCol(mod(k,8.)):spriteDark(mod(k,8.)));}
+        if(e<1.){
+          float body=spriteCol(vo*2.+1.);
+          float dk=spriteDark(vo*2.+1.);
+          float shade=e<.7?body:dk;
+          if(wv>.5&&wv<1.5&&mod(floor(abs(d.x)/3.)+floor(abs(d.y)/3.),2.)<1.&&e<.7)shade=dk;
+          if(wv>1.5&&wv<2.5&&mod(floor((d.x+d.y)/3.),2.)<1.&&e<.7)shade=dk;
+          if(wv>2.5&&wv<3.5&&abs(d.y)<rr*.16)shade=1.;
+          if(wv>3.5&&mod(floor(c.x)+floor(c.y),2.)<1.)shade=dk;
+          best=length(d/rr-vec2(-.3,-.3))<.25?1.:shade;
+        }
         else if(abs(c.x-bx)<.6&&c.y>by+rr*1.25&&c.y<by+rr*1.25+28.)best=15.;
       }
     }

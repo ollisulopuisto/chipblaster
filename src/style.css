@@ -2386,3 +2386,20 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .speaker-recess .speaker-grille{animation:none!important;translate:none!important;filter:sepia(var(--heat)) saturate(calc(1 + var(--heat) * 3)) brightness(calc(1 + var(--heat) * .35))}
 .c64-shell .speaker-recess .speaker-cone>.speaker-diaphragm{box-shadow:inset 0 0 3px #0008,0 0 calc(var(--heat) * 14px) calc(var(--heat) * 3px) rgba(255,120,40,.9)!important}
 .c64-shell .speaker-recess .speaker-grille{box-shadow:inset 0 0 calc(var(--heat) * 34px) calc(var(--heat) * 6px) rgba(255,96,24,calc(var(--heat) * .9));background-color:rgba(255,86,20,calc(var(--heat) * .34))}
+/* HQ ENHANCED lamp: a lit window like DOLBY NR or METAL on a deck, beside the STEREO plate */
+.c64-shell .boombox-brand .hq-lamp{flex:none;padding:3px 6px 2px;border:1px solid #6d6a63;border-radius:2px;background:#26231f;color:#5c564b;font:800 7px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.16em;white-space:nowrap;box-shadow:inset 0 1px 2px #000a,0 1px 0 #fff8;transition:color .2s,text-shadow .2s}
+.c64-shell .boombox-brand .hq-lamp.lit{color:#9cf2b2;text-shadow:0 0 5px #5fe08088;background:#10261a}
+@media(max-width:700px){.c64-shell .boombox-brand .hq-lamp{display:none}}
+/* STEREO ENHANCE and the SID keys share one centre line, with one SID row or two */
+@media(min-width:701px){
+  .c64-shell .control-top .sid-model-pair{transform:none!important}
+  .c64-shell .eq-deck .space-band{top:-9px!important}
+}
+/* PEQ panel on a wide screen: hangs under the tone strip like on a phone instead of being clipped by the strip */
+@media(min-width:701px){
+  .c64-shell .console>.control-top{position:relative}
+  .c64-shell .console>.control-top:has(.peq-details),.c64-shell .flip-front:has(.peq-details){overflow:visible!important}
+  .c64-shell .control-top .eq-deck .eq-band,.c64-shell .control-top .eq-deck{position:static!important}
+  .c64-shell .control-top .eq-deck .eq-band.space-band{position:relative!important}
+  .c64-shell .control-top .eq-deck .peq-details,.c64-shell .eq-band:nth-child(n) .peq-details{position:absolute!important;left:50%!important;right:auto!important;top:calc(100% + 6px)!important;transform:translateX(-50%)!important;width:300px!important;max-width:none!important;box-sizing:border-box;z-index:20}
+}

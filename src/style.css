@@ -2403,3 +2403,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   .c64-shell .control-top .eq-deck .eq-band.space-band{position:relative!important}
   .c64-shell .control-top .eq-deck .peq-details,.c64-shell .eq-band:nth-child(n) .peq-details{position:absolute!important;left:50%!important;right:auto!important;top:calc(100% + 6px)!important;transform:translateX(-50%)!important;width:300px!important;max-width:none!important;box-sizing:border-box;z-index:20}
 }
+/* Case-top lamps (STEREO, HQ ENHANCED): the same window, dark when off and the same green when on */
+.c64-shell .boombox-brand :is(.c64-rainbow,.hq-lamp){background:#26231f!important;border:1px solid #6d6a63;box-shadow:inset 0 1px 2px #000a,0 1px 0 #fff8;transition:color .2s,text-shadow .2s,background .2s}
+.c64-shell .boombox-brand .c64-rainbow::after{color:#5c564b;transition:color .2s,text-shadow .2s}
+.c64-shell .boombox-brand .c64-rainbow.lit{background:#10261a!important}
+.c64-shell .boombox-brand .c64-rainbow.lit::after{color:#9cf2b2;text-shadow:0 0 5px #5fe08088}

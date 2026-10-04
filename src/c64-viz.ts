@@ -8,17 +8,53 @@ export const C64_OVERSCAN_ROWS = 232;
 export const C64_MIN_W = 355;
 export const C64_BANDS = 40;
 
-export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders'];
-export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders'];
+export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch'];
+export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch'];
 // What a PAL C64 could manage: 50 frames a second for raster and sprite work, every second frame for full-screen
 // bitmap and char effects, every third frame for the chunky rotozoomer and tunnel.
-export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50];
+export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50];
+
+// The C64's own character ROM shapes for the letters of the scroll text (8 rows each) and the text, packed for the shader.
+const GLYPHS: Record<string, number[]> = {
+  ' ': [0, 0, 0, 0, 0, 0, 0, 0],
+  A: [0x18, 0x3c, 0x66, 0x7e, 0x66, 0x66, 0x66, 0],
+  B: [0x7c, 0x66, 0x66, 0x7c, 0x66, 0x66, 0x7c, 0],
+  C: [0x3c, 0x66, 0x60, 0x60, 0x60, 0x66, 0x3c, 0],
+  D: [0x78, 0x6c, 0x66, 0x66, 0x66, 0x6c, 0x78, 0],
+  E: [0x7e, 0x60, 0x60, 0x78, 0x60, 0x60, 0x7e, 0],
+  H: [0x66, 0x66, 0x66, 0x7e, 0x66, 0x66, 0x66, 0],
+  I: [0x3c, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3c, 0],
+  L: [0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x7e, 0],
+  P: [0x7c, 0x66, 0x66, 0x7c, 0x60, 0x60, 0x60, 0],
+  R: [0x7c, 0x66, 0x66, 0x7c, 0x78, 0x6c, 0x66, 0],
+  S: [0x3c, 0x66, 0x60, 0x3c, 0x06, 0x66, 0x3c, 0],
+  T: [0x7e, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0],
+};
+const GLYPH_ORDER = Object.keys(GLYPHS);
+export const C64_FONT = new Float32Array(GLYPH_ORDER.length * 3);
+GLYPH_ORDER.forEach((ch, g) => {
+  const rows = GLYPHS[ch];
+  for (let w = 0; w < 3; w++) {
+    let v = 0;
+    for (let r = 0; r < 3; r++) v = v * 256 + (rows[w * 3 + r] ?? 0);
+    C64_FONT[g * 3 + w] = v;
+  }
+});
+const SCROLL = '  CHIPBLASTER  SID  BLAST  ';
+export const C64_SCROLL_LEN = SCROLL.length;
+export const C64_MSG = new Float32Array(4);
+for (let i = 0; i < SCROLL.length; i++) {
+  const g = Math.max(0, GLYPH_ORDER.indexOf(SCROLL[i]));
+  C64_MSG[Math.floor(i / 6)] += g * Math.pow(13, i % 6);
+}
 
 export const C64_FRAGMENT = `precision highp float;
 uniform vec2 res;
 uniform float time, vtime, bass, mids, treble, mode;
 uniform float spec[40];
 uniform float peaks[40];
+uniform vec3 font[13];
+uniform vec4 msg;
 #define PI 3.14159265
 vec3 pc(float i){
   i=floor(i+.5);
@@ -60,6 +96,44 @@ float spriteDark(float k){
 float flashCol(float n){
   n=mod(n,5.);
   if(n<.5)return 1.;if(n<1.5)return 7.;if(n<2.5)return 3.;if(n<3.5)return 13.;return 10.;
+}
+float plasmaIdx(vec2 c,float t,float b,float m){
+  vec2 cell=floor(c/8.),loc=mod(c,8.);
+  float v=sin(cell.x*.33+t*1.2)+sin(cell.y*.45-t*.9)+sin((cell.x+cell.y)*.21+t*.7)+sin(length(cell-vec2(20.,12.))*.5-t*1.5-b*5.);
+  v=v*.125+.5+b*.18+m*.1;
+  float L=floor(clamp(v,0.,.999)*5.);
+  float odd_x=step(1.,mod(loc.x,2.)),odd_y=step(1.,mod(loc.y,2.));
+  float dots=(1.-odd_x)*(1.-odd_y);
+  float on=0.;
+  if(L>3.5)on=1.;else if(L>2.5)on=1.-dots;else if(L>1.5)on=step(1.,mod(loc.x+loc.y,2.));else if(L>.5)on=dots;
+  float set=mod(floor(cell.x/10.)+floor(t*.15),4.);
+  return on>.5?rampIdx(set,v+.18):0.;
+}
+float specIdx(vec2 c){
+  float colI=floor(c.x/8.),lev=0.,pk=0.;
+  for(int i=0;i<40;i++){if(float(i)==colI){lev=spec[i];pk=peaks[i];}}
+  float row=24.-floor(c.y/8.);
+  float bar=step(row+.5,lev*25.);
+  float isPeak=pk>.03?step(abs(row-floor(pk*25.)),.5):0.;
+  float gap=max(step(7.,mod(c.y,8.)),step(7.,mod(c.x,8.)));
+  float col=row<14.?5.:(row<20.?7.:10.);
+  float o=gap>.5?0.:(isPeak>.5?1.:(bar>.5?col:0.));
+  if(o<.5&&mod(c.x,8.)==4.&&mod(c.y,8.)==4.)o=11.;
+  return o;
+}
+float glyphBit(float g,float gx,float gy){
+  vec3 f=vec3(0.);
+  for(int i=0;i<13;i++){if(float(i)==g)f=font[i];}
+  float w=floor(gy/3.);
+  float word=w<.5?f.x:(w<1.5?f.y:f.z);
+  float bit=(2.-mod(gy,3.))*8.+(7.-gx);
+  return mod(floor(word/exp2(bit)),2.);
+}
+float msgGlyph(float n){
+  n=mod(n,${C64_SCROLL_LEN}.);
+  float word=floor(n/6.),d=mod(n,6.);
+  float v=word<.5?msg.x:(word<1.5?msg.y:(word<2.5?msg.z:msg.w));
+  return mod(floor(v/pow(13.,d)+.001),13.);
 }
 // Returns a palette index for the pixel at p (top-left origin), border included.
 float scene(vec2 p){
@@ -110,27 +184,10 @@ float scene(vec2 p){
     if(spr>=0.)idx=spr;
   }else if(md==2){
     bidx=6.;
-    vec2 cell=floor(c/8.),loc=mod(c,8.);
-    float v=sin(cell.x*.33+t*1.2)+sin(cell.y*.45-t*.9)+sin((cell.x+cell.y)*.21+t*.7)+sin(length(cell-vec2(20.,12.))*.5-t*1.5-b*5.);
-    v=v*.125+.5+b*.18+m*.1;
-    float L=floor(clamp(v,0.,.999)*5.);
-    float odd_x=step(1.,mod(loc.x,2.)),odd_y=step(1.,mod(loc.y,2.));
-    float dots=(1.-odd_x)*(1.-odd_y);
-    float on=0.;
-    if(L>3.5)on=1.;else if(L>2.5)on=1.-dots;else if(L>1.5)on=step(1.,mod(loc.x+loc.y,2.));else if(L>.5)on=dots;
-    float set=mod(floor(cell.x/10.)+floor(t*.15),4.);
-    idx=on>.5?rampIdx(set,v+.18):0.;
+    idx=plasmaIdx(c,t,b,m);
   }else if(md==3){
     bidx=11.;
-    float colI=floor(c.x/8.),lev=0.,pk=0.;
-    for(int i=0;i<40;i++){if(float(i)==colI){lev=spec[i];pk=peaks[i];}}
-    float row=24.-floor(c.y/8.);
-    float bar=step(row+.5,lev*25.);
-    float isPeak=pk>.03?step(abs(row-floor(pk*25.)),.5):0.;
-    float gap=max(step(7.,mod(c.y,8.)),step(7.,mod(c.x,8.)));
-    float col=row<14.?5.:(row<20.?7.:10.);
-    idx=gap>.5?0.:(isPeak>.5?1.:(bar>.5?col:0.));
-    if(idx<.5&&mod(c.x,8.)==4.&&mod(c.y,8.)==4.)idx=11.;
+    idx=specIdx(c);
   }else if(md==4){
     bidx=0.;
     float q=t*.45+sin(t*.3)*.8;
@@ -193,6 +250,36 @@ float scene(vec2 p){
       }
     }
     if(spr>=0.)idx=spr;
+  }else if(md==9){
+    // DYCP: every character column of the scroller has its own vertical position; letters take their colour from the raster line.
+    bidx=0.;
+    idx=mod(floor(c.y/6.),2.)<1.?rampIdx(0.,.1):0.;
+    float sx=c.x+floor(t*46.);
+    float n=floor(sx/24.);
+    float dy=floor(sin(n*.62+t*2.6)*(34.+b*30.)+sin(n*.21+t)*12.);
+    float py=floor((c.y-(78.+dy))/3.),gx=floor(mod(sx,24.)/3.);
+    if(py>=0.&&py<8.&&glyphBit(msgGlyph(n),gx,py)>.5)idx=rampIdx(floor(c.y/36.+t*.6),.45+.5*fract(c.y/36.));
+  }else if(md==10){
+    // FLD: the char rows are pushed down by delaying the bad lines; the top line is smeared over the gap.
+    bidx=6.;
+    float d=floor(b*64.+(.5+.5*sin(t*1.6))*28.);
+    float sy=max(0.,c.y-d);
+    idx=plasmaIdx(vec2(c.x,sy),t,b,m);
+  }else if(md==11){
+    // FLI: a new colour attribute on every raster line (the 3-column FLI bug on the left shows garbage).
+    bidx=0.;
+    float cx=floor(c.x/2.)*2.+1.;
+    float r=length(vec2(cx-160.,c.y-100.)*vec2(1.,1.2));
+    float a=atan(c.y-100.,cx-160.);
+    float v=.5+.5*sin(r*.09-t*2.2+sin(a*5.+t)*1.4)+b*.25;
+    float set=floor(mod(c.y,8.)*.5+floor(r/40.)+floor(t*.8));
+    idx=rampIdx(set,v*.95);
+    if(c.x<24.)idx=hash2(vec2(floor(c.y/2.),floor(t*8.)))>.5?15.:(mod(c.y,8.)<4.?0.:11.);
+  }else if(md==12){
+    // Linecrunch: raster lines are deleted and repeated, so the picture squeezes and stretches like a rubber sheet.
+    bidx=11.;
+    float sy=c.y+30.*sin(c.y*.034+t*1.8)+12.*sin(c.y*.09-t*2.7);
+    idx=specIdx(vec2(c.x,clamp(sy,0.,199.)));
   }else{
     bidx=0.;
     float hor=104.;

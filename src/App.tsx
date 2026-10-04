@@ -92,7 +92,7 @@ function WaveApertures({first,second,dual=false}:{first:number;second:number;dua
 
 
 // Stereo enhance is a switch with one fixed setting, on the 0-100 scale the old width knob used.
-const WIDE_AMOUNT=50;
+const WIDE_AMOUNT=67;
 // Feature names in the tradition of 1980s Japanese hi-fi and boombox marketing. Used for tooltips and in the manual.
 const FN={
   stereo:['STEREO ENHANCE','Widens the stereo image for headphones. On two-SID tunes it also spreads SID 1 to the left and SID 2 to the right. Noise and bass voices stay centred.'],

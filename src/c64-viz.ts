@@ -2,10 +2,11 @@
 // the 16 Pepto colours only, 8x8 character cells, 2x1 multicolour pixels, hardware sprites (24x21, expandable, 8 per
 // scanline) multiplexed into two bands, raster bars and per-line border colours. The analogue CRT faults are always on but
 // mostly asleep: a faint bass wobble, hum bar and noise, a tiny tick every ~17 s and one real glitch about once a minute.
-// The buffer takes the shape of the tube. The 320x200 window sits in the middle; the border is what the glass leaves
-// visible after overscan: 232 rows tall, and at least 355 wide so the window always fits.
-export const C64_OVERSCAN_ROWS = 232;
-export const C64_MIN_W = 355;
+// The buffer is 368 wide (a 24 px border at the sides) and between 230 and 283 rows tall, so the 320x200 window always has a thin
+// C64-sized border on every side. The tube stretches it to its own shape, so pixels may come out wider or taller than square.
+export const C64_BUF_W = 368;
+export const C64_ASPECT_MIN = 1.3;
+export const C64_ASPECT_MAX = 1.6;
 export const C64_BANDS = 40;
 
 export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons'];

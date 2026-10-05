@@ -2571,3 +2571,11 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell:not(.jp) .flip-stage.flipped .flip-back .favorite-result .row-key:active,.c64-shell:not(.jp) .flip-stage.flipped .flip-back .favorite-result .row-key[aria-pressed="true"]{background:linear-gradient(#5f4d38,#7a6548)!important;box-shadow:inset 0 2px 4px #0008!important}
 .c64-shell:not(.jp) .flip-stage.flipped .flip-back .favorite-result .row-key .deck-icon{color:#efe4c8!important;fill:#efe4c8!important}
 .c64-shell:not(.jp) .flip-stage.flipped .flip-back .favorite-result .row-key .deck-icon path{fill:#efe4c8!important}
+/* Header row: one common centre line for the lamps, the rainbow, the name and the subtitle. */
+.c64-shell:not(.jp) .boombox-brand{align-items:center}
+.c64-shell:not(.jp) .boombox-brand .c64-badge{display:flex;align-items:center;line-height:1;padding-top:0;padding-bottom:0}
+.c64-shell:not(.jp) .boombox-brand .c64-badge::before{flex:none;vertical-align:baseline;margin-top:0;margin-bottom:0}
+.c64-shell:not(.jp) .boombox-brand .c64-badge span{line-height:1;align-self:center}
+.c64-shell:not(.jp) .boombox-brand .c64-badge{padding-top:2px!important}
+.c64-shell:not(.jp) .boombox-brand .c64-badge::before{margin-top:-3px;transform:skewX(-18deg) translateY(.5px)}
+.c64-shell:not(.jp) .boombox-brand .c64-badge span{margin-top:-1.2px;transform:translateY(.6px)}

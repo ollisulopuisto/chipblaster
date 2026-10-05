@@ -27,11 +27,11 @@ void main(){
 }`;
 export const C64_BANDS = 40;
 
-export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons', 'Piano roll', 'Ghostbytes', 'Marchers'];
-export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll', 'ghostbytes', 'marchers'];
+export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons', 'Piano roll', 'Ghostbytes', 'Marchers', 'Phyllotaxis'];
+export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll', 'ghostbytes', 'marchers', 'phyllotaxis'];
 // What a PAL C64 could manage: 50 frames a second for raster and sprite work, every second frame for full-screen
 // bitmap and char effects, every third frame for the chunky rotozoomer and tunnel.
-export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50, 50, 50, 50];
+export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50, 50, 50, 50, 25];
 
 // The C64 character ROM shapes (uppercase set) that the scrollers draw, as an 8-pixel-high atlas texture, plus the text as a
 // row of glyph numbers. The text is whatever the scrollers should say: the tune's name and an optional message.
@@ -303,6 +303,12 @@ float plasmaIdx(vec2 c,float t,float b,float m){
   if(L>3.5)on=1.;else if(L>2.5)on=1.-dots;else if(L>1.5)on=step(1.,mod(loc.x+loc.y,2.));else if(L>.5)on=dots;
   float set=mod(floor(cell.x/10.)+floor(t*.15),4.);
   return on>.5?rampIdx(set,v+.18):0.;
+}
+// Offsets to the Fibonacci neighbours of a seed in a phyllotaxis: the nearest seeds always sit at these index distances.
+float fibOff(int k){
+  if(k==0)return 0.;if(k==1)return 1.;if(k==2)return -1.;if(k==3)return 2.;if(k==4)return -2.;if(k==5)return 3.;if(k==6)return -3.;
+  if(k==7)return 5.;if(k==8)return -5.;if(k==9)return 8.;if(k==10)return -8.;if(k==11)return 13.;if(k==12)return -13.;
+  if(k==13)return 21.;if(k==14)return -21.;if(k==15)return 34.;return -34.;
 }
 float specAtCell(float i){float l=0.;for(int k=0;k<40;k++){if(float(k)==i)l=spec[k];}return l;}
 // An 8x8 walker with a two-frame walk cycle: head, eyes (drawn separately), body and feet.
@@ -755,6 +761,41 @@ float scene(vec2 p){
           }
         }
       }
+    }
+  }else if(md==28){
+    // Phyllotaxis (after the phyllotaxis LED display on jagi.studio): seed n sits at angle n * 137.5078 degrees and radius c * sqrt(n), which makes the
+    // sunflower's spirals. Each seed belongs to one voice (n mod 6), so the spiral arms are the voices; a voice's level swells its seeds, its waveform
+    // picks their shape, the spectrum widens the dots ring by ring (bass in the middle, treble at the rim) and the flower grows and shrinks.
+    bidx=6.;idx=0.;
+    vec2 p=vec2(c.x-160.,c.y-100.);
+    float c0=6.,ga=2.39996323;
+    float rot=t*.12+b*.12;
+    float nVis=440.*(.4+.6*(.5+.5*sin(t*.25)));
+    float r=length(p);
+    float n0=floor((r/c0)*(r/c0)+.5);
+    float L0=vlv(0.),L1=vlv(1.),L2=vlv(2.),L3=vlv(3.),L4=vlv(4.),L5=vlv(5.);
+    float W0=vwv(0.),W1=vwv(1.),W2=vwv(2.),W3=vwv(3.),W4=vwv(4.),W5=vwv(5.);
+    float sl=specAtCell(clamp(floor(r/(c0*sqrt(440.))*39.),0.,39.));
+    float bestd=99.,bestn=-1.;
+    for(int k=0;k<17;k++){
+      float n=n0+fibOff(k);
+      if(n<0.||n>=nVis)continue;
+      float rr=c0*sqrt(n),ph=n*ga+rot;
+      vec2 sp=rr*vec2(cos(ph),sin(ph));
+      float vo=mod(n,6.);
+      float lv=vo<.5?L0:(vo<1.5?L1:(vo<2.5?L2:(vo<3.5?L3:(vo<4.5?L4:L5))));
+      float wv=vo<.5?W0:(vo<1.5?W1:(vo<2.5?W2:(vo<3.5?W3:(vo<4.5?W4:W5))));
+      float dr=2.6+1.4*lv+sl*1.5;
+      if(shapeIn((p-sp)/dr,lv>.03?wv:0.,p)>.5){
+        float d=length(p-sp);
+        if(d<bestd){bestd=d;bestn=n;}
+      }
+    }
+    if(bestn>=0.){
+      float vo=mod(bestn,6.);
+      float lv=vo<.5?L0:(vo<1.5?L1:(vo<2.5?L2:(vo<3.5?L3:(vo<4.5?L4:L5))));
+      float wave=.5+.5*sin(c0*sqrt(bestn)*.11-t*3.+vo*1.2);
+      idx=(wave+lv*.8>.6)?spriteCol(vo*2.+1.):spriteDark(vo*2.+1.);
     }
   }else if(md==25){
     // Piano roll: every voice leaves a trail of its pitch (up is higher) that scrolls to the left; the trail is thicker when louder.

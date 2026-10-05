@@ -128,7 +128,8 @@ async function handle(m: Cmd) {
       let n = 0;
       while (engine && !seekCancelled && engine.getTimeMs() / 1000 < m.seconds) {
         await engine.renderFrames(CHUNK * 4);
-        analysis?.skip(CHUNK * 4);
+        // The analysis core only needs a warm SID for the last second; before that its player routine alone is enough.
+        if (engine.getTimeMs() / 1000 < m.seconds - 1) analysis?.skipCpu(CHUNK * 4); else analysis?.skip(CHUNK * 4);
         if (++n % 8 === 0) { postMessage({ type: 'seekProgress', id: m.id, time: engine.getTimeMs() / 1000 }); await new Promise(res => setTimeout(res, 0)); }
       }
       sink.postMessage({ type: 'loaded', gen });

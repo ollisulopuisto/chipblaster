@@ -2654,3 +2654,10 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view>.key-bar{display:none!important}
 .c64-shell .flip-stage.flipped .flip-back .playlist-rows.dir-list .dir-no{min-width:2ch}
 .c64-shell .flip-stage.flipped .flip-back .playlist-rows.dir-list .dir-row{gap:8px}
+/* The key bar sits above the list, below the search field and readout, and stays at the top of the window while the list scrolls. */
+.c64-shell .flip-stage.flipped .flip-back .hvsc.search-view>.key-bar{order:2}
+.c64-shell .flip-stage.flipped .flip-back .hvsc.search-view>.hvsc-list{order:3}
+.c64-shell .flip-stage.flipped .flip-back .hvsc.search-view>.loader-pagination{order:4}
+.c64-shell .flip-stage.flipped .flip-back .key-bar{top:0;bottom:auto;border:2px solid #0d1233;border-bottom:1px solid #2c3670;border-radius:3px 3px 0 0;margin:0;box-shadow:0 6px 8px #0006}
+.c64-shell .flip-stage.flipped .flip-back .dir-list{border-radius:0}
+.c64-shell .flip-stage.flipped .flip-back .loader-pagination,.c64-shell .flip-stage.flipped .flip-back .queue-actions{border-radius:0 0 3px 3px!important}

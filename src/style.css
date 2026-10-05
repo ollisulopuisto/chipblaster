@@ -2579,3 +2579,13 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell:not(.jp) .boombox-brand .c64-badge{padding-top:2px!important}
 .c64-shell:not(.jp) .boombox-brand .c64-badge::before{margin-top:-3px;transform:skewX(-18deg) translateY(.5px)}
 .c64-shell:not(.jp) .boombox-brand .c64-badge span{margin-top:-1.2px;transform:translateY(.6px)}
+/* Playlist keys: brown C64 caps like the tune row keys; the save key is pushed in when on, without a lamp. */
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .queue-panel li :is(.queue-fave-key,.queue-remove-key){width:42px!important;min-width:42px!important;height:38px!important;min-height:38px!important;padding:0!important;border:1px solid #4a3b2a!important;border-bottom:4px solid #3a2d20!important;border-radius:3px!important;background:linear-gradient(#8d7658,#6b573f)!important;color:#efe4c8!important;box-shadow:inset 0 1px #b39b78,1px 2px 2px #0005!important;font:700 22px/1 Arial,sans-serif!important}
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .queue-panel li :is(.queue-fave-key,.queue-remove-key)::after{content:none!important;display:none!important}
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .queue-panel li :is(.queue-fave-key,.queue-remove-key):active,.c64-shell:not(.jp) .flip-stage.flipped .flip-back .queue-panel li .queue-fave-key[aria-pressed="true"]{transform:translateY(3px);border-bottom-width:1px!important;background:linear-gradient(#5f4d38,#7a6548)!important;box-shadow:inset 0 2px 4px #0008!important}
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .queue-panel li :is(.queue-fave-key,.queue-remove-key) .deck-icon{width:20px;height:20px;color:#efe4c8!important;fill:#efe4c8!important}
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .queue-panel li :is(.queue-fave-key,.queue-remove-key) .deck-icon path{fill:#efe4c8!important}
+/* Search field: Silkscreen at 16 px (two pixels per font pixel), capitals, a block cursor, dark blue paper with light blue ink. */
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .selector-search-block input{font:400 16px/1 Silkscreen,ui-monospace,monospace!important;letter-spacing:.04em!important;text-transform:uppercase;background:#1b2250!important;color:#a0aef2!important;border:2px solid #0d1233!important;border-bottom-color:#3d4a8a!important;border-right-color:#3d4a8a!important;box-shadow:inset 0 2px 5px #0008!important;caret-color:#a0aef2;caret-shape:block;-webkit-font-smoothing:none}
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .selector-search-block input::placeholder{color:#6674b8!important;opacity:1;text-transform:uppercase}
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .selector-search-block input:focus{outline:1px solid #6674b8!important;outline-offset:-3px}

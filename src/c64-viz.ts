@@ -27,11 +27,11 @@ void main(){
 }`;
 export const C64_BANDS = 40;
 
-export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons', 'Piano roll'];
-export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll'];
+export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons', 'Piano roll', 'Ghostbytes', 'Marchers'];
+export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll', 'ghostbytes', 'marchers'];
 // What a PAL C64 could manage: 50 frames a second for raster and sprite work, every second frame for full-screen
 // bitmap and char effects, every third frame for the chunky rotozoomer and tunnel.
-export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50, 50];
+export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50, 50, 50, 50];
 
 // The C64 character ROM shapes (uppercase set) that the scrollers draw, as an 8-pixel-high atlas texture, plus the text as a
 // row of glyph numbers. The text is whatever the scrollers should say: the tune's name and an optional message.
@@ -303,6 +303,14 @@ float plasmaIdx(vec2 c,float t,float b,float m){
   if(L>3.5)on=1.;else if(L>2.5)on=1.-dots;else if(L>1.5)on=step(1.,mod(loc.x+loc.y,2.));else if(L>.5)on=dots;
   float set=mod(floor(cell.x/10.)+floor(t*.15),4.);
   return on>.5?rampIdx(set,v+.18):0.;
+}
+float specAtCell(float i){float l=0.;for(int k=0;k<40;k++){if(float(k)==i)l=spec[k];}return l;}
+// An 8x8 walker with a two-frame walk cycle: head, eyes (drawn separately), body and feet.
+float walkerBit(float row,float col,float frame){
+  float by=60.;
+  if(row<.5)by=60.;else if(row<1.5)by=126.;else if(row<2.5)by=126.;else if(row<3.5)by=126.;else if(row<4.5)by=60.;else if(row<5.5)by=126.;
+  else if(row<6.5)by=frame<.5?36.:24.;else by=frame<.5?102.:24.;
+  return mod(floor(by/exp2(7.-col)),2.);
 }
 float specIdx(vec2 c){
   float colI=floor(c.x/8.),lev=0.,pk=0.;
@@ -673,7 +681,7 @@ float scene(vec2 p){
       }
     }
     if(best>=0.)idx=best;
-  }else if(md==26){
+  }else if(md==40){
     // The C64 text screen: blue paper, light blue ink and border, a blinking block cursor.
     bidx=14.;canFlash=false;idx=6.;
     if(inside){
@@ -686,6 +694,68 @@ float scene(vec2 p){
       if(cell.x==scrCur.x&&cell.y==scrCur.y&&scrCur.z>.5)idx=14.;
     }
     if(scrLoad>.5){float r=hash2(vec2(floor(c.y/5.),floor(vtime*14.)));bidx=r<.35?6.:14.;}
+  }else if(md==26){
+    // Ghostbytes (after No Sprites by Fairlight): only colour registers and the idle graphics byte, no characters, bitmap or sprites.
+    // Each voice is a raster bar. The line splits at a point that follows the voice's pitch; right of the split the bar shows the ghost byte,
+    // shifted by a per-line fine scroll. The byte follows the waveform.
+    openAll=true;canFlash=false;
+    idx=mod(floor(y/2.),2.)<1.?0.:rampIdx(0.,.05);
+    for(int j=0;j<6;j++){
+      float vo=float(j);
+      float lv=vlv(vo),wv=vwv(vo),pv=vpv(vo);
+      float yc=res.y*(.14+.72*fract(vo*.38197+.11))+sin(t*(.35+.13*vo)+vo*2.1)*(14.+34.*lv);
+      float hh=12.+30.*lv;
+      float d=abs(y-yc)/hh;
+      if(d<1.){
+        float shade=1.-d;
+        float sx=res.x*.5+sin(y*(.045+.05*pv)+t*(.9+.25*vo))*res.x*(.18+.3*lv)+(pv-.5)*res.x*.3;
+        if(x<sx){idx=rampIdx(vo,.25+.7*shade);}
+        else{
+          float scr=floor(sin(y*.09+vo*1.3+t*2.)*3.5+3.5)+floor(t*(8.+30.*pv)*(mod(vo,2.)*2.-1.));
+          float px=mod(floor(x)+scr,8.);
+          float bit;
+          if(wv<.5)bit=step(4.,px);
+          else if(wv<1.5)bit=mod(px,2.);
+          else if(wv<2.5)bit=step(2.,mod(px,4.));
+          else if(wv<3.5)bit=step(px,6.5);
+          else bit=step(.5,hash2(vec2(floor(x/2.)+floor(t*20.),floor(y))));
+          idx=bit>.5?spriteCol(vo*2.+1.):spriteDark(vo*2.+1.);
+        }
+      }
+    }
+  }else if(md==27){
+    // Marchers (after Rodents in the Attic by Lft): a PETSCII cartoon. A blocky text-mode ground follows the spectrum; one small walker per voice
+    // strides along it at the voice's pitch and hops when the voice is loud.
+    bidx=14.;
+    idx=6.;
+    if(inside){
+      vec2 cell=floor(c/8.);
+      if(hash2(cell+3.)>.965&&length(mod(c,8.)-3.5)<1.3)idx=14.;
+      float g=3.+floor(specAtCell(cell.x)*13.);
+      float topRow=25.-g;
+      if(cell.y>=topRow){
+        vec2 pxl=mod(c,8.);
+        float chk=mod(floor(pxl.x/2.)+floor(pxl.y/2.),2.);
+        idx=cell.y<topRow+1.?(chk>.5?5.:13.):(chk>.5?9.:11.);
+      }
+      for(int j=0;j<6;j++){
+        float vo=float(j);
+        float lv=vlv(vo),pv=vpv(vo);
+        float dir=mod(vo,2.)*2.-1.;
+        float x0=mod(hash(vo+5.)*336.+t*(10.+36.*pv)*dir,336.)-8.;
+        float gt=(25.-(3.+floor(specAtCell(clamp(floor((x0+4.)/8.),0.,39.))*13.)))*8.;
+        float py=floor(gt-16.-max(lv-.35,0.)*30.);
+        vec2 p=vec2(c.x-x0,c.y-py)*.5; // double-size, like an expanded sprite
+        if(p.x>=0.&&p.x<8.&&p.y>=0.&&p.y<8.){
+          float col=dir>0.?floor(p.x):7.-floor(p.x);
+          float row=floor(p.y);
+          if(walkerBit(row,col,mod(floor(t*4.+vo),2.))>.5){
+            idx=row<.5?spriteDark(vo*2.+1.):spriteCol(vo*2.+1.);
+            if(row>1.5&&row<2.5&&(col==2.||col==5.))idx=1.;
+          }
+        }
+      }
+    }
   }else if(md==25){
     // Piano roll: every voice leaves a trail of its pitch (up is higher) that scrolls to the left; the trail is thicker when louder.
     bidx=0.;
@@ -739,7 +809,7 @@ float scene(vec2 p){
   }
   if(canFlash&&flash>.5)bidx=flashCol(floor(time*14.));
   // The border carries a small meter per voice: bars grow from the middle of the bottom and top borders in the voice's colour.
-  if(!inside&&!openAll&&md!=8&&md!=26){
+  if(!inside&&!openAll&&md!=8&&md!=40){
     float bd=c.y>=200.?c.y-200.:(c.y<0.?c.y+20.:-1.);
     if(bd>=0.&&c.x>=0.&&c.x<320.){
       float row=floor(bd/6.);

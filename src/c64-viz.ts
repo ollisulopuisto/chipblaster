@@ -142,7 +142,7 @@ export function dirScreen(sel: number): { rows: string[]; cx: number; cy: number
 }
 /** Text to glyph numbers: uppercase, accents stripped, anything the C64 set lacks becomes a space. */
 export function encodeScroll(text: string): { data: Uint8Array; len: number } {
-  const clean = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().slice(0, C64_SCROLL_MAX);
+  const clean = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ß/g, 'ss').replace(/æ/gi, 'ae').replace(/ø/gi, 'o').toUpperCase().slice(0, C64_SCROLL_MAX);
   const data = new Uint8Array(C64_SCROLL_MAX);
   const len = Math.max(1, clean.length);
   for (let i = 0; i < clean.length; i++) data[i] = Math.max(0, GLYPH_CHARS.indexOf(clean[i]));
@@ -656,7 +656,7 @@ float scene(vec2 p){
       float lv=vlv(vo),wv=vwv(vo);
       float bx=24.+hash(k+40.)*272.+sin(t*(.6+hs)+k)*10.;
       float by=mod(260.-(t*(14.+hs*26.)+hash(k+80.)*260.),260.)-30.-lv*14.;
-      float rr=(9.+hash(k+120.)*9.)*(.8+.45*lv);
+      float rr=(9.+hash(k+120.)*9.)*(.8+.45*lv)*(1.12-.3*vpv(vo));
       vec2 d=vec2(c.x-bx,(c.y-by)/1.25);
       float e=length(d)/rr;
       if(best<0.){
@@ -666,7 +666,6 @@ float scene(vec2 p){
           float shade=e<.7?body:dk;
           if(wv>.5&&wv<1.5&&mod(floor(abs(d.x)/3.)+floor(abs(d.y)/3.),2.)<1.&&e<.7)shade=dk;
           if(wv>1.5&&wv<2.5&&mod(floor((d.x+d.y)/3.),2.)<1.&&e<.7)shade=dk;
-          if(wv>2.5&&wv<3.5&&abs(d.y)<rr*.16)shade=1.;
           if(wv>3.5&&mod(floor(c.x)+floor(c.y),2.)<1.)shade=dk;
           best=length(d/rr-vec2(-.3,-.3))<.25?1.:shade;
         }

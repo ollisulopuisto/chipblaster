@@ -20,6 +20,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - run: npm test
       - run: npm run build
         env:
           # Optional: both are public values (repository variables). Without them the Last.fm key stays hidden.

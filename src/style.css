@@ -2607,3 +2607,50 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell:not(.jp) .flip-stage.flipped .flip-back .selector-search-block input:focus{outline:1px solid #8a8060!important;outline-offset:-3px}
 /* The two small counters in the key row stand as tall as the keys next to them. */
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>small.segment-count{display:flex!important;align-items:center;justify-content:center;align-self:center;height:44px!important;min-height:44px!important;box-sizing:border-box;padding:0 6px}
+/* ===== Directory window: search results and playlist share one design. List, footer, key bar. ===== */
+.c64-shell .flip-stage.flipped .flip-back .dir-list{background:#1b2250!important;color:#a0aef2!important;border:2px solid #0d1233!important;border-radius:3px 3px 0 0;margin:0!important;padding:0!important;list-style:none;font:400 16px/1.3 Silkscreen,ui-monospace,monospace;text-transform:uppercase;box-shadow:none!important}
+.c64-shell .flip-stage.flipped .flip-back .dir-list>li.dir-li{display:block!important;padding:0!important;margin:0!important;background:none!important;border:0!important;box-shadow:none!important;min-height:0!important}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-row{display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:flex-start!important;gap:10px;width:100%;min-height:44px;height:auto;padding:9px 10px!important;margin:0!important;border:0!important;border-bottom:1px solid #2c3670!important;border-radius:0!important;background:transparent!important;color:#a0aef2!important;font:inherit!important;letter-spacing:0!important;text-align:left;box-shadow:none!important;cursor:pointer;text-transform:uppercase}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-row:disabled{opacity:.6}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-no{flex:none;min-width:3ch;text-align:right;color:#6674b8}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-mark{flex:none;width:1.2ch;text-align:center}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-name{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.3}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-name small{display:block;max-width:none!important;margin-top:3px;font-size:8px!important;line-height:1.3;color:#6674b8!important;opacity:1}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-type{flex:none;color:#6674b8}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-row.sel{background:#a0aef2!important;color:#1b2250!important}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-row.sel :is(.dir-no,.dir-type,.dir-name small){color:#1b2250!important}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .dir-row:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .playlist-group-heading{padding:8px 10px!important;margin:0!important;background:#141a3d!important;color:#a0aef2!important;border-bottom:1px solid #2c3670!important;font:400 16px/1.3 Silkscreen,monospace!important;letter-spacing:0!important;display:block}
+.c64-shell .flip-stage.flipped .flip-back .dir-list .empty,.c64-shell .flip-stage.flipped .flip-back .dir-list .queue-empty{padding:14px 10px;margin:0;color:#6674b8;background:none!important}
+.c64-shell .flip-stage.flipped .flip-back .hvsc-list.dir-list{max-height:none!important}
+/* footer under the list: page controls (search) or list settings (playlist) */
+.c64-shell .flip-stage.flipped .flip-back .loader-pagination,.c64-shell .flip-stage.flipped .flip-back .queue-actions{background:#141a3d!important;color:#a0aef2!important;border:2px solid #0d1233!important;border-top:1px solid #2c3670!important;border-radius:0!important;margin:0!important;padding:8px 10px!important;font:400 8px/1.4 Silkscreen,monospace!important;text-transform:uppercase;box-shadow:none!important}
+.c64-shell .flip-stage.flipped .flip-back .queue-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
+.c64-shell .flip-stage.flipped .flip-back .queue-actions .queue-state-legend{flex:1 1 150px;color:#6674b8!important;font:400 8px/1.5 Silkscreen,monospace!important;letter-spacing:0!important}
+.c64-shell .flip-stage.flipped .flip-back .fallback-stepper{display:flex;align-items:center;gap:6px;background:none!important;border:0!important;padding:0!important;margin:0!important;box-shadow:none!important}
+.c64-shell .flip-stage.flipped .flip-back .fallback-caption{color:#a0aef2!important;font:400 8px/1 Silkscreen,monospace!important;letter-spacing:.04em!important}
+/* key bar: play, add, the long key, save; the same four places in both views */
+.c64-shell .flip-stage.flipped .flip-back .key-bar{display:flex;gap:6px;align-items:center;margin:0 0 4px;padding:9px 10px 10px;background:#141a3d;border:2px solid #0d1233;border-top:1px solid #2c3670;border-radius:0 0 3px 3px}
+.c64-shell .flip-stage.flipped .flip-back .bar-key{position:relative;flex:none;display:grid;place-items:center;width:44px;min-width:44px;height:44px;margin:0;padding:0;border-radius:4px;border:1px solid #2a2016;border-bottom:5px solid #3a2d20;background:radial-gradient(120% 140% at 50% 0%,#9a8262,#6b573f);color:#efe4c8;box-shadow:inset 0 1px 0 #b9a47f,inset 0 0 0 2px #0002,1px 2px 2px #0006;font:400 9px/1.1 Silkscreen,ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:transform .09s ease-out,border-bottom-width .09s ease-out,box-shadow .12s}
+.c64-shell .flip-stage.flipped .flip-back .bar-key .deck-icon{width:22px;height:22px;display:block;color:#efe4c8;fill:#efe4c8}
+.c64-shell .flip-stage.flipped .flip-back .bar-key .deck-icon path{fill:#efe4c8}
+.c64-shell .flip-stage.flipped .flip-back .bar-key.bar-wide{flex:1;min-width:0;width:auto;padding:0 6px}
+.c64-shell .flip-stage.flipped .flip-back .bar-key.bar-wide::after{content:"";position:absolute;left:14px;right:14px;bottom:4px;height:1px;background:#0003}
+.c64-shell .flip-stage.flipped .flip-back .bar-key:active,.c64-shell .flip-stage.flipped .flip-back .bar-key[aria-pressed="true"]{transform:translateY(3px);border-bottom-width:2px;background:radial-gradient(120% 140% at 50% 100%,#5b4a36,#7d6849);box-shadow:inset 0 2px 5px #000a}
+.c64-shell .flip-stage.flipped .flip-back .bar-key:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.c64-shell .flip-stage.flipped .flip-back .bar-key:disabled{opacity:.55;cursor:default}
+@media(max-width:480px){.c64-shell .flip-stage.flipped .flip-back .bar-key.bar-wide{font-size:8px;letter-spacing:.08em}.c64-shell .flip-stage.flipped .flip-back .key-bar{gap:5px;padding:8px}}
+.c64-shell .flip-stage.flipped .flip-back .hvsc.search-view>.key-bar{order:4}
+.c64-shell .flip-back .hvsc .hvsc-list.dir-list:not(#k),.c64-shell .flip-back .queue-panel .playlist-rows.dir-list:not(#k){background-color:#1b2250!important;border-color:#0d1233!important;color:#a0aef2!important}
+.c64-shell .flip-back .dir-list .dir-row:not(#k){background:transparent!important;border-color:#2c3670!important;color:#a0aef2!important}
+.c64-shell .flip-back .dir-list .dir-row.sel:not(#k){background:#a0aef2!important;color:#1b2250!important}
+.c64-shell .flip-back .dir-list .dir-row.sel:not(#k) :is(.dir-no,.dir-type,.dir-mark,.dir-name small){color:#1b2250!important}
+.c64-shell .flip-back .dir-list .dir-no:not(#k),.c64-shell .flip-back .dir-list .dir-type:not(#k),.c64-shell .flip-back .dir-list .dir-name small:not(#k){color:#6674b8!important}
+.c64-shell .flip-back .dir-list .dir-row.sel:not(#k) .dir-no,.c64-shell .flip-back .dir-list .dir-row.sel:not(#k) .dir-type,.c64-shell .flip-back .dir-list .dir-row.sel:not(#k) .dir-name small{color:#1b2250!important}
+.c64-shell .flip-back .dir-list .dir-name:not(#k){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-width:none!important}
+.c64-shell .flip-back .dir-list .dir-name:not(#k)>*{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+/* The key bar stays at the bottom of the window while a long list scrolls. */
+.c64-shell .flip-stage.flipped .flip-back .key-bar{position:sticky;bottom:0;z-index:6;box-shadow:0 -6px 8px #0006}
+.c64-shell .flip-stage.flipped .flip-back .hvsc.playlist-view>.key-bar{display:none!important}
+.c64-shell .flip-stage.flipped .flip-back .playlist-rows.dir-list .dir-no{min-width:2ch}
+.c64-shell .flip-stage.flipped .flip-back .playlist-rows.dir-list .dir-row{gap:8px}

@@ -2601,3 +2601,9 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell:not(.jp) .eq-deck .space-band .wide-key{margin-top:-2px!important}}
 /* The colon between minutes and seconds is part of the display's mask: two dots that are always lit and take a narrow cell. */
 .c64-shell .segment-text svg.segment-colon:not(#k){width:auto!important;aspect-ratio:8/30;flex:none}
+/* Search field: quiet pixel. Cream paper, brown ink, Silkscreen 16 px capitals, block cursor. */
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .selector-search-block input{background:#ddd5b4!important;color:#4a3b2a!important;border:2px solid #a99e76!important;border-top-color:#8a8060!important;border-left-color:#8a8060!important;box-shadow:inset 0 2px 3px #0003!important;caret-color:#4a3b2a}
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .selector-search-block input::placeholder{color:#8b8264!important}
+.c64-shell:not(.jp) .flip-stage.flipped .flip-back .selector-search-block input:focus{outline:1px solid #8a8060!important;outline-offset:-3px}
+/* The two small counters in the key row stand as tall as the keys next to them. */
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>small.segment-count{display:flex!important;align-items:center;justify-content:center;align-self:center;height:44px!important;min-height:44px!important;box-sizing:border-box;padding:0 6px}

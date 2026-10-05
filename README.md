@@ -16,20 +16,20 @@ A portable SID station in the browser: browse and play the High Voltage SID Coll
 
 ## Features
 
-- Search a snapshot of the HVSC #85 catalog (June 2026), filter to saved tunes, queue tunes and build a playlist.
-- Play PSID files with a lightweight JavaScript SID emulator; pick subtunes, switch SID 1 between 6581 and 8580 live, and choose 6581/8580/off for SID 2 on multi-SID tunes.
+- Search a snapshot of the HVSC #85 catalog (June 2026), filter to saved tunes, queue tunes and build a playlist. Search results and the playlist share one window styled as a C64 directory listing: navy paper, Silkscreen capitals, the selected row in reverse video, names that wrap instead of being cut, and a `*` in front of saved tunes. Four brown keys above the list act on the selected row: play, add to the playlist (remove, in the playlist), a long key (`+ ADD ALL TO QUEUE` in search, `+ ADD CURRENT TUNE` in the playlist) and save (pushed in when saved). A double-click or double-tap plays a tune at once. The search field is Silkscreen on cream paper with a block cursor.
+- Play PSID files with a lightweight JavaScript SID emulator; pick subtunes, switch SID 1 between 6581 and 8580 live, and choose 6581/8580/off for SID 2 on multi-SID tunes. The SID 2 keys are always on the panel; on a one-chip tune OFF stays pushed in and the 6581 and 8580 keys spring back when pressed.
 - Infinite play and the queue use catalog duration estimates (three minutes when unknown) as the longest a tune may play. A background worker also scans each SID for its loop (`src/sid-loop.ts`); when a whole loop fits inside that time, the tune fades out over four seconds and ends on the loop boundary. Tunes without a detectable loop end at the estimate. A dice key loads one random tune. Infinite play plays the queue first, then draws random tunes from what the browser shows when it is switched on: the search results, the star filter or the open folder.
 - Three voice meters with waveform lamps (SID 1 amber, SID 2 cyan), a master meter, a frequency spectrum and audio-driven speaker cones.
 - Two finishes share the same controls. The model wears the C64's colours and key names (RUN/STOP, CRSR, RESTORE, f1-f7). The first Osaka prototype, in brushed aluminium with the original legends (PLAY/PAUSE, STOP, SHARE, RANDOM), is a hidden extra. The manual hints at it; the way in is to click the name on the base plate, which wiggles once a minute and opens the scroller's `10 PRINT` prompt, and to type `LOAD"OSAKA"` there (the same command switches back). The choice is remembered in localStorage. In the style sheet, every C64 rule is scoped with `:not(.jp)`.
 - The player starts folded on every screen size (the carry handle opens it); `?fold=open` in a link starts it open.
 - LEVEL MATCH (on by default) evens out loud and quiet tunes (`src/leveler.ts`). It reads the tune's level before the tone controls, averages it, and moves the gain slowly toward about -18 dBFS RMS, within -9 to +6 dB. A soft limiter above 0.8 full scale catches peaks. The gain is saved per tune in localStorage; the key's tooltip shows the gain in use.
 - Bass, mid and treble tone knobs with optional parametric frequency/Q (tap or click the knob's name, or right-click or long-press the knob; double-click resets), plus volume on `+` / `-`.
-- WIDE knob for headphones: a mono-safe stereo widener on one-SID tunes, and a chip spread (SID 1 left, SID 2 right) on multi-SID tunes.
+- STEREO ENHANCE (the C= key in the C64 finish, with its label printed above it): a mono-safe stereo widener on one-SID tunes, and a chip spread (SID 1 left, SID 2 right) on multi-SID tunes.
 - The CRT visualizer imitates the C64's VIC-II: a 368x240 picture drawn at the C64's own size, with a border around a 320x200 window; a second pass stretches it to the tube so that the border keeps a fixed thickness on all four sides (8.5% of the shorter side) while the window takes the rest and its pixels may come out wider or taller than square, only the 16 Pepto colours, 8x8 character cells, 2x1 multicolour pixels, hardware sprites multiplexed in two bands (at most 8 per scanline), raster bars and border flashes on bass hits. Analogue CRT faults are always on but kept quiet: a faint bass wobble, hum bar and noise, a tiny tick every 45 s and one real glitch (tearing, colour split, a flash) about every two and a half minutes. The effects are in `src/c64-viz.ts`.
 
 ### Scroller text and the hidden BASIC prompt
 
-The three scroller effects (DYCP scroller, Zoomscroll, Circle scroll) draw the C64 character-ROM letters and show the name of the tune and its author, followed by an optional message of your own (up to 256 characters). Several effects also take a seed from the tune (its HVSC path, or its title and author for local files): it shifts the phase, rotates the colour ramps and changes the sprite colours, so each tune gets its own look.
+The three scroller effects (DYCP scroller, Zoomscroll, Circle scroll) draw the C64 character-ROM letters and show the name of the tune and its author, followed by an optional message of your own (up to 256 characters). Accents are folded to plain letters (Ä and Å become A, Ö becomes O, ß becomes SS, Æ becomes AE, Ø becomes O) in the scroller and in the segment displays. Several effects also take a seed from the tune (its HVSC path, or its title and author for local files): it shifts the phase, rotates the colour ramps and changes the sprite colours, so each tune gets its own look.
 
 The message is an Easter egg. Press the quote key (Shift-2) anywhere on the page, or hold the CHIPBLASTER logo for a moment on a phone. The title display turns into a BASIC prompt, `10 PRINT "`, where you type the text; Enter keeps it (and remembers it in the browser), Esc cancels. The share link carries the message as `&m=...`, so whoever opens the link sees it in the scrollers.
 
@@ -53,7 +53,7 @@ The thumbwheel cycles 26 effects built after the demoscene's best-rated C64 prod
 - Share a link to the current tune, and save favorites in this browser.
 - An in-app manual (MANUAL key on the base plate) lists the controls and shortcuts.
 
-Keyboard: `Space` play/pause, `S` stop, `←`/`→` previous/next song, `+`/`-` volume, `F` favorite, `E` eject (open the browser), `[` `]` previous/next subtune, `1` saved tunes, `2`–`4` catalog browser. Shortcuts pause while typing.
+Keyboard: `Space` play/pause, `S` stop, `←`/`→` previous/next song, `+`/`-` volume, `F` favorite, `E` eject (open the browser; the same key closes it), `[` `]` previous/next subtune, `1` saved tunes, `2`–`4` catalog browser. Shortcuts pause while typing.
 
 ## Run locally
 
@@ -105,7 +105,7 @@ The default sound comes from libsidplayfp's SIDLite (WebAssembly, GPL-2.0-or-lat
 
 `?engine=js`, `?engine=sidlite` and `?engine=residfp` force an engine without remembering it, and `?debug` shows a readout of the engine and its load.
 
-The engine renders in a Web Worker (`src/fp-worker.ts`) and streams PCM to a small AudioWorklet (`src/fp-sink-worklet.js`); `src/fp-player.ts` presents the same surface as the jsSID player. Voice meters and STEREO ENHANCE come from a jsSID core that plays the same tune alongside in the worker, because libsidplayfp gives only the mixed sound. The meters follow the tune, not the exact sound of the engine, and the width effect is the same signal added to libsidplayfp's mix. Tape speed is a resampler in the sink and is identical for all engines. Multi-SID tunes use libsidplayfp's own chip placement. RSID tunes that need C64 ROM images do not play, as the ROMs are not bundled.
+The engine renders in a Web Worker (`src/fp-worker.ts`) and streams PCM to a small AudioWorklet (`src/fp-sink-worklet.js`); `src/fp-player.ts` presents the same surface as the jsSID player. Voice meters and STEREO ENHANCE come from a jsSID core that plays the same tune alongside in the worker, because libsidplayfp gives only the mixed sound. The meters follow the tune, not the exact sound of the engine, and the width effect is the same signal added to libsidplayfp's mix. Tape speed is a resampler in the sink and is identical for all engines. Multi-SID tunes use libsidplayfp's own chip placement. RSID tunes that need C64 ROM images do not play, as the ROMs are not bundled. Seeking fast-forwards the engine silently, about 25 times faster than real time with SIDLite; the analysis core behind the meters only runs its player routine until the last second before the target, then catches up its SID (`skipCpu` in `src/vendor/sid-core.js`).
 
 ## Control hatch and video standard
 

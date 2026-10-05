@@ -58,6 +58,9 @@ function SidCore(samplerate, background_noise)
         frameLog.times.push(playtime);
     }
     this.skip = function(count) { for (var i = 0; i < count; i++) play(); }
+    // Fast-forward the player routine only: no SID sound is generated, so envelopes and oscillators start cold afterwards. Follow with skip() for the last stretch.
+    this.skipCpu = function(count) { cpuOnly = true; for (var i = 0; i < count; i++) play(); cpuOnly = false; }
+    var cpuOnly = false;
     this.isRunning = function() { return running; }
     this.getplaytimeExact = function() { return playtime; }
 
@@ -421,6 +424,7 @@ function SidCore(samplerate, background_noise)
             ended = 1;
             endcallback();
         }
+        if (cpuOnly) return 0;
         var first = SID(0, 0xD400), second = 0, third = 0, centre0 = lastCentre, centre1 = 0, centre2 = 0;
         mix = first;
         if (SID_address[1]) {

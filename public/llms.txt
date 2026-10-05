@@ -1,0 +1,20 @@
+# CHIPBLASTER
+
+> A free Commodore 64 music player in the browser. It browses and plays the High Voltage SID Collection (HVSC #85, about 61,000 SID tunes) through a 1980s hi-fi styled player, with a VIC-II style CRT visualizer. No install or account; it runs entirely in the browser.
+
+- Site: https://chipblaster.sulopuis.to/
+- Source code (GPL-2.0-or-later): https://github.com/ollisulopuisto/chipblaster
+
+## What it does
+
+- Search the HVSC catalogue by tune name, composer or path; build a queue and a playlist; save favourite tunes.
+- Plays PSID files with a SID emulator; switch SID 1 between the 6581 and 8580 chips, plays multi-SID tunes.
+- Infinite play draws random tunes from the search results, favourites or an open folder, and ends looping tunes on a loop boundary with a fade.
+- Level matching, bass/mid/treble tone controls and a stereo widener.
+- A CRT visualizer with effects modelled on well-known C64 demos, driven by the SID voices.
+- Links can name a tune and a visual effect, so a tune can be shared.
+
+## Optional
+
+- README: https://github.com/ollisulopuisto/chipblaster/blob/main/README.md
+- High Voltage SID Collection: https://www.hvsc.c64.org/

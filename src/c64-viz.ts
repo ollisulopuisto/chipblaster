@@ -10,7 +10,7 @@ export const C64_TEX_H = 240;
 const C64_BORDER_X = 24;
 const C64_BORDER_Y = 20;
 // The tube is convex: the picture bows outward at the middle of each edge and the corners fall into black.
-const C64_TUBE_BULGE = 0.1;
+const C64_TUBE_BULGE = 0.05;
 export const C64_PRESENT = `precision highp float;
 uniform sampler2D tex;
 uniform vec2 outRes;

@@ -9,6 +9,8 @@ export const C64_TEX_W = 368;
 export const C64_TEX_H = 240;
 const C64_BORDER_X = 24;
 const C64_BORDER_Y = 20;
+// The tube is convex: the picture bows outward at the middle of each edge and the corners fall into black.
+const C64_TUBE_BULGE = 0.1;
 export const C64_PRESENT = `precision highp float;
 uniform sampler2D tex;
 uniform vec2 outRes;
@@ -20,6 +22,10 @@ float mapAxis(float o,float outLen,float texLen,float bl){
 }
 void main(){
   vec2 o=vec2(gl_FragCoord.x,outRes.y-gl_FragCoord.y);
+  vec2 n=o/outRes*2.-1.;
+  vec2 s=n*(1.+${C64_TUBE_BULGE}*dot(n,n));
+  if(abs(s.x)>1.||abs(s.y)>1.){gl_FragColor=vec4(0.,0.,0.,1.);return;}
+  o=(s*.5+.5)*outRes;
   vec2 texRes=vec2(${C64_TEX_W}.,${C64_TEX_H}.);
   vec2 u=vec2(mapAxis(o.x,outRes.x,texRes.x,${C64_BORDER_X}.),mapAxis(o.y,outRes.y,texRes.y,${C64_BORDER_Y}.));
   vec2 f=(floor(u)+.5)/texRes;

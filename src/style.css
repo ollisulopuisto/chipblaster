@@ -556,6 +556,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Bundled OFL bitmap font avoids OS font substitutions on iPhone. */
 @font-face{font-family:Silkscreen;src:url('./fonts/Silkscreen-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
 @font-face{font-family:Silkscreen;src:url('./fonts/Silkscreen-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+@font-face{font-family:'C64 Keyboard';src:url('./fonts/C64Keyboard-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 /* Dark inactive LCD cells remain visible behind the lit character strokes. */
 .c64-shell .display-window .veil,.c64-shell .waveform-readout,.c64-shell .tape-counter,.c64-shell .eq-band output,.c64-shell .peq-details output,.c64-shell .subtune-shuttle output,.c64-shell .volume-readout output,.c64-shell .power-state output{font-family:Silkscreen,ui-monospace,monospace;background-image:radial-gradient(ellipse 1px 1px at 2px 3px,#a5da9c32 70%,transparent 100%),repeating-linear-gradient(0deg,#08170d 0 6px,#0a1a0f 6px 7px);background-size:5px 7px,100% 100%;font-variant-ligatures:none;text-rendering:geometricPrecision}
 .c64-shell .display-window .veil .eyebrow,.c64-shell .display-window .veil h2,.c64-shell .display-window .veil p{font-family:Silkscreen,ui-monospace,monospace;font-weight:400;text-shadow:0 0 2px #81d28c80}
@@ -2661,3 +2662,5 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .flip-stage.flipped .flip-back .key-bar{top:0;bottom:auto;border:2px solid #0d1233;border-bottom:1px solid #2c3670;border-radius:3px 3px 0 0;margin:0;box-shadow:0 6px 8px #0006}
 .c64-shell .flip-stage.flipped .flip-back .dir-list{border-radius:0}
 .c64-shell .flip-stage.flipped .flip-back .loader-pagination,.c64-shell .flip-stage.flipped .flip-back .queue-actions{border-radius:0 0 3px 3px!important}
+/* Keycap legends of the C64 finish are set in the C64 Keyboard font (CC0), drawn from the printed caps of a real machine. */
+.c64-shell:not(.jp) .console>.controls.transport-controls>button span.c64-legend:not(#k){font-family:'C64 Keyboard','Arial Narrow',Arial,sans-serif!important;font-weight:400!important;font-synthesis:none;letter-spacing:.04em!important}

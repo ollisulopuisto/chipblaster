@@ -350,6 +350,43 @@ float msgGlyph(float n){
   n=mod(n,msgLen);
   return floor(texture2D(msgTex,vec2((n+.5)/${C64_SCROLL_MAX}.,.5)).r*255.+.5);
 }
+// Slow smooth noise (0 to 1): parameters of an effect drift with it instead of staying fixed.
+float vn(float x){float i=floor(x),f=fract(x);return mix(hash(i),hash(i+1.),f*f*(3.-2.*f));}
+// DYCP: the way the letters ride up and down changes character every ten seconds or so.
+float dycpWave(float n,float t,float k){
+  if(k<.5)return sin(n*.42+t*1.5)*22.;
+  if(k<1.5)return sin(n*.8+t*2.1)*16.+sin(n*.23+t*.7)*14.;
+  if(k<2.5)return 18.-abs(sin(n*.3+t*1.1))*36.;
+  return sin(t*1.3)*30.*sin(n*.18)+sin(n*.55-t*1.8)*6.;
+}
+// Dot plotter: eight bodies of 96 dots that it morphs between.
+vec3 dotShape(float k,float i,float u,float t){
+  float v2=u*6.2831853;
+  if(k<.5){float phi=acos(1.-2.*u),th=i*2.3999632;return vec3(sin(phi)*cos(th),cos(phi),sin(phi)*sin(th))*.85;}
+  if(k<1.5){float v1=v2*10.;return vec3((.62+.26*cos(v1))*cos(v2),.26*sin(v1),(.62+.26*cos(v1))*sin(v2));}
+  if(k<2.5){float sn=sin(v2);return vec3(16.*sn*sn*sn,13.*cos(v2)-5.*cos(2.*v2)-2.*cos(3.*v2)-cos(4.*v2)+1.,sin(u*30.)*4.5)/17.;}
+  if(k<3.5){float v=v2*3.+mod(i,2.)*3.14159;return vec3(cos(v)*.55,(u*2.-1.)*.95,sin(v)*.55);}
+  if(k<4.5)return vec3(sin(v2)+2.*sin(2.*v2),cos(v2)-2.*cos(2.*v2),-sin(3.*v2))/3.3;
+  if(k<5.5)return vec3(sin(3.*v2+1.57),sin(2.*v2),sin(5.*v2+.6))*.85;
+  if(k<6.5){float r=sqrt(u)*.95,an=v2*7.;return vec3(r*cos(an),sin(u*40.+t*2.)*.12,r*sin(an));}
+  float gx=mod(i,12.),gz=floor(i/12.);
+  return vec3((gx/11.-.5)*1.8,sin(gx*.8+gz*.6+t*2.4)*.28,(gz/7.-.5)*1.8);
+}
+// Shadow cube: the block is a cube, a slab, a pillar or a bar.
+vec3 blockSize(float k){
+  if(k<.5)return vec3(.55);
+  if(k<1.5)return vec3(.85,.22,.55);
+  if(k<2.5)return vec3(.28,.8,.28);
+  return vec3(.85,.28,.28);
+}
+vec3 toBox(vec3 v,float ang,float tilt){return rotX(rotY(v,-ang),-tilt);}
+// Outrun: the ground rises and falls with distance (outHeight) and the road winds sideways (outBend).
+float outHeight(float z,float t,float sp){
+  return (sin(z*.55-t*1.7*sp)*.42+sin(z*.23-t*.8*sp)*.6)*smoothstep(.5,3.,z)*.92;
+}
+float outBend(float z,float t){
+  return (sin(z*.09-t*.32)*.9+sin(z*.23+t*.19)*.55)*z*z*1.5/(1.+z*.08);
+}
 // Returns a palette index for the pixel at p (top-left origin), border included.
 float scene(vec2 p){
   float t=time*.8+seed.x*37.,b=bass,m=mids,h=treble;
@@ -480,11 +517,16 @@ float scene(vec2 p){
     if(spr>=0.)idx=spr;
   }else if(md==9){
     // DYCP: every character column of the scroller has its own vertical position; letters take their colour from the raster line.
+    // The scroll speeds up and slows down so there is time to read, and the wave changes its shape every ten seconds or so.
     bidx=0.;
     idx=mod(floor(c.y/6.),2.)<1.?rampIdx(0.,.1):0.;
-    float sx=c.x+floor(t*46.);
+    float sxo=25.5*t-41.35*cos(t*.37)-77.3*cos(t*.11+1.3);
+    float sx=c.x+floor(sxo);
     float n=floor(sx/24.);
-    float dy=floor(sin(n*(.5+seed.z*.3)+t*2.6)*(34.+b*30.)+sin(n*.21+t)*12.);
+    float ph=t*.1,k0=floor(ph),fm=smoothstep(.88,1.,fract(ph));
+    float kA=floor(hash(k0+seed.z*9.)*4.),kB=floor(hash(k0+1.+seed.z*9.)*4.);
+    float swell=.75+.25*sin(t*.23)+b*.25;
+    float dy=floor(mix(dycpWave(n,t,kA),dycpWave(n,t,kB),fm)*swell);
     float py=floor((c.y-(78.+dy))/3.),gx=floor(mod(sx,24.)/3.);
     if(py>=0.&&py<8.&&glyphBit(msgGlyph(n),gx,py)>.5)idx=rampIdx(floor(c.y/36.+t*.6),.45+.5*fract(c.y/36.));
   }else if(md==10){
@@ -494,36 +536,48 @@ float scene(vec2 p){
     float sy=max(0.,c.y-d);
     idx=plasmaIdx(vec2(c.x,sy),t,b,m);
   }else if(md==11){
-    // FLI: a new colour attribute on every raster line (the 3-column FLI bug on the left shows garbage).
-    bidx=0.;
-    float cx=floor(c.x/2.)*2.+1.;
-    float r=length(vec2(cx-160.,c.y-100.)*vec2(1.,1.2));
-    float a=atan(c.y-100.,cx-160.);
-    float v=.5+.5*sin(r*.09-t*2.2+sin(a*5.+t)*1.4)+b*.25;
-    float set=floor(mod(c.y,8.)*.5+floor(r/40.)+floor(t*.8));
+    // FLI: a new colour attribute on every raster line. The picture fills the whole screen (the FLI bug on the left is covered, the
+    // border opened), so it is as big as the other full-screen effects instead of a small box in a black frame.
+    openAll=true;canFlash=false;
+    vec2 pp=vec2(x,y)-res*.5;
+    float cx=floor(pp.x/2.)*2.+1.;
+    float r=length(vec2(cx,pp.y)*vec2(1.,1.2));
+    float a=atan(pp.y,cx);
+    float v=.5+.5*sin(r*.075-t*2.2+sin(a*5.+t)*1.4)+b*.25;
+    float set=floor(mod(y,8.)*.5+floor(r/40.)+floor(t*.8));
     idx=rampIdx(set,v*.95);
-    if(c.x<24.)idx=hash2(vec2(floor(c.y/2.),floor(t*8.)))>.5?15.:(mod(c.y,8.)<4.?0.:11.);
   }else if(md==12){
     // Linecrunch: raster lines are deleted and repeated, so the picture squeezes and stretches like a rubber sheet.
     bidx=11.;
     float sy=c.y+30.*sin(c.y*.034+t*1.8)+12.*sin(c.y*.09-t*2.7);
     idx=specIdx(vec2(c.x,clamp(sy,0.,199.)));
   }else if(md==13){
-    // Chess zoomer (Edge of Disgrace): a chunky 4x4 chessboard zoom with sprites waving over it, each stretched by its own zoom.
+    // Chess zoomer (Edge of Disgrace): a chunky 4x4 board zooming in or out, with sprites waving over it, each stretched by its own
+    // zoom. Every cycle is different: the board is made of squares, diamonds, long tiles or rings, turns at its own rate, zooms
+    // in or out, as deep and as fast as it likes, and the sprites change shape and path.
     bidx=6.;
     float xm4=floor(c.x/4.)*4.+2.,ym4=floor(c.y/4.)*4.+2.;
     vec2 p4=vec2(xm4-160.,ym4-100.)/100.;
-    float z=exp2(fract(t*.3)*2.);
-    float a=sin(t*.4)*.6;
+    float cyc=t*(.2+.2*vn(t*.09)),n=floor(cyc),fr0=fract(cyc);
+    float dirn=hash(n+5.)>.5?1.:-1.;
+    float fr=dirn>0.?fr0:1.-fr0;
+    float variant=floor(hash(n+2.)*4.);
+    float depth=1.2+hash(n+3.)*2.4;
+    float z=exp2(fr*depth);
+    float a=(hash(n+1.)-.5)*3.2*fr+sin(t*.37+n)*.5+(variant>.5&&variant<1.5?.785:0.);
     vec2 q=vec2(cos(a)*p4.x-sin(a)*p4.y,sin(a)*p4.x+cos(a)*p4.y)*2./z+vec2(t*.1,0.);
+    if(variant>1.5&&variant<2.5)q=vec2(q.x*.45,q.y*1.4);
+    if(variant>2.5)q=vec2(atan(p4.y,p4.x)/PI*4.+a,-log2(length(p4)+.03)*1.6-fr*depth*1.6*dirn);
     float chk=mod(floor(q.x)+floor(q.y),2.);
-    idx=chk>.5?rampIdx(0.,.6+.25*b):rampIdx(0.,.22);
+    float cs=floor(hash(n+11.)*4.);
+    idx=chk>.5?rampIdx(cs,.6+.25*b):rampIdx(cs,.22+.1*hash(n+4.));
     float spr=-1.;
     for(int i=0;i<8;i++){
       float k=float(i);
-      float sx=36.+k*34.,sy=100.+sin(t*3.+k*.75)*48.,sz=1.+.6*sin(t*2.2+k*.9);
+      float sx=36.+k*34.,sy=100.+sin(t*(2.+hash(n+k)*2.)+k*.75)*(26.+hash(n+k*3.)*40.),sz=1.+.6*sin(t*(1.6+hash(n+k*3.)*1.8)+k*.9);
       vec2 d=vec2(c.x-sx,c.y-sy);
-      float e=length(d)/(11.*sz);
+      float shp=mod(k+n,3.);
+      float e=shp<.5?length(d)/(11.*sz):(shp<1.5?(abs(d.x)+abs(d.y))/(14.*sz):max(abs(d.x),abs(d.y))/(10.*sz));
       if(spr<0.&&e<1.){spr=length(d+vec2(3.*sz))/(11.*sz)<.28?1.:(e<.7?spriteCol(k):spriteDark(k));}
     }
     if(spr>=0.)idx=spr;
@@ -534,72 +588,80 @@ float scene(vec2 p){
     v+=(bayer(c)-.5)*.3;
     idx=rampIdx(mod(floor(c.y/4.)+floor(c.x/80.),4.),v);
   }else if(md==15){
-    // Dot plotter (Edge of Disgrace): 96 dots morphing between a sphere, a torus and a heart.
+    // Dot plotter (Edge of Disgrace): 96 dots morphing between eight bodies (sphere, torus, heart, double helix, trefoil knot,
+    // Lissajous curve, spiral disc, rippling sheet). The order is irregular, and the turning and the size drift all the time.
     bidx=0.;idx=0.;
-    float sh=mod(floor(t*.22),3.),f=smoothstep(.55,1.,fract(t*.22));
-    float a1=t*.8,a2=.45+sin(t*.4)*.35;
+    float cyc=t*(.16+.1*vn(t*.07)),n=floor(cyc);
+    float kA=floor(hash(n+seed.z*5.)*8.),kB=floor(hash(n+1.+seed.z*5.)*8.);
+    if(abs(kA-kB)<.5)kB=mod(kA+1.+floor(hash(n+9.)*6.),8.);
+    float f=smoothstep(.5,1.,fract(cyc));
+    float a1=t*.55+sin(t*.31)*1.1+sin(t*.13+1.)*.8,a2=.5+sin(t*.4)*.45+sin(t*.17)*.3;
+    float zoom=205.+28.*sin(t*.23)+10.*sin(t*.61);
     float bestz=-9.;
     for(int i=0;i<96;i++){
-      float u=(float(i)+.5)/96.;
-      float phi=acos(1.-2.*u),th=float(i)*2.3999632;
-      vec3 S0=vec3(sin(phi)*cos(th),cos(phi),sin(phi)*sin(th))*.85;
-      float v1=u*6.2831853*10.,v2=u*6.2831853;
-      vec3 S1=vec3((.62+.26*cos(v1))*cos(v2),.26*sin(v1),(.62+.26*cos(v1))*sin(v2));
-      float sn=sin(v2);
-      vec3 S2=vec3(16.*sn*sn*sn,13.*cos(v2)-5.*cos(2.*v2)-2.*cos(3.*v2)-cos(4.*v2)+1.,sin(u*30.)*4.5)/17.;
-      vec3 A=sh<.5?S0:(sh<1.5?S1:S2);
-      vec3 B=sh<.5?S1:(sh<1.5?S2:S0);
-      vec3 pos=rotX(rotY(mix(A,B,f),a1),a2);
-      float vo=mod(float(i),3.);
+      float fi=float(i),u=(fi+.5)/96.;
+      vec3 pos=rotX(rotY(mix(dotShape(kA,fi,u,t),dotShape(kB,fi,u,t),f),a1),a2);
+      float vo=mod(fi,3.);
       float lv=vlv(vo),wv=vwv(vo);
       float sc=1.+lv*.3;
       if(wv>2.5&&wv<3.5)sc=1.+step(.45,lv)*.3;
       pos*=sc;
-      if(wv>3.5)pos+=vec3(hash(float(i)+floor(t*20.))-.5,hash(float(i)*1.7+floor(t*20.))-.5,0.)*.16*lv;
-      vec2 sp=vec2(160.,100.)+vec2(pos.x,-pos.y)*100./(1.9-pos.z*.45);
+      if(wv>3.5)pos+=vec3(hash(fi+floor(t*20.))-.5,hash(fi*1.7+floor(t*20.))-.5,0.)*.16*lv;
+      vec2 sp=vec2(160.,100.)+vec2(pos.x,-pos.y)*zoom/(1.9-pos.z*.45);
       float d=length(c-sp);
-      if(d<1.5+(pos.z+1.)*.8+lv*1.6&&pos.z>bestz){bestz=pos.z;idx=pos.z>.35?1.:(pos.z>-.2?spriteCol(vo*2.+1.):spriteDark(vo*2.+1.));}
+      if(d<2.4+(pos.z+1.)*1.1+lv*1.8&&pos.z>bestz){bestz=pos.z;idx=pos.z>.35?1.:(pos.z>-.2?spriteCol(vo*2.+1.):spriteDark(vo*2.+1.));}
     }
   }else if(md==16){
-    // Parallax floor (Coma Light 13): hill layers sliding at different speeds above a floor whose raster lines scroll at their own speed.
+    // Parallax floor (Coma Light 13): hill layers slide at different speeds above a floor of raster strips. Every strip scrolls
+    // sideways at its own speed, the nearer the faster, so the ground has depth without a vanishing point or a road (that is Outrun).
     bidx=0.;
-    float hor=100.;
+    float hor=104.;
+    float spd=1.+.5*sin(t*.15);
     if(c.y<hor){
-      idx=rampIdx(0.,.1+.5*pow(c.y/hor,1.2));
+      idx=rampIdx(2.,.1+.55*pow(c.y/hor,1.2));
       for(int l=0;l<4;l++){
         float fl=float(l);
-        float xs=c.x+t*(10.+fl*14.);
+        float xs=c.x+t*spd*(8.+fl*14.);
         float hh=hor-18.-fl*10.-(sin(xs*.026*(1.+fl*.35)+fl*2.)*(9.+fl*3.)+sin(xs*.011+fl)*8.);
-        if(c.y>hh)idx=fl<.5?14.:(fl<1.5?6.:(fl<2.5?5.:11.));
+        if(c.y>hh)idx=fl<.5?14.:(fl<1.5?6.:(fl<2.5?4.:11.));
       }
     }else{
-      float yy=c.y-hor+1.;
-      float u=(c.x-160.)/yy*5.+t*3.;
-      float zf=60./yy;
-      float chk=mod(floor(u)+floor(zf*.8-t*2.),2.);
-      idx=chk>.5?5.:13.;
-      if(yy<2.)idx=1.;
+      float ry=c.y-hor;
+      float strip=floor(log(ry*.09+1.)/.1655);
+      float sd=strip/13.;
+      float sxs=c.x+t*spd*(10.+260.*sd*sd);
+      float tw=5.+34.*sd;
+      float tile=mod(floor(sxs/tw)+strip,2.);
+      float edge=step(mod(sxs,tw),1.);
+      idx=sd<.35?(tile>.5?9.:8.):(sd<.7?(tile>.5?8.:2.):(tile>.5?2.:10.));
+      if(edge>.5&&sd>.2)idx=7.;
+      if(c.y<hor+2.)idx=0.;
     }
   }else if(md==17){
-    // Shadow cube (Coma Light 13): a flat-shaded rotating cube casting a real-time shadow on a chessboard floor.
+    // Shadow cube (Coma Light 13): a flat-shaded block casting a real-time shadow on a chessboard floor. The block turns and
+    // tumbles at a changing rate, hops, wanders, swells with the bass and morphs between a cube, a slab, a pillar and a bar while
+    // the light circles above it.
     bidx=6.;
     vec2 uv=vec2(c.x-160.,100.-c.y)/100.;
     vec3 ro=vec3(0.,1.4,-3.3),rd=normalize(vec3(uv.x*.8,uv.y*.8-.3,1.));
-    float ang=t*.7;
-    vec3 L=normalize(vec3(-.55,1.,-.45));
-    vec3 cc=vec3(0.,.62,0.),hb=vec3(.55);
+    float ph=t*.16,n=floor(ph),fm=smoothstep(.7,1.,fract(ph));
+    vec3 hb=mix(blockSize(mod(n,4.)),blockSize(mod(n+1.,4.)),fm)*(1.+b*.12);
+    float ang=t*.55+sin(t*.4)*1.3,tilt=sin(t*.31)*.55;
+    float hop=.5*abs(sin(t*1.3))*(.4+.6*vn(t*.2));
+    vec3 cc=vec3(sin(t*.17)*.5,length(hb)+hop*.6,cos(t*.13)*.4);
+    vec3 L=normalize(vec3(sin(t*.21)*.9,1.,cos(t*.21)*.7-.2));
     vec3 n1;
-    float tb=boxHit(rotY(ro-cc,-ang),rotY(rd,-ang),hb,n1);
+    float tb=boxHit(toBox(ro-cc,ang,tilt),toBox(rd,ang,tilt),hb,n1);
     float tf=rd.y<-.001?(-ro.y/rd.y):-1.;
     idx=rampIdx(0.,.2+uv.y*.2);
     if(tb>0.&&(tf<0.||tb<tf)){
-      vec3 n=rotY(n1,ang);
-      float lit=clamp(dot(n,L),0.,1.);
+      vec3 nw=rotY(rotX(n1,tilt),ang);
+      float lit=clamp(dot(nw,L),0.,1.);
       idx=rampIdx(1.,.25+.7*lit+(bayer(c)-.5)*.14);
     }else if(tf>0.){
       vec3 P=ro+rd*tf;
       vec3 n2;
-      float ts=boxHit(rotY(P+L*.002-cc,-ang),rotY(L,-ang),hb,n2);
+      float ts=boxHit(toBox(P+L*.002-cc,ang,tilt),toBox(L,ang,tilt),hb,n2);
       float chk=mod(floor(P.x*1.2)+floor(P.z*1.2),2.);
       float base=chk>.5?.62:.42;
       if(ts>0.)base*=.45;
@@ -607,16 +669,25 @@ float scene(vec2 p){
       idx=rampIdx(0.,base+.1);
     }
   }else if(md==18){
-    // Rotating raster bars (Uncensored): bars that turn through 360 degrees, across the border as well.
+    // Rotating raster bars (Uncensored): bars that turn through 360 degrees, across the border as well. The turn hesitates and
+    // reverses, the bars fan out and fold together again, their number, width and swing keep changing, and their colours shift.
     openAll=true;canFlash=false;
     vec2 pp=vec2(x,y)-res*.5;
-    vec2 nrm=vec2(cos(t*.5),sin(t*.5));
+    float rot=t*.4+sin(t*.29)*1.4+sin(t*.11)*.8;
+    float fan=(.5+.5*sin(t*.21))*.5;
+    float cnt=4.+floor(4.*vn(t*.1+3.));
+    float swing=res.y*(.22+.14*sin(t*.13)),space=.9+.5*sin(t*.07);
     float o=0.,depth=-9.;
     for(int i=0;i<8;i++){
       float fi=float(i);
-      float off=sin(t*.8+fi*.9)*res.y*.3,zz=cos(t*.8+fi*.9),hh=8.+b*6.;
+      if(fi>=cnt)continue;
+      float ai=rot+(fi-3.5)*fan;
+      vec2 nrm=vec2(cos(ai),sin(ai));
+      float ph=t*.8+fi*space;
+      float off=sin(ph)*swing,zz=cos(ph);
+      float hh=(7.+b*6.+4.*sin(t*.5+fi*1.3))*(.7+.6*vn(t*.2+fi*3.7));
       float d=abs(dot(pp,nrm)-off)/hh;
-      if(d<1.&&zz>depth){depth=zz;o=rampIdx(fi,(1.-d)*1.12);}
+      if(d<1.&&zz>depth){depth=zz;o=rampIdx(fi+floor(t*.05),(1.-d)*1.12);}
     }
     idx=o;
   }else if(md==19){
@@ -838,6 +909,7 @@ float scene(vec2 p){
       }
     }
   }else{
+    // Outrun: the sun over the horizon and a road that winds left and right and rolls over hills, with striped kerbs and grass.
     bidx=0.;
     float hor=104.;
     if(c.y<hor){
@@ -851,14 +923,35 @@ float scene(vec2 p){
         if(cut<.5)idx=vv<.4?7.:(vv<.7?10.:2.);
       }
     }else{
-      float yy=c.y-hor+1.;
-      float wx=(c.x-160.)/yy*4.;
-      float z=48./yy;
-      float gx=abs(fract(wx)-.5)*yy/4.;
-      float gz=fract(z*.33-t*1.2);
-      float line=max(step(abs(fract(wx+.5)-.5)*yy/4.,.75),step(gz,.05+.12*yy/96.));
-      idx=line>.5?(b>.5?3.:4.):0.;
-      if(yy<3.)idx=7.;
+      // The road is drawn as 34 slices from near to far, each projected by the height of the ground there. A slice hidden behind the
+      // crest of a hill in front of it is not drawn, so the road dips out of sight and reappears.
+      float sp=1.+.35*sin(t*.2);
+      float D=t*3.2*sp;
+      idx=1.;
+      float clip=200.,z0=.5;
+      float yb=hor+(1.-outHeight(z0,t,sp))*48./z0;
+      for(int i=0;i<34;i++){
+        float zi=.5*pow(1.1,float(i)),zn=zi*1.1;
+        float yn=hor+(1.-outHeight(zn,t,sp))*48./zn;
+        if(c.y>=yn&&c.y<min(yb,clip)){
+          float cx=160.+outBend(zi,t)*12./zi;
+          float ar=abs(c.x-cx);
+          float par=mod(floor((zi+D)*.9),2.);
+          float hw=27.6/zi;
+          if(ar<hw){
+            idx=par>.5?12.:11.;
+            if(ar<max(1.,1.2/zi)&&mod(floor((zi+D)*1.6),2.)<1.)idx=1.;
+          }else if(ar<hw*1.22){
+            idx=par>.5?2.:1.;
+          }else{
+            idx=par>.5?5.:13.;
+          }
+          if(smoothstep(7.,15.,zi)>bayer(c))idx=1.;
+          break;
+        }
+        clip=min(clip,yn);
+        yb=yn;
+      }
     }
   }
   if(canFlash&&flash>.5)bidx=flashCol(floor(time*14.));

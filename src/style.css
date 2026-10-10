@@ -2714,6 +2714,19 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j):is([aria-pressed="true"],.pressed,.favorite-active,.lit,:active:not(:disabled)){transition:transform .13s var(--heft-down),border-bottom-width .13s var(--heft-down),box-shadow .13s var(--heft-down),--sk .13s var(--heft-down)!important}
 @media(prefers-reduced-motion:reduce){.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j){transition:none!important}}
 
+/* Tune browser header on a phone: seven parts in one row were cramped. Two rows now: the keys and the saved count on top, the
+   SEARCH / PLAYLIST slide with its printed legends, the playlist count and INFINITE PLAY below. */
+@media(max-width:430px){
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block{display:grid!important;grid-template-columns:repeat(4,1fr);row-gap:9px!important;column-gap:6px!important;align-items:center;justify-items:center;padding:8px!important}
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.catalog-mobile-close{grid-column:1;grid-row:1}
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.random-sid{grid-column:2;grid-row:1}
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-key{grid-column:3;grid-row:1}
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.saved-count{grid-column:4;grid-row:1}
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.hifi-slide{grid-column:1/3;grid-row:2;width:100%;justify-self:stretch;justify-content:center!important;gap:4px!important}
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-total{grid-column:3;grid-row:2}
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-infinite-toggle{grid-column:4;grid-row:2}
+  .c64-shell .flip-stage.flipped .flip-back .selector-button-block .hifi-slide-legend{display:flex;letter-spacing:.03em}
+}
 /* The brand row is centred on the whole case top and ignores the LOAD key, so on narrow phones the key covered the STEREO lamp.
    Below 375 px the row moves right of the key and the colour stripe shrinks to make room (it goes at 340 px and less). */
 @media(max-width:374px){

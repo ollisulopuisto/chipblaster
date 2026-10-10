@@ -2753,3 +2753,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
    the wood stopped at the ledge and the screen module stood in the air. A negative cut puts the cut outside the shell: the clip-path stays, nothing is cut. */
 .c64-shell{--cut-w:-200px}
 @media(max-width:700px){.c64-shell{--cut-w:-200px}}
+/* Phones: the case top has the same proportions folded as open. Folded, it was 19 px shorter and the LOAD key sat close under the display. */
+@media(max-width:700px){
+  .c64-shell.folded .boombox-top,.c64-shell.unfolded .boombox-top{min-height:55px;padding:2px 8px 6px}
+  .c64-shell .eject-fixed{top:28.6px}
+}

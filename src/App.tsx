@@ -69,7 +69,7 @@ function Visualizer({player,preset,active,scroll,seed,boot,mech}:{player:Player|
   },[]);return <canvas ref={ref} className="visual" aria-label={`Animated ${presets[preset]} visualizer`} />;
 }
 const waveformName=(v:number)=>{const names=[];if(v&0x10)names.push('triangle');if(v&0x20)names.push('sawtooth');if(v&0x40)names.push('pulse');if(v&0x80)names.push('noise');return names.join(' + ')||'none'};
-const waveShapes:[number,string,string][]=[[0x10,'triangle','0,17 6,4 12,17 18,4 24,17'],[0x20,'sawtooth','1,17 11,4 11,17 22,4 22,17'],[0x40,'pulse','1,17 1,5 10,5 10,17 23,17 23,5'],[0x80,'noise','1,12 4,5 8,17 11,8 14,14 18,3 21,17 23,8']];
+const waveShapes:[number,string,string][]=[[0x10,'triangle','0,17 12,3 24,17'],[0x20,'sawtooth','1,17 11,4 11,17 22,4 22,17'],[0x40,'pulse','1,17 1,5 10,5 10,17 23,17 23,5'],[0x80,'noise','1,12 4,5 8,17 11,8 14,14 18,3 21,17 23,8']];
 /** One wheel of the tape counter: the digit below rolls up into place when the value changes, with a little overshoot, then rests. */
 function CounterWheel({v,mod}:{v:number;mod:number}){const first=useRef(v);return <span className="dc-wheel"><span key={v} className={"dc-strip "+(v===first.current?"rest":"roll")}><b>{(v+mod-1)%mod}</b><b>{v}</b><b>{(v+1)%mod}</b></span></span>}
 /** The Datassette's counter, cheated to four wheels that read minutes and seconds into the tune. It cannot be reset: it only follows the tape. */

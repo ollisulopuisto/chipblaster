@@ -2280,7 +2280,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Manual fold is driven by src/manual-fold.ts: the real sheet is static, the clones in .manual-fold-stage do the folding. */
 .manual-overlay .manual-plate.manual-sheet,.manual-overlay.is-closing .manual-plate.manual-sheet{animation:none!important;transform:none!important}
 .manual-overlay .manual-plate.manual-sheet::after,.manual-overlay.is-closing .manual-plate.manual-sheet::after{display:none!important}
-.manual-overlay .manual-fold-stage .manual-plate.manual-sheet{animation:none!important;transform:none!important;position:absolute!important;overflow:hidden!important;top:0!important;left:var(--fl)!important;width:var(--fw)!important;height:var(--fh)!important;max-height:none!important;margin:0!important}
+.manual-overlay .manual-fold-stage .manual-plate.manual-sheet{animation:none!important;transform:none!important;position:absolute!important;overflow:hidden!important;top:var(--ft,0px)!important;left:var(--fl)!important;width:var(--fw)!important;height:var(--fh)!important;max-height:none!important;margin:0!important}
 .manual-overlay.is-closing{animation:manual-fade-close .3s ease-in .7s reverse both}
 .manual-overlay .manual-portal{position:relative}
 
@@ -2724,3 +2724,14 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   .c64-shell:not(.jp) .boombox-brand{transform:translateX(14px)}
   .c64-shell:not(.jp) .boombox-brand .c64-badge::before{display:none}
 }
+/* The readout under each VU meter is one height whatever it shows: with a two-SID tune the waveform strips were 27 px and the OUTPUT strip
+   stayed 22 px, so the bottom edges of the four meters did not line up. */
+.c64-shell .waveform-readout,.c64-shell .waveform-readout.dual-waveforms{min-height:27px;height:27px;box-sizing:border-box}
+/* ON/OFF keys of the control hatch: a latched key sits clearly lower, its cap darker and its skirt gone, and the round badge on it
+   lights up brass; a released key keeps its badge dark. The state has to read at a glance, on a phone, in either finish. */
+.c64-shell:not(.jp) .setup-hatch .base-keys>.manual-key[aria-pressed="true"]:not(#k):not(#j){--sk:1px;--cap:linear-gradient(180deg,#a39b7e,#b0a88c 55%,#bab297);transform:translateY(5px)!important;box-shadow:inset 0 5px 9px #000a,0 0 0 #1b160f!important}
+.c64-shell.jp .setup-hatch .base-keys>.manual-key[aria-pressed="true"]:not(#k):not(#j){transform:translateY(5px)!important;border-bottom-width:1px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#85827a,#9a978f 45%,#aaa7a0)!important;box-shadow:inset 0 5px 9px #000b,inset 0 0 0 1px #0004,0 1px 0 #fff9!important}
+.c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed] span{transition:background-color .2s,color .2s,box-shadow .2s}
+.c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed="false"] span{background:#2c3830;color:#7f7448}
+.c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed="true"] span{background:#e8c378;color:#2c2a1f;box-shadow:0 0 7px #e8c378aa,inset 0 1px 0 #fff8}
+@media(prefers-reduced-motion:reduce){.c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed] span{transition:none}}

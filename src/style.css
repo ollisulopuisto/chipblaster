@@ -2758,3 +2758,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   .c64-shell.folded .boombox-top,.c64-shell.unfolded .boombox-top{min-height:55px;padding:2px 8px 6px}
   .c64-shell .eject-fixed{top:28.6px}
 }
+
+/* The title display shows its unlit segments very faintly, as a vacuum fluorescent display does: only the outer eight (the box), no diagonals and no
+   middle bar. The full set read as asterisks on phones. */
+.c64-shell .segment-ghost{stroke:#acebfc;opacity:.09}
+.c64-shell .segment-ghost line{stroke-width:1.6}

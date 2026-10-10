@@ -2714,6 +2714,9 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j):is([aria-pressed="true"],.pressed,.favorite-active,.lit,:active:not(:disabled)){transition:transform .13s var(--heft-down),border-bottom-width .13s var(--heft-down),box-shadow .13s var(--heft-down),--sk .13s var(--heft-down)!important}
 @media(prefers-reduced-motion:reduce){.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j){transition:none!important}}
 
+/* The readout under each VU meter is one height whatever it shows: with a two-SID tune the waveform strips were 27 px and the OUTPUT strip
+   stayed 22 px, so the bottom edges of the four meters did not line up. */
+.c64-shell .waveform-readout,.c64-shell .waveform-readout.dual-waveforms{min-height:27px;height:27px;box-sizing:border-box}
 /* ON/OFF keys of the control hatch: a latched key sits clearly lower, its cap darker and its skirt gone, and the round badge on it
    lights up brass; a released key keeps its badge dark. The state has to read at a glance, on a phone, in either finish. */
 .c64-shell:not(.jp) .setup-hatch .base-keys>.manual-key[aria-pressed="true"]:not(#k):not(#j){--sk:1px;--cap:linear-gradient(180deg,#a39b7e,#b0a88c 55%,#bab297);transform:translateY(5px)!important;box-shadow:inset 0 5px 9px #000a,0 0 0 #1b160f!important}

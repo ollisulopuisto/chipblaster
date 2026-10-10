@@ -332,20 +332,6 @@ float dancer(vec2 pp,float lv,float wv,float t,float fj,float pn){
   else d=min(d,abs(abs(hd.x)+abs(hd.y)-8.));
   return d;
 }
-float boxHit(vec3 o,vec3 d,vec3 h,out vec3 n){
-  vec3 inv=1./d;vec3 t1=(-h-o)*inv,t2=(h-o)*inv;
-  vec3 tn=min(t1,t2),tf=max(t1,t2);
-  float tmin=max(max(tn.x,tn.y),tn.z),tmax=min(min(tf.x,tf.y),tf.z);
-  n=vec3(0.);
-  if(tmax<0.||tmin>tmax)return -1.;
-  if(tmin>0.){
-    if(tn.x>=tn.y&&tn.x>=tn.z)n=vec3(-sign(d.x),0.,0.);
-    else if(tn.y>=tn.z)n=vec3(0.,-sign(d.y),0.);
-    else n=vec3(0.,0.,-sign(d.z));
-    return tmin;
-  }
-  return tmax;
-}
 float plasmaIdx(vec2 c,float t,float b,float m){
   vec2 cell=floor(c/8.),loc=mod(c,8.);
   float v=sin(cell.x*.33+t*1.2)+sin(cell.y*.45-t*.9)+sin((cell.x+cell.y)*.21+t*.7)+sin(length(cell-vec2(20.,12.))*.5-t*1.5-b*5.);
@@ -418,14 +404,27 @@ vec3 dotShape(float k,float i,float u,float t){
   float gx=mod(i,12.),gz=floor(i/12.);
   return vec3((gx/11.-.5)*1.8,sin(gx*.8+gz*.6+t*2.4)*.28,(gz/7.-.5)*1.8);
 }
-// Shadow cube: the block is a cube, a slab, a pillar or a bar.
-vec3 blockSize(float k){
-  if(k<.5)return vec3(.55);
-  if(k<1.5)return vec3(.85,.22,.55);
-  if(k<2.5)return vec3(.28,.8,.28);
-  return vec3(.85,.28,.28);
+// Shadow cube, as a C64 would do it: a flat-shaded cube drawn as three filled polygons, its shadow as filled polygons on a floor, no ray tracing. The
+// view is a fixed parallel projection from above, so the floor is a static chessboard picture; only the corners of the cube move, rounded to whole pixels.
+vec2 cubeProj(vec3 p){return floor(vec2(160.+p.x,128.-(p.y*.866+p.z*.5))+.5);}
+// Corner k of face f of a cube with half-size hh, turned about the vertical axis (cs, sn) and standing at (cx, lift, cz).
+vec3 cubeCorner(float f,float k,float hh,float cs,float sn,vec3 at){
+  float ax=floor(f/2.),sg=mod(f,2.)*2.-1.;
+  float us=(k<.5||k>2.5)?1.:-1.;
+  float vs=k<1.5?1.:-1.;
+  vec3 l=ax<.5?vec3(sg,us,vs):(ax<1.5?vec3(us,sg,vs):vec3(us,vs,sg));
+  l*=hh;
+  return vec3(l.x*cs+l.z*sn+at.x,l.y+hh+at.y,-l.x*sn+l.z*cs+at.z);
 }
-vec3 toBox(vec3 v,float ang,float tilt){return rotX(rotY(v,-ang),-tilt);}
+// The shadow of a point on the floor, for a light that stands up and to the left, in front.
+vec3 cubeShadow(vec3 w){return vec3(w.x+.7*w.y,0.,w.z+.4*w.y);}
+bool inQuad(vec2 p,vec2 a,vec2 b,vec2 c,vec2 d){
+  float s0=(b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x);
+  float s1=(c.x-b.x)*(p.y-b.y)-(c.y-b.y)*(p.x-b.x);
+  float s2=(d.x-c.x)*(p.y-c.y)-(d.y-c.y)*(p.x-c.x);
+  float s3=(a.x-d.x)*(p.y-d.y)-(a.y-d.y)*(p.x-d.x);
+  return (s0>=0.&&s1>=0.&&s2>=0.&&s3>=0.)||(s0<=0.&&s1<=0.&&s2<=0.&&s3<=0.);
+}
 // Outrun: the ground rises and falls with distance (outHeight) and the road winds sideways (outBend).
 float outHeight(float z,float t,float sp){
   return (sin(z*.55-sp*1.7)*.42+sin(z*.23-sp*.8)*.6)*smoothstep(.5,3.,z)*.92*(.55+.55*tens(t,29.));
@@ -729,35 +728,31 @@ float scene(vec2 p){
       if(c.y<hor+2.)idx=0.;
     }
   }else if(md==17){
-    // Shadow cube (Coma Light 13): a flat-shaded block casting a real-time shadow on a chessboard floor. The block turns and
-    // tumbles at a changing rate, hops, wanders, swells with the bass and morphs between a cube, a slab, a pillar and a bar while
-    // the light circles above it.
+    // Shadow cube (Coma Light 13), the way a C64 would draw it: a small cube turning about its vertical axis, filled flat in three shades (top, lit
+    // side, dark side), with a hard shadow on a chessboard floor. The turn speeds up and lets go, the cube drifts about and hops with the bass, and
+    // the shadow moves with it. The floor is a fixed picture; the picture is redrawn at 17 frames a second.
     bidx=6.;
-    vec2 uv=vec2(c.x-160.,100.-c.y)/100.;
-    vec3 ro=vec3(0.,1.4,-3.3),rd=normalize(vec3(uv.x*.8,uv.y*.8-.3,1.));
-    float ph=t*.16,n=floor(ph),fm=smoothstep(.7,1.,fract(ph));
-    vec3 hb=mix(blockSize(mod(n,4.)),blockSize(mod(n+1.,4.)),fm)*(1.+b*.12);
-    float ang=t*.55+sin(t*.4)*1.3,tilt=sin(t*.31)*.55;
-    float hop=.5*abs(sin(t*1.3))*(.4+.6*vn(t*.2));
-    vec3 cc=vec3(sin(t*.17)*.5,length(hb)+hop*.6,cos(t*.13)*.4);
-    vec3 L=normalize(vec3(sin(t*.21)*.9,1.,cos(t*.21)*.7-.2));
-    vec3 n1;
-    float tb=boxHit(toBox(ro-cc,ang,tilt),toBox(rd,ang,tilt),hb,n1);
-    float tf=rd.y<-.001?(-ro.y/rd.y):-1.;
-    idx=rampIdx(0.,.2+uv.y*.2);
-    if(tb>0.&&(tf<0.||tb<tf)){
-      vec3 nw=rotY(rotX(n1,tilt),ang);
-      float lit=clamp(dot(nw,L),0.,1.);
-      idx=rampIdx(1.,.25+.7*lit+(bayer(c)-.5)*.14);
-    }else if(tf>0.){
-      vec3 P=ro+rd*tf;
-      vec3 n2;
-      float ts=boxHit(toBox(P+L*.002-cc,ang,tilt),toBox(L,ang,tilt),hb,n2);
-      float chk=mod(floor(P.x*1.2)+floor(P.z*1.2),2.);
-      float base=chk>.5?.62:.42;
-      if(ts>0.)base*=.45;
-      base=base*(1.-.06*length(P.xz))+(bayer(c)-.5)*.14;
-      idx=rampIdx(0.,base+.1);
+    float ang=tw(t,19.,1.1)*.8;
+    float cs=cos(ang),sn=sin(ang);
+    float lift=max(0.,floor((b-.35)*44.));
+    vec3 at=vec3(floor(sin(t*.17)*46.),lift,floor(cos(t*.13)*26.));
+    float hh=36.;
+    float chk=mod(floor((c.x-160.)/16.)+floor((128.-c.y)/8.),2.);
+    idx=chk>.5?12.:11.;
+    for(int f=0;f<6;f++){
+      float ff=float(f);
+      vec3 a0=cubeShadow(cubeCorner(ff,0.,hh,cs,sn,at)),a1=cubeShadow(cubeCorner(ff,1.,hh,cs,sn,at)),a2=cubeShadow(cubeCorner(ff,2.,hh,cs,sn,at)),a3=cubeShadow(cubeCorner(ff,3.,hh,cs,sn,at));
+      if(inQuad(c,cubeProj(a0),cubeProj(a1),cubeProj(a2),cubeProj(a3)))idx=chk>.5?11.:0.;
+    }
+    vec3 L=normalize(vec3(-.7,1.,-.4));
+    for(int f=0;f<6;f++){
+      float ff=float(f);
+      float ax=floor(ff/2.),sg=mod(ff,2.)*2.-1.;
+      vec3 nl=ax<.5?vec3(sg,0.,0.):(ax<1.5?vec3(0.,sg,0.):vec3(0.,0.,sg));
+      vec3 nw=vec3(nl.x*cs+nl.z*sn,nl.y,-nl.x*sn+nl.z*cs);
+      if(nw.z*.866-nw.y*.5>=0.)continue;
+      vec2 p0=cubeProj(cubeCorner(ff,0.,hh,cs,sn,at)),p1=cubeProj(cubeCorner(ff,1.,hh,cs,sn,at)),p2=cubeProj(cubeCorner(ff,2.,hh,cs,sn,at)),p3=cubeProj(cubeCorner(ff,3.,hh,cs,sn,at));
+      if(inQuad(c,p0,p1,p2,p3))idx=nw.y>.5?3.:(dot(nw,L)>.15?14.:6.);
     }
   }else if(md==18){
     // Rotating raster bars (Uncensored): bars that turn through 360 degrees, across the border as well. The turn hesitates and

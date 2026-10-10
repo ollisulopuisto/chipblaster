@@ -2280,7 +2280,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Manual fold is driven by src/manual-fold.ts: the real sheet is static, the clones in .manual-fold-stage do the folding. */
 .manual-overlay .manual-plate.manual-sheet,.manual-overlay.is-closing .manual-plate.manual-sheet{animation:none!important;transform:none!important}
 .manual-overlay .manual-plate.manual-sheet::after,.manual-overlay.is-closing .manual-plate.manual-sheet::after{display:none!important}
-.manual-overlay .manual-fold-stage .manual-plate.manual-sheet{animation:none!important;transform:none!important;position:absolute!important;overflow:hidden!important;top:0!important;left:var(--fl)!important;width:var(--fw)!important;height:var(--fh)!important;max-height:none!important;margin:0!important}
+.manual-overlay .manual-fold-stage .manual-plate.manual-sheet{animation:none!important;transform:none!important;position:absolute!important;overflow:hidden!important;top:var(--ft,0px)!important;left:var(--fl)!important;width:var(--fw)!important;height:var(--fh)!important;max-height:none!important;margin:0!important}
 .manual-overlay.is-closing{animation:manual-fade-close .3s ease-in .7s reverse both}
 .manual-overlay .manual-portal{position:relative}
 

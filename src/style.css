@@ -2682,6 +2682,26 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-stop:not(#k){transform:translateY(0)!important;border-bottom-width:5px!important;box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px #ffffff55,0 3px 3px #0008!important}
 .c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){transform:translateY(2px)!important;border-bottom-width:3px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#bcb9b0,#cfccc3 40%,#d5d2ca)!important;box-shadow:inset 0 2px 4px #0006,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}
 .c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-play:not(#k){transform:translateY(4px)!important;border-bottom-width:1px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#97948b,#b1aea5 40%,#c3c0b7)!important;box-shadow:inset 0 3px 7px #000a,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}
+
+/* TAPE COUNTER (C64 finish): the Datassette's wheel counter at the right end of the seek bar, four wheels reading MMSS. Digits are printed on the wheels. */
+.c64-shell .datassette-counter{flex:none;display:inline-flex;align-self:center}
+.c64-shell .progress-station{flex-wrap:nowrap}
+.c64-shell .progress-station .progress-fader{min-width:0}
+.c64-shell .datassette-counter{position:relative}
+/* The recess in the case with the wheels in it: light wheels, black numerals, a dark gap between the wheels */
+.c64-shell .dc-bezel{padding:3px;border-radius:3px;background:linear-gradient(#a39b83,#c6bea3);border:1px solid #5b5036;box-shadow:inset 0 2px 3px #0007,0 1px 0 #fffbe8}
+.c64-shell .dc-wheels{display:flex;gap:1px;background:#2b261c;border-radius:1px;box-shadow:0 0 0 1px #2b261c}
+.c64-shell .dc-wheel{position:relative;width:16px;height:24px;overflow:hidden;background:#ece7d6;font:400 15px/24px Silkscreen,monospace;color:#16130e}
+.c64-shell .dc-wheel::after{content:'';position:absolute;inset:0;background:linear-gradient(#0000009a,#0000 26%,#0000 74%,#0000009a),linear-gradient(90deg,#00000030,#0000 25%,#0000 75%,#00000030);pointer-events:none}
+.c64-shell .dc-label{position:absolute;left:0;right:0;top:100%;margin-top:3px;text-align:center;font:400 6px/1 Silkscreen,monospace;letter-spacing:.06em;color:#5b5036;white-space:nowrap;pointer-events:none}
+.c64-shell .dc-strip{display:block;transform:translateY(-24px);text-align:center}
+.c64-shell .dc-strip b{display:block;height:24px;font-weight:400}
+.c64-shell .dc-strip.roll{animation:dc-roll .26s var(--heft-up,cubic-bezier(.2,.9,.3,1.25)) both}
+@keyframes dc-roll{from{transform:translateY(0)}to{transform:translateY(-24px)}}
+@media(prefers-reduced-motion:reduce){.c64-shell .dc-strip.roll{animation:none}}
+@media(max-width:700px){.c64-shell .progress-station{gap:8px}}
+/* The time lives in the segment display of the prototype finish only; the C64 finish has the counter. (display:contents from jp-only would drop the slot's own box.) */
+.c64-shell:not(.jp) .title-console .title-time{display:none!important}
 /* HEFT: a key has mass. Pressed, it starts slowly, gathers speed and hits bottom with a small rebound; released, it springs up past
    rest and settles. The skirt under the cap is a registered length so it eases with the cap. Motion only; reduced motion turns it off. */
 @property --sk{syntax:'<length>';inherits:false;initial-value:6px}

@@ -42,7 +42,7 @@ Eight effects follow the SID voices (Ghostbytes, Marchers and Phyllotaxis use ea
 The thumbwheel cycles 30 effects built after the demoscene's best-rated C64 productions (ranking from CSDb, 2026). They are my own GLSL imitations running under the C64's limits (16 Pepto colours, 8x8 cells, sprite limits, per-effect frame rates), not ports of the original code:
 
 - Edge of Disgrace (Booze Design): chess zoomer with sprites, AFLI double-sine plasma, dot plotter morphing between sphere, torus and heart.
-- Coma Light 13 (Oxyron): parallax hills and floor, flat-shaded cube with a real-time shadow.
+- Coma Light 13 (Oxyron): parallax hills and floor, flat-shaded cube with a real-time shadow. The cube is drawn the way a C64 would: three filled polygons in three shades and a hard shadow polygon on a fixed chessboard floor, with the corners rounded to whole pixels, not ray traced.
 - Uncensored (Booze Design): 360-degree rotating raster bars, zoomscroll through all borders.
 - Comaland (Censor Design, Oxyron): vector stick figure.
 - Next Level (Performers): noise fader.

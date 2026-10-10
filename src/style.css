@@ -2532,14 +2532,14 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(prefers-reduced-motion:reduce){.c64-shell .base-nameplate{animation:none}}
 /* The cap's flat top sits inside a raised rim, as on the real keys. */
 .c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k){position:relative}
-.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k)::before{content:'';position:absolute;inset:4px 5px 11px;border-radius:6px 6px 9px 9px;border:1px solid #ffffff24;border-bottom-color:#00000030;background:linear-gradient(#ffffff18,#0000000d);pointer-events:none}
+.c64-shell:not(.jp) .console>.controls.transport-controls>:is(.favorite-key,.share-key,.dice-key,.radio-button):not(#k)::before{content:'';position:absolute;inset:4px 5px 11px;border-radius:6px 6px 9px 9px;border:0;background:linear-gradient(#ffffff22,#ffffff00 72%);pointer-events:none}
 /* CRSR keys after the real ones: a small arrow above the word and one below; the arrow that the key performs is the strong one. */
 .c64-shell:not(.jp) .crsr-stack{display:flex;flex-direction:column;align-items:center;gap:2px}
 .c64-shell:not(.jp) .console>.controls.transport-controls>button .crsr-stack .pet-glyph{width:11px;height:11px}
 .c64-shell:not(.jp) .crsr-prev .pet-glyph:last-child,.c64-shell:not(.jp) .crsr-next .pet-glyph:first-child{opacity:.28}
 /* A raised rim around the flat top of every transport key, as on the photographed caps. */
 .c64-shell:not(.jp) .console>.controls.transport-controls>button:not(#k):not(.favorite-key):not(.share-key):not(.dice-key):not(.radio-button){position:relative}
-.c64-shell:not(.jp) .console>.controls.transport-controls>button:not(#k):not(.favorite-key):not(.share-key):not(.dice-key):not(.radio-button)::before{content:'';position:absolute;inset:4px 5px 10px;border-radius:6px 6px 9px 9px;border:1px solid #ffffff3a;border-bottom-color:#0000001f;background:linear-gradient(#ffffff2a,#0000000a);pointer-events:none}
+.c64-shell:not(.jp) .console>.controls.transport-controls>button:not(#k):not(.favorite-key):not(.share-key):not(.dice-key):not(.radio-button)::before{content:'';position:absolute;inset:4px 5px 10px;border-radius:6px 6px 9px 9px;border:0;background:linear-gradient(#ffffff30,#ffffff00 72%);pointer-events:none}
 /* The Commodore key does the stereo enhancing: the C= mark is large, the function is written small beneath it. */
 .c64-shell:not(.jp) .eq-deck .wide-key .c64-key-c{display:flex;flex-direction:column;align-items:center;gap:3px}
 .c64-shell:not(.jp) .eq-deck .wide-key .c64-key-c .cbm-logo{height:24px;width:auto;fill:currentColor;display:block}
@@ -2667,7 +2667,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* PLAY/PAUSE is a three-position key, like a shift lock: up is stopped, all the way down is playing, halfway up again is paused.
    The lamp says the same: green while playing, red when stopped, red and slowly pulsing when paused. */
 @keyframes lamp-pulse{0%,100%{--led:1}50%{--led:.3}}
-.c64-shell .console>.controls.transport-controls>button.play-depth:not(#k){transition:transform .14s ease-out,border-bottom-width .14s ease-out,box-shadow .14s ease-out,background-color .14s!important}
 .c64-shell .console>.controls.transport-controls>button.play-depth:is(.depth-stop,.depth-pause):not(#k){--led-c1:#ffe6df;--led-c2:#ff6c5a;--led-c3:#e0301f;--led-c4:#a01a12;--led-glow:255 64 48}
 .c64-shell .console>.controls.transport-controls>button.play-depth:not(#k)::after{content:'';position:absolute;top:4px;right:5px;width:8px;height:8px;border-radius:50%;--led:1;animation:none;
   background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--led-c1) calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,var(--led-c2) calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,var(--led-c3) calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,var(--led-c4) calc(var(--led)*100%),#7d857f) 100%);
@@ -2703,3 +2702,11 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell .progress-station{gap:8px}}
 /* The time lives in the segment display of the prototype finish only; the C64 finish has the counter. (display:contents from jp-only would drop the slot's own box.) */
 .c64-shell:not(.jp) .title-console .title-time{display:none!important}
+/* HEFT: a key has mass. Pressed, it starts slowly, gathers speed and hits bottom with a small rebound; released, it springs up past
+   rest and settles. The skirt under the cap is a registered length so it eases with the cap. Motion only; reduced motion turns it off. */
+@property --sk{syntax:'<length>';inherits:false;initial-value:6px}
+.c64-shell{--heft-up:cubic-bezier(.2,.9,.3,1.25);--heft-down:cubic-bezier(.55,0,.85,1)}
+@supports (transition-timing-function:linear(0,1)){.c64-shell{--heft-up:linear(0,0.077,0.266,0.509,0.754,0.965,1.122,1.216,1.253,1.242,1.199,1.139,1.076,1.02,0.977,0.949,0.937,0.937,0.947,0.961,0.977,0.992,1.004,1.012,1);--heft-down:linear(0,0.005,0.024,0.057,0.108,0.176,0.264,0.37,0.496,0.643,0.811,1,1.067,1.11,1.127,1.12,1.096,1.064,1.031,1.008,1)}}
+.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j){transition:transform .34s var(--heft-up) .03s,border-bottom-width .34s var(--heft-up) .03s,box-shadow .34s var(--heft-up) .03s,--sk .34s var(--heft-up) .03s!important}
+.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j):is([aria-pressed="true"],.pressed,.favorite-active,.lit,:active:not(:disabled)){transition:transform .13s var(--heft-down),border-bottom-width .13s var(--heft-down),box-shadow .13s var(--heft-down),--sk .13s var(--heft-down)!important}
+@media(prefers-reduced-motion:reduce){.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j){transition:none!important}}

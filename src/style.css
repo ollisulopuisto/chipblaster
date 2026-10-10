@@ -659,7 +659,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .rotary-knob::after,.c64-shell .source-knob::after{content:'';position:absolute;inset:7px;border-radius:50%;pointer-events:none;background:repeating-conic-gradient(from 0deg,#fff2 0deg 2deg,#0000 2deg 7deg);opacity:.2;box-shadow:inset 1px 1px 1px #fff8,inset -1px -1px 2px #7778}
 /* SID models: short-travel receiver keys. The second bank is inert until a multi-SID file loads. */
 .c64-shell .sid-model-panel{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;padding:8px 14px;border-top:1px solid #817c6e;color:#323c34;font:700 10px "Arial Narrow",Arial,sans-serif;letter-spacing:.1em;min-width:0}
-.c64-shell .sid-model-title{display:flex;flex-direction:column;gap:3px;min-width:108px}.sid-model-title small,.sid-model-note{font-size:8px;letter-spacing:.03em;color:#536459}.c64-shell .sid-model-pair{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.c64-shell .sid-model-pair fieldset{border:0;padding:0;margin:0;min-width:0}.c64-shell .sid-model-pair legend{font-size:9px;margin-bottom:3px}.c64-shell .sid-model-keys{display:flex;gap:2px;padding:2px;border:1px solid #727c73;border-radius:4px;background:#66756b;box-shadow:inset 0 2px 4px #28352d88}.c64-shell .sid-model-keys button{min-width:46px;min-height:29px;border:1px solid #9ca69c;border-radius:2px;background:linear-gradient(#f3f2e7,#aeb7ad);color:#24392d;font:700 10px "Arial Narrow",Arial,sans-serif;letter-spacing:.02em;box-shadow:0 2px 1px #35443a;cursor:pointer}.c64-shell .sid-model-keys button[aria-pressed="true"]{background:linear-gradient(#91a996,#dee2d4);box-shadow:inset 0 2px 4px #3a5541,0 0 0 1px #ebf1d9;color:#102e1b;transform:translateY(1px)}.c64-shell .sid-model-keys button:focus-visible{outline:2px solid #196943;outline-offset:2px}.c64-shell .sid-model-pair fieldset:disabled{opacity:.48}.c64-shell .sid-model-note{margin-left:auto;max-width:180px}
+.c64-shell .sid-model-title{display:flex;flex-direction:column;gap:3px;min-width:108px}.sid-model-title small,.sid-model-note{font-size:8px;letter-spacing:.03em;color:#536459}.c64-shell .sid-model-pair{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.c64-shell .sid-model-pair .sid-chip{border:0;padding:0;margin:0;min-width:0}.c64-shell .sid-model-pair .sid-chip-label{font-size:9px;margin-bottom:3px}.c64-shell .sid-model-keys{display:flex;gap:2px;padding:2px;border:1px solid #727c73;border-radius:4px;background:#66756b;box-shadow:inset 0 2px 4px #28352d88}.c64-shell .sid-model-keys button{min-width:46px;min-height:29px;border:1px solid #9ca69c;border-radius:2px;background:linear-gradient(#f3f2e7,#aeb7ad);color:#24392d;font:700 10px "Arial Narrow",Arial,sans-serif;letter-spacing:.02em;box-shadow:0 2px 1px #35443a;cursor:pointer}.c64-shell .sid-model-keys button[aria-pressed="true"]{background:linear-gradient(#91a996,#dee2d4);box-shadow:inset 0 2px 4px #3a5541,0 0 0 1px #ebf1d9;color:#102e1b;transform:translateY(1px)}.c64-shell .sid-model-keys button:focus-visible{outline:2px solid #196943;outline-offset:2px}.c64-shell .sid-model-pair .sid-chip:disabled{opacity:.48}.c64-shell .sid-model-note{margin-left:auto;max-width:180px}
 @media(max-width:700px){.c64-shell .sid-model-panel{padding:6px 8px;gap:5px 9px}.c64-shell .sid-model-title{min-width:80px;font-size:8px}.c64-shell .sid-model-keys button{min-width:40px;min-height:28px;font-size:9px}.c64-shell .sid-model-pair{gap:7px}.c64-shell .sid-model-note{margin-left:0;max-width:none;width:100%;font-size:7px}}
 /* Keep the model bank within the single receiver faceplate, not in a spare auto-grid cell. */
 @media(min-width:851px){.c64-shell.unfolded .control-top .source-selector{grid-column:1;grid-row:1}.c64-shell.unfolded .control-top .eq-deck{grid-column:2;grid-row:1}.c64-shell.unfolded .control-top .sid-model-panel{grid-column:1/3;grid-row:2}.c64-shell.unfolded .control-top .hifi-power-panel{grid-column:3;grid-row:1/3}}
@@ -713,7 +713,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .sid-model-title{min-width:0;font-size:8px}
 .c64-shell .sid-model-title small{font-size:6px}
 .c64-shell .sid-model-pair{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
-.c64-shell .sid-model-pair legend{font-size:8px;margin:0 0 2px}
+.c64-shell .sid-model-pair .sid-chip-label{display:block;font-size:8px;margin:0 0 2px}
 .c64-shell .sid-model-keys button{min-width:33px;min-height:25px;font-size:8px;padding:0 2px}
 .c64-shell .sid-model-note{width:auto;font-size:6px}
 .c64-shell.unfolded .control-top .hifi-power-panel{grid-column:1/-1;grid-row:3}
@@ -760,9 +760,9 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 /* Keep SID chip choices aligned as two stacked rows at every width. */
 .c64-shell .sid-model-pair{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
-.c64-shell .sid-model-pair fieldset{width:100%}
+.c64-shell .sid-model-pair .sid-chip{width:100%}
 .c64-shell .sid-model-keys{width:max-content;max-width:100%}
-@media(min-width:601px){.c64-shell .sid-model-pair legend{min-width:52px}}
+@media(min-width:601px){.c64-shell .sid-model-pair .sid-chip-label{min-width:52px}}
 
 /* With no separate screen-power control, SOURCE and SID models occupy the top row. */
 @media(min-width:601px){
@@ -1301,8 +1301,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .control-top .eq-deck,.c64-shell.folded .control-top .eq-deck,.c64-shell.unfolded .control-top .eq-deck{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;margin:0!important}
 .c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;margin:0!important;padding:0 6px 7px!important;min-height:0!important;align-items:center;justify-content:center}
 .c64-shell .control-top .sid-model-pair{flex-direction:row;justify-content:center;align-items:flex-start;gap:12px;width:100%}
-.c64-shell .control-top .sid-model-pair fieldset{width:auto;min-width:72px;margin:0;padding:0;border:0;text-align:center}
-.c64-shell .control-top .sid-model-pair legend{width:100%;font-size:8px;margin:0 0 2px}
+.c64-shell .control-top .sid-model-pair .sid-chip{width:auto;min-width:72px;margin:0;padding:0;border:0;text-align:center}
+.c64-shell .control-top .sid-model-pair .sid-chip-label{width:100%;font-size:8px;margin:0 0 2px}
 .c64-shell .control-top .sid-model-keys{margin:auto}
 }
 
@@ -1331,8 +1331,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .control-top .eq-deck .eq-band>.rotary-wrap .rotary-knob{width:37px!important;height:37px!important}
 .c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{flex:0 1 auto;min-width:75px!important;max-width:38%;align-self:stretch;padding:3px 3px!important;border-left:1px solid #a5afa5!important}
 .c64-shell .control-top .sid-model-pair{gap:3px!important;align-items:center!important;flex-wrap:nowrap!important;width:auto}
-.c64-shell .control-top .sid-model-pair fieldset{min-width:70px!important;max-width:76px!important}
-.c64-shell .control-top .sid-model-pair legend{font-size:7px!important;line-height:1.05}
+.c64-shell .control-top .sid-model-pair .sid-chip{min-width:70px!important;max-width:76px!important}
+.c64-shell .control-top .sid-model-pair .sid-chip-label{font-size:7px!important;line-height:1.05}
 .c64-shell .control-top .sid-model-keys{display:flex!important;gap:1px!important;width:auto!important}
 .c64-shell .control-top .sid-model-keys button{min-width:31px!important;min-height:25px!important;font-size:7px!important;padding:0 1px!important}
 }
@@ -1736,22 +1736,22 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* The SID bank stays inside its own column: wrap SID 2 under SID 1 instead of spilling over the tone controls. */
 .c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{flex:0 1 auto!important;min-width:0!important;max-width:44%!important;box-sizing:border-box;overflow:hidden}
 .c64-shell .control-top .sid-model-pair{flex-wrap:wrap!important;justify-content:center!important;max-width:100%}
-.c64-shell .control-top .sid-model-pair fieldset{min-width:0!important;max-width:100%!important}
+.c64-shell .control-top .sid-model-pair .sid-chip{min-width:0!important;max-width:100%!important}
 
 /* SID 1 above SID 2 so 6581/8580 keys share columns and a mismatch is visible at a glance. */
 .c64-shell .control-top .sid-model-pair{flex-direction:column!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important}
-.c64-shell .control-top .sid-model-pair fieldset{width:auto!important;min-width:0!important}
+.c64-shell .control-top .sid-model-pair .sid-chip{width:auto!important;min-width:0!important}
 .c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{max-width:none!important;flex:0 0 auto!important}
-.c64-shell .control-top .sid-model-pair fieldset{display:flex;flex-direction:row;align-items:center;gap:8px}
-.c64-shell .control-top .sid-model-pair legend{float:none;width:auto!important;min-width:44px;margin:0!important;padding:0;text-align:right;white-space:nowrap}
+.c64-shell .control-top .sid-model-pair .sid-chip{display:flex;flex-direction:row;align-items:center;gap:8px}
+.c64-shell .control-top .sid-model-pair .sid-chip-label{float:none;width:auto!important;min-width:44px;margin:0!important;padding:0;text-align:right;white-space:nowrap}
 .c64-shell .control-top .sid-model-pair{align-items:flex-start!important;width:max-content!important;max-width:100%;margin:0 auto}
 .c64-shell .control-top .sid-model-panel,.c64-shell.folded .control-top .sid-model-panel,.c64-shell.unfolded .control-top .sid-model-panel{padding:8px 12px!important;align-items:center!important;align-content:center!important;overflow:visible}
 .c64-shell .control-top .sid-model-pair{align-self:center!important;margin:0 auto!important}
 /* Wide layout: chip name sits left of its keys so both rows fit the panel height. */
 @media(min-width:900px){
 .c64-shell .control-top .sid-model-pair{gap:8px!important;align-items:stretch!important}
-.c64-shell .control-top .sid-model-pair legend{float:left;width:44px!important;min-width:44px;text-align:right}
-.c64-shell .control-top .sid-model-pair fieldset{display:flex!important;flex-direction:row;align-items:center;gap:8px}
+.c64-shell .control-top .sid-model-pair .sid-chip-label{float:left;width:44px!important;min-width:44px;text-align:right}
+.c64-shell .control-top .sid-model-pair .sid-chip{display:flex!important;flex-direction:row;align-items:center;gap:8px}
 }
 
 /* Base plate: two drivers flank one nameplate and the manual key. No vents, arcs or floating stamps. */
@@ -2349,7 +2349,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell .base-plate::after{display:none}}
 @media(max-width:700px){.c64-shell{--screw-x:calc(var(--shell-pad,9px) + 4px)}}
 /* SID 1 and SID 2 legends share one left edge above their keys (phones) */
-@media(max-width:700px){.c64-shell .control-top .sid-model-pair{align-items:flex-start!important}.c64-shell .control-top .sid-model-pair fieldset{align-items:flex-start!important;text-align:left!important}.c64-shell .control-top .sid-model-pair legend{float:none!important;width:auto!important;min-width:0!important;margin:0 0 2px!important;padding:0!important;text-align:left!important}}
+@media(max-width:700px){.c64-shell .control-top .sid-model-pair{align-items:flex-start!important}.c64-shell .control-top .sid-model-pair .sid-chip{align-items:flex-start!important;text-align:left!important}.c64-shell .control-top .sid-model-pair .sid-chip-label{float:none!important;width:auto!important;min-width:0!important;margin:0 0 2px!important;padding:0!important;text-align:left!important}}
 /* No dark slot: the screen housing rises out of the control panel in front of the aluminium face, so there is only one panel to see. */
 .c64-shell .screen-carriage{background-color:transparent!important;box-shadow:none!important}
 .c64-shell .screen-carriage::after{border-top-color:transparent!important;box-shadow:none!important}
@@ -2412,7 +2412,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* The VIC-II picture keeps its 384x272 shape inside the tube and is scaled with hard pixels */
 .c64-shell .display-window .visual{object-fit:fill;image-rendering:pixelated;background:#030405}
 /* SID keys: the label takes only the width of its text, so label and keys together sit in the middle of the panel */
-@media(min-width:701px){.c64-shell .control-top .sid-model-pair legend{width:auto!important;min-width:0!important}}
+@media(min-width:701px){.c64-shell .control-top .sid-model-pair .sid-chip-label{width:auto!important;min-width:0!important}}
 /* On a phone the case top grows with the rising screen, so the EJECT key follows the logo's centre line instead of a fixed offset */
 @media(max-width:700px){.c64-shell .eject-fixed{top:calc(17px + 11.6px * clamp(0, var(--rise,1), 1))}}
 /* Narrow phones: three knobs share the top row; STEREO ENHANCE and the SID keys get a second row of their own */
@@ -2467,8 +2467,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Phone: the SID labels sit in one column to the left of the keys, so SID 1 and SID 2 and their keys line up */
 @media(max-width:560px){
   .c64-shell .console>.control-top .sid-model-pair.sid-model-pair{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important;width:max-content!important}
-  .c64-shell .console>.control-top .sid-model-pair fieldset{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;text-align:left!important;min-width:0!important}
-  .c64-shell .console>.control-top .sid-model-pair legend{float:left!important;width:36px!important;min-width:36px!important;margin:0!important;padding:0!important;text-align:right!important;white-space:nowrap}
+  .c64-shell .console>.control-top .sid-model-pair .sid-chip{display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;text-align:left!important;min-width:0!important}
+  .c64-shell .console>.control-top .sid-model-pair .sid-chip-label{float:left!important;width:36px!important;min-width:36px!important;margin:0!important;padding:0!important;text-align:right!important;white-space:nowrap}
 }
 /* Phone: the strip under the screen is a selector, not a wheel: PREV key, fixed-size name display, NEXT key. */
 .c64-shell .visual-thumbwheel .viz-step{display:none}

@@ -1423,8 +1423,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Shutter-like three-position key: up = stopped, half = pause, down = play. */
 .c64-shell .console>.controls.transport-controls>button.play-depth{position:relative;transition:transform .18s,border-bottom-width .18s,box-shadow .18s,background .18s}
 .c64-shell .console>.controls.transport-controls>button.play-depth.depth-stop{transform:translateY(0)!important;border-bottom:5px solid #52655b!important;box-shadow:inset 1px 1px #f8f9ee,2px 4px 3px #26332b77!important}
-.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause{transform:translateY(4px)!important;border-bottom:1px solid #52655b!important;background:linear-gradient(#a8b5aa,#bec8be)!important;box-shadow:inset 1px 4px 7px #26332b99,1px 1px 2px #26332b77!important}
-.c64-shell .console>.controls.transport-controls>button.play-depth.depth-play{transform:translateY(2px)!important;border-bottom:3px solid #52655b!important;background:linear-gradient(#bec8be,#a8b5aa)!important;box-shadow:inset 1px 2px 3px #32443766,1px 2px 2px #26332b77!important}
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-play{transform:translateY(4px)!important;border-bottom:1px solid #52655b!important;background:linear-gradient(#a8b5aa,#bec8be)!important;box-shadow:inset 1px 4px 7px #26332b99,1px 1px 2px #26332b77!important}
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause{transform:translateY(2px)!important;border-bottom:3px solid #52655b!important;background:linear-gradient(#bec8be,#a8b5aa)!important;box-shadow:inset 1px 2px 3px #32443766,1px 2px 2px #26332b77!important}
 
 /* Recently played sits under the playlist as an in-session undo, never replacing it. */
 .c64-shell .flip-stage.flipped .flip-back .history-bank{flex:0 1 auto;max-height:36%;min-height:0;overflow-y:auto;border-top:2px solid #819388;margin-top:8px;padding-top:6px}
@@ -2664,7 +2664,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Keycap legends of the C64 finish are set in the C64 Keyboard font (CC0), drawn from the printed caps of a real machine. */
 .c64-shell:not(.jp) .console>.controls.transport-controls>button span.c64-legend:not(#k){font-family:'C64 Keyboard','Arial Narrow',Arial,sans-serif!important;font-weight:400!important;font-synthesis:none;letter-spacing:.04em!important}
 
-/* PLAY/PAUSE is a three-position key, like a shift lock: up is stopped, all the way down is playing, halfway up again is paused.
+/* PLAY/PAUSE is a three-position key, like a shift lock: up is stopped, halfway down is playing, all the way down is paused.
    Only a pause has a lamp: red and blinking gently. Stopped and playing leave it dark. */
 @keyframes lamp-blink{0%,100%{opacity:1}50%{opacity:.18}}
 .c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){--led-c1:#ffe6df;--led-c2:#ff6c5a;--led-c3:#e0301f;--led-c4:#a01a12;--led-glow:255 64 48}
@@ -2679,12 +2679,12 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .console>.controls.transport-controls>button.play-depth:disabled:not(#k)::after{--led:0;animation:none}
 /* C64 finish: the cap travels and the dark skirt under it shrinks as it goes down */
 .c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-stop:not(#k){--sk:6px;--cap:linear-gradient(180deg,#e6dfc9,#d5cdb3 55%,#c5bda1);transform:translateY(0)!important;box-shadow:inset 0 1px 0 #fffbe8,0 2px 0 #1b160f,0 3px 4px #0008!important}
-.c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){--sk:3.5px;--cap:linear-gradient(180deg,#d3cbaf,#cdc5a9 55%,#c3bb9f);transform:translateY(2.5px)!important;box-shadow:inset 0 2px 4px #0005,0 1px 0 #1b160f!important}
-.c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-play:not(#k){--sk:1px;--cap:linear-gradient(180deg,#aea68a,#bab295 60%,#c2ba9e);transform:translateY(5px)!important;box-shadow:inset 0 4px 7px #0008,0 0 0 #1b160f!important}
+.c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-play:not(#k){--sk:3.5px;--cap:linear-gradient(180deg,#d3cbaf,#cdc5a9 55%,#c3bb9f);transform:translateY(2.5px)!important;box-shadow:inset 0 2px 4px #0005,0 1px 0 #1b160f!important}
+.c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){--sk:1px;--cap:linear-gradient(180deg,#aea68a,#bab295 60%,#c2ba9e);transform:translateY(5px)!important;box-shadow:inset 0 4px 7px #0008,0 0 0 #1b160f!important}
 /* Prototype finish: same three heights in brushed metal */
 .c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-stop:not(#k){transform:translateY(0)!important;border-bottom-width:5px!important;box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px #ffffff55,0 3px 3px #0008!important}
-.c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){transform:translateY(2px)!important;border-bottom-width:3px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#bcb9b0,#cfccc3 40%,#d5d2ca)!important;box-shadow:inset 0 2px 4px #0006,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}
-.c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-play:not(#k){transform:translateY(4px)!important;border-bottom-width:1px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#97948b,#b1aea5 40%,#c3c0b7)!important;box-shadow:inset 0 3px 7px #000a,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}
+.c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-play:not(#k){transform:translateY(2px)!important;border-bottom-width:3px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#bcb9b0,#cfccc3 40%,#d5d2ca)!important;box-shadow:inset 0 2px 4px #0006,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}
+.c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){transform:translateY(4px)!important;border-bottom-width:1px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#97948b,#b1aea5 40%,#c3c0b7)!important;box-shadow:inset 0 3px 7px #000a,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}
 
 /* TAPE COUNTER (C64 finish): the Datassette's wheel counter at the right end of the seek bar, four wheels reading MMSS. Digits are printed on the wheels. */
 .c64-shell .datassette-counter{flex:none;display:inline-flex;align-self:center}

@@ -2789,3 +2789,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* The screen section is a tray that slides out of the middle of the case: head and base keep the full width, the section between them is 70% of it
    (15% cut away on each side, measured in App.tsx as --cut-w and --tray-inset), and the page shows beside it. The tray fills the gap exactly. */
 .c64-shell .screen-carriage{--screen-inset:var(--tray-inset,15%)}
+/* The tray has walnut sides of its own, narrower than the cheeks of the case and set in from them, so the two woods never line up. */
+.c64-shell .screen-carriage{--tray-wood:10px;padding-inline:var(--tray-wood);box-sizing:border-box;background-image:var(--wood),var(--wood);background-repeat:repeat-y,repeat-y;background-position:left top,right top;background-size:var(--tray-wood) 420px,var(--tray-wood) 420px}
+@media(max-width:700px){.c64-shell .screen-carriage{--tray-wood:7px}}

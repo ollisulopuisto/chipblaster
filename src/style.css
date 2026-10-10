@@ -2763,3 +2763,18 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
    middle bar. The full set read as asterisks on phones. */
 .c64-shell .segment-ghost{stroke:#5ed4f5;opacity:.2}
 .c64-shell .segment-ghost line{stroke-width:1.6}
+/* Tune browser header, third try. On a phone it is one row of five keys: eject, dice and saved on the left, the playlist key and INFINITE PLAY
+   on the right. The SEARCH / PLAYLIST slide becomes the playlist key (two states, so a key that stays pushed in while the playlist is shown),
+   and the counts move into the tooltips. Wider screens keep the slide and the counts. */
+.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-mode-key{display:none}
+@media(max-width:430px){
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block:not(#k):not(#j){display:flex!important;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:4px!important;padding:8px!important}
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>:is(.hifi-slide,.saved-count,.playlist-total):not(#k):not(#j){display:none!important}
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>:is(.catalog-mobile-close,.random-sid,.saved-key,.playlist-mode-key,.playlist-infinite-toggle):not(#k):not(#j){display:grid!important;place-items:center;flex:none;grid-column:auto;grid-row:auto;width:46px!important;min-width:46px!important;height:44px!important;min-height:44px!important;padding:0!important;margin:0!important}
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>.catalog-mobile-close:not(#k):not(#j){order:0}
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>.random-sid:not(#k):not(#j){order:1}
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>.saved-key:not(#k):not(#j){order:2}
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>.playlist-mode-key:not(#k):not(#j){order:3;margin-left:auto!important}
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>.playlist-infinite-toggle:not(#k):not(#j){order:4}
+  .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>.playlist-mode-key.is-active:not(#k):not(#j){transform:translateY(2px)!important;border-bottom-width:1px!important;background:linear-gradient(#b4bcb1,#c4c9c0)!important;box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b!important}
+}

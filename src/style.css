@@ -1564,7 +1564,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .console>.controls.transport-controls>button:nth-child(n+6){grid-column:span 5!important}
 .c64-shell .console>.controls.transport-controls>button.favorite-key{position:relative;transform:none!important;border:1px solid #718078!important;border-bottom:2px solid #52655b!important;border-radius:2px;background:#c8ccc5;box-shadow:inset 1px 1px 1px #f8f9ee,2px 3px 2px #26332b66!important;transition:transform .12s,border-bottom-width .12s,box-shadow .12s}
 .c64-shell .console>.controls.transport-controls>button.favorite-key:active:not(:disabled){transform:translateY(1px)!important;border-bottom-width:1px!important;box-shadow:inset 1px 1px 3px #32443799,2px 3px 2px #26332b66!important}
-.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#71c875;box-shadow:0 0 5px #6dbb6d,inset 0 1px #e0f5d7}
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-on::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#71c875;box-shadow:0 0 5px #6dbb6d,inset 0 1px #e0f5d7}
 
 /* Infinite play has a pilot, not a green-lit key surface. */
 .c64-shell .console>.controls.transport-controls>button.radio-button{position:relative}
@@ -1583,7 +1583,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Unlit pilot lenses remain visible; pointer focus never adds a second key edge. */
 .c64-shell .console>.controls.transport-controls>button.favorite-key:focus:not(:focus-visible){outline:none!important}
 .c64-shell .console>.controls.transport-controls>button.favorite-key:focus-visible{outline:2px solid #b97a35;outline-offset:2px}
-.c64-shell .console>.controls.transport-controls>button.favorite-key:not(.favorite-active)::after,.c64-shell .console>.controls.transport-controls>button.play-depth:not(.depth-pause)::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da;animation:none}
+.c64-shell .console>.controls.transport-controls>button.favorite-key:not(.favorite-on)::after,.c64-shell .console>.controls.transport-controls>button.play-depth:not(.depth-pause)::after{content:'';position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#8e9690;box-shadow:inset 0 1px 2px #536057,0 1px #e0e3da;animation:none}
 
 /* One playlist header row: eject, search/playlist paddle, counter, repeat key. */
 .c64-shell .flip-stage.flipped .flip-back .selector-button-block>.selector-lever{flex:1;min-width:0;border:0!important;margin:0!important;padding:0 5px!important;background:none!important;display:flex!important;align-items:center;justify-content:center;gap:7px!important;min-height:44px!important}
@@ -1969,11 +1969,11 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell .rotary-ends text{display:none}}
 
 /* Lit pilots are red LEDs: a hot lens with a glow that spills over the panel around it. */
-.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-on::after,
 .c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
 .c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after,
 .c64-shell .eq-deck .band-pilot.lit{background:radial-gradient(circle at 38% 32%,#ffe6df 0,#ff6c5a 32%,#e0301f 72%,#a01a12 100%);box-shadow:0 0 2px 1px rgba(255,110,90,.95),0 0 8px 3px rgba(255,64,48,.6),0 0 16px 6px rgba(255,50,40,.28)}
-.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-on::after,
 .c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
 .c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause::after{width:8px;height:8px;top:4px;right:5px}
 .c64-shell .eq-deck .band-pilot{width:8px;height:8px}
@@ -2003,14 +2003,14 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--led-c1) calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,var(--led-c2) calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,var(--led-c3) calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,var(--led-c4) calc(var(--led)*100%),#7d857f) 100%)!important;
   box-shadow:0 0 2px 1px rgb(var(--led-glow)/calc(.95*var(--led))),0 0 8px 3px rgb(var(--led-glow)/calc(.6*var(--led))),0 0 16px 6px rgb(var(--led-glow)/calc(.28*var(--led))),inset 0 1px 2px rgb(83 96 87/calc(1 - var(--led))),0 1px rgb(224 227 218/calc(1 - var(--led)))!important;
   transition:--led .18s ease-out}
-.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active::after,
+.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-on::after,
 .c64-shell .console>.controls.transport-controls>button.radio-button.radio-on::after,
 .c64-shell .eq-deck .wide-key.lit::after,
 .c64-shell .scrobble-key.connected::after,
 .c64-shell .playlist-infinite-toggle.is-active .playlist-infinite-pilot{--led:1;transition:--led .04s ease-in}
 @keyframes led-on{from{--led:0}to{--led:1}}
 .c64-shell.leds-boot .eq-deck .wide-key.lit::after{animation:led-on .12s ease-in .55s backwards}
-.c64-shell.leds-boot .console>.controls.transport-controls>button.favorite-key.favorite-active::after{animation:led-on .12s ease-in .7s backwards}
+.c64-shell.leds-boot .console>.controls.transport-controls>button.favorite-key.favorite-on::after{animation:led-on .12s ease-in .7s backwards}
 .c64-shell.leds-boot .console>.controls.transport-controls>button.radio-button.radio-on::after{animation:led-on .12s ease-in .85s backwards}
 @media(prefers-reduced-motion:reduce){.c64-shell .console>.controls.transport-controls>button::after,.c64-shell .eq-deck .wide-key::after,.c64-shell .playlist-infinite-pilot{transition:none!important;animation:none!important}}
 
@@ -2108,9 +2108,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* Labels never change. CLICK shows its level with the key itself (pushed in when on) and two lamps: one lit for SOFT, both for FULL.
    LAST.FM is pushed in with its lamp lit while linked. */
 
-/* Plain on/off keys show their state by being pushed in; they carry no lamp. Lamps stay for keys with more than two states. */
-.c64-shell .console>.controls.transport-controls>button.favorite-key::after,.c64-shell .scrobble-key::after,.c64-shell .playlist-infinite-toggle .playlist-infinite-pilot{display:none!important}
-.c64-shell .console>.controls.transport-controls>button.favorite-key.favorite-active{transform:translateY(2px)!important;border-bottom-width:1px!important;background:linear-gradient(#b4bcb1,#c4c9c0)!important;box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b,0 1px #e0e3da!important}
+/* Plain on/off keys show their state by being pushed in; they carry no lamp. Lamps stay for keys with more than two states. FAVORITE is the exception: it springs back and its lamp shows the state. */
+.c64-shell .scrobble-key::after,.c64-shell .playlist-infinite-toggle .playlist-infinite-pilot{display:none!important}
 .c64-shell .playlist-infinite-toggle.is-active,.c64-shell .flip-stage.flipped .flip-back .selector-button-block>.playlist-infinite-toggle.is-active{transform:translateY(2px)!important;border-bottom-width:1px!important;background:linear-gradient(#b4bcb1,#c4c9c0)!important;box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b!important}
 .c64-shell .scrobble-key[aria-pressed="true"].flash{transform:translateY(0);border-bottom-width:3px}
 
@@ -2664,3 +2663,23 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .flip-stage.flipped .flip-back .loader-pagination,.c64-shell .flip-stage.flipped .flip-back .queue-actions{border-radius:0 0 3px 3px!important}
 /* Keycap legends of the C64 finish are set in the C64 Keyboard font (CC0), drawn from the printed caps of a real machine. */
 .c64-shell:not(.jp) .console>.controls.transport-controls>button span.c64-legend:not(#k){font-family:'C64 Keyboard','Arial Narrow',Arial,sans-serif!important;font-weight:400!important;font-synthesis:none;letter-spacing:.04em!important}
+
+/* PLAY/PAUSE is a three-position key, like a shift lock: up is stopped, all the way down is playing, halfway up again is paused.
+   The lamp says the same: green while playing, red when stopped, red and slowly pulsing when paused. */
+@keyframes lamp-pulse{0%,100%{--led:1}50%{--led:.3}}
+.c64-shell .console>.controls.transport-controls>button.play-depth:not(#k){transition:transform .14s ease-out,border-bottom-width .14s ease-out,box-shadow .14s ease-out,background-color .14s!important}
+.c64-shell .console>.controls.transport-controls>button.play-depth:is(.depth-stop,.depth-pause):not(#k){--led-c1:#ffe6df;--led-c2:#ff6c5a;--led-c3:#e0301f;--led-c4:#a01a12;--led-glow:255 64 48}
+.c64-shell .console>.controls.transport-controls>button.play-depth:not(#k)::after{content:'';position:absolute;top:4px;right:5px;width:8px;height:8px;border-radius:50%;--led:1;animation:none;
+  background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--led-c1) calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,var(--led-c2) calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,var(--led-c3) calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,var(--led-c4) calc(var(--led)*100%),#7d857f) 100%);
+  box-shadow:0 0 2px 1px rgb(var(--led-glow)/calc(.95*var(--led))),0 0 8px 3px rgb(var(--led-glow)/calc(.6*var(--led))),0 0 16px 6px rgb(var(--led-glow)/calc(.28*var(--led))),inset 0 1px 2px rgb(83 96 87/calc(1 - var(--led))),0 1px rgb(224 227 218/calc(1 - var(--led)));
+  transition:--led .18s ease-out}
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k)::after{animation:lamp-pulse 2.6s ease-in-out infinite}
+.c64-shell .console>.controls.transport-controls>button.play-depth:disabled:not(#k)::after{--led:0;animation:none}
+/* C64 finish: the cap travels and the dark skirt under it shrinks as it goes down */
+.c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-stop:not(#k){--sk:6px;--cap:linear-gradient(180deg,#e6dfc9,#d5cdb3 55%,#c5bda1);transform:translateY(0)!important;box-shadow:inset 0 1px 0 #fffbe8,0 2px 0 #1b160f,0 3px 4px #0008!important}
+.c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){--sk:3.5px;--cap:linear-gradient(180deg,#d3cbaf,#cdc5a9 55%,#c3bb9f);transform:translateY(2.5px)!important;box-shadow:inset 0 2px 4px #0005,0 1px 0 #1b160f!important}
+.c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-play:not(#k){--sk:1px;--cap:linear-gradient(180deg,#aea68a,#bab295 60%,#c2ba9e);transform:translateY(5px)!important;box-shadow:inset 0 4px 7px #0008,0 0 0 #1b160f!important}
+/* Prototype finish: same three heights in brushed metal */
+.c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-stop:not(#k){transform:translateY(0)!important;border-bottom-width:5px!important;box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px #ffffff55,0 3px 3px #0008!important}
+.c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){transform:translateY(2px)!important;border-bottom-width:3px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#bcb9b0,#cfccc3 40%,#d5d2ca)!important;box-shadow:inset 0 2px 4px #0006,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}
+.c64-shell.jp .console>.controls.transport-controls>button.play-depth.depth-play:not(#k){transform:translateY(4px)!important;border-bottom-width:1px!important;background:var(--alu-grain) 0 0/300px 300px,linear-gradient(180deg,#97948b,#b1aea5 40%,#c3c0b7)!important;box-shadow:inset 0 3px 7px #000a,inset 0 0 0 1px #0003,0 1px 0 #fff9!important}

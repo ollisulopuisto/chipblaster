@@ -2781,3 +2781,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 /* The screen module is clearly narrower than the case around it, as a part that slides up inside a shell has to be: 24 px to the wood on each side on a phone (it was 12). */
 @media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:24px}}
+
+/* The cream plate no longer runs unbroken from wood to wood beside the screen module: that read as the module being as wide as the case. Around the
+   module the case is now a dark cavity (a slot the module slides up in), so the module is plainly the narrower part inside it. The slot is as tall as
+   the module is risen (--neck-h), so it opens and closes with it. */
+.c64-shell .flip-stage::before{content:'';position:absolute;left:0;right:0;top:0;height:var(--neck-h,0px);z-index:0;pointer-events:none;background:linear-gradient(90deg,#0d0d0c,#1b1b19 12%,#1b1b19 88%,#0d0d0c);box-shadow:inset 0 10px 12px -4px #000c,inset 10px 0 10px -6px #000,inset -10px 0 10px -6px #000,inset 0 -6px 8px -4px #0008}

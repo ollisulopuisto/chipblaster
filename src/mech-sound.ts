@@ -1,7 +1,7 @@
 // Mechanical key, latch and case sounds, synthesised. They are only a seasoning: quiet in general, and while music plays only the big
 // mechanical events are heard (and softly), because small clicks fight with the music. The level is one of off, soft and full.
 // The disk drive that loads the next visual effect follows the same level and counts as a small sound.
-import { VICE_SAMPLES, ULTIMATE_SAMPLES } from './drive-samples';
+import { DRIVE_SAMPLES } from './drive-samples';
 export type MechLevel = 'off' | 'soft' | 'full';
 export type MechKind = 'key' | 'latch' | 'eject' | 'power' | 'thunk';
 
@@ -15,36 +15,29 @@ const GAIN: Record<MechLevel, { bigIdle: number; bigPlaying: number; smallIdle: 
 const MIN_GAP = 0.07;
 
 /**
- * The disk drive plays real recordings, mixed the way the emulators mix them: the head sounds are the loud part, and the motor is a
- * quiet bed under them (VICE: motor 10, steps up to 100; the Ultimate: head 16 times the motor). Two sets exist so they can be
- * compared by ear: `?drive=vice` (default) or `?drive=u64` in the address picks one and is remembered.
+ * The disk drive plays the recordings of the 1541 Ultimate, mixed the way it mixes them: the head sounds are the loud part and the
+ * motor is a quiet bed under them (the head is 16 times the motor).
  */
 type Nodes = AudioScheduledSourceNode[];
-type Bank = Record<string, AudioBuffer>;
+type Bank = Record<'hum' | 'in' | 'out' | 'bang', AudioBuffer>;
 const SAMPLE_RATE = 22050;
-/** Peak gain of the loudest head sound; the key clicks peak around 0.8. */
+/** Peak gain of a head step; the key clicks peak around 0.8. */
 const HEAD_GAIN = 2;
+const MOTOR_GAIN = HEAD_GAIN / 16;
+const BANG_GAIN = 0.4;
 
-function bankName(): 'vice' | 'u64' {
-  try {
-    const q = new URLSearchParams(location.search).get('drive');
-    if (q === 'vice' || q === 'u64') { localStorage.setItem('chipblaster.drive', q); return q; }
-    return localStorage.getItem('chipblaster.drive') === 'u64' ? 'u64' : 'vice';
-  } catch { return 'vice'; }
-}
-
-const banks = new WeakMap<BaseAudioContext, Record<string, Bank>>();
-function loadBank(c: BaseAudioContext, name: 'vice' | 'u64'): Bank {
-  let per = banks.get(c);
-  if (!per) { per = {}; banks.set(c, per); }
-  if (per[name]) return per[name];
-  const set = name === 'vice' ? VICE_SAMPLES : ULTIMATE_SAMPLES, bank: Bank = {};
-  for (const [key, b64] of Object.entries(set)) {
+const banks = new WeakMap<BaseAudioContext, Bank>();
+function loadBank(c: BaseAudioContext): Bank {
+  let bank = banks.get(c);
+  if (bank) return bank;
+  const made: Partial<Bank> = {};
+  for (const [key, b64] of Object.entries(DRIVE_SAMPLES) as [keyof Bank, string][]) {
     const bin = atob(b64), buf = c.createBuffer(1, bin.length, SAMPLE_RATE), d = buf.getChannelData(0);
     for (let i = 0; i < bin.length; i++) { const v = bin.charCodeAt(i); d[i] = (v > 127 ? v - 256 : v) / 128; }
-    bank[key] = buf;
+    made[key] = buf;
   }
-  return per[name] = bank;
+  banks.set(c, bank = made as Bank);
+  return bank;
 }
 
 const shot = (c: BaseAudioContext, dest: AudioNode, nodes: Nodes, buf: AudioBuffer, at: number, gain: number) => {
@@ -53,39 +46,25 @@ const shot = (c: BaseAudioContext, dest: AudioNode, nodes: Nodes, buf: AudioBuff
   return src;
 };
 
-/** One head sound. VICE has two step samples, by track (inner, outer); the Ultimate one for a step in and one for a step out. */
-export function driveStep(c: BaseAudioContext, dest: AudioNode, nodes: Nodes, name: 'vice' | 'u64', at: number, track: number, inward: boolean) {
-  const bank = loadBank(c, name);
-  if (name === 'vice') return shot(c, dest, nodes, track < 18 ? bank.stepping : bank.stepping2, at, HEAD_GAIN * (100 - track) / 100);
+/** One step of the head; the Ultimate has one recording for a step inwards (towards higher track numbers) and one for a step outwards. */
+export function driveStep(c: BaseAudioContext, dest: AudioNode, nodes: Nodes, at: number, inward: boolean) {
+  const bank = loadBank(c);
   return shot(c, dest, nodes, inward ? bank.in : bank.out, at, HEAD_GAIN);
 }
 
 /** The head against its stop. */
-export function driveBump(c: BaseAudioContext, dest: AudioNode, nodes: Nodes, name: 'vice' | 'u64', at: number) {
-  const bank = loadBank(c, name);
-  return shot(c, dest, nodes, name === 'vice' ? bank.bump : bank.bang, at, HEAD_GAIN * (name === 'vice' ? 0.55 : 0.4));
+export function driveBump(c: BaseAudioContext, dest: AudioNode, nodes: Nodes, at: number) {
+  return shot(c, dest, nodes, loadBank(c).bang, at, HEAD_GAIN * BANG_GAIN);
 }
 
-/**
- * The motor, between `on` and `off`. VICE: the spin-up sample, then the hum in a loop, then the spin-down sample. The Ultimate has
- * only the hum, so it fades in and out over 150 ms.
- */
-export function driveHum(c: BaseAudioContext, dest: AudioNode, nodes: Nodes, name: 'vice' | 'u64', on: number, off: number) {
-  const bank = loadBank(c, name), vice = name === 'vice';
-  const level = vice ? 0.1 : 1 / 16;
-  const bus = c.createGain(); bus.connect(dest);
-  const loop = c.createBufferSource(); loop.buffer = bank.hum; loop.loop = true;
-  loop.connect(bus); nodes.push(loop);
-  if (vice) {
-    bus.gain.value = level * HEAD_GAIN;
-    shot(c, bus, nodes, bank.spinup, on, 1);
-    loop.start(on + bank.spinup.duration); loop.stop(off);
-    shot(c, bus, nodes, bank.spindown, off, 1);
-  } else {
-    bus.gain.setValueAtTime(0, on); bus.gain.linearRampToValueAtTime(level * HEAD_GAIN, on + 0.15);
-    bus.gain.setValueAtTime(level * HEAD_GAIN, off); bus.gain.linearRampToValueAtTime(0, off + 0.15);
-    loop.start(on); loop.stop(off + 0.16);
-  }
+/** The motor between `on` and `off`: the hum in a loop, faded in and out over 150 ms (there is no spin-up recording). */
+export function driveHum(c: BaseAudioContext, dest: AudioNode, nodes: Nodes, on: number, off: number) {
+  const bus = c.createGain(), loop = c.createBufferSource();
+  bus.connect(dest);
+  loop.buffer = loadBank(c).hum; loop.loop = true; loop.connect(bus);
+  bus.gain.setValueAtTime(0, on); bus.gain.linearRampToValueAtTime(MOTOR_GAIN, on + 0.15);
+  bus.gain.setValueAtTime(MOTOR_GAIN, off); bus.gain.linearRampToValueAtTime(0, off + 0.15);
+  loop.start(on); loop.stop(off + 0.16); nodes.push(loop);
 }
 
 /** The track a visual effect lives on: spread over 1 to 35 by its name, never on 18 (that is the directory). */
@@ -178,9 +157,9 @@ export class MechSound {
   }
 
   /**
-   * The 1541 loading an effect, as the emulators sound it: the motor starts and runs as a quiet bed, every step of the head is one
-   * recorded knock, louder on the inner tracks, and the head hits its stop at track 1. The head starts on track 18 (as at power-up),
-   * moves to the track of each effect half a track a step, and the directory (on track 18) needs no seek. Like the emulators, one
+   * The 1541 loading an effect, as the Ultimate sounds it: the motor runs as a quiet bed, every step of the head is one recorded
+   * knock (a different one inwards and outwards), and the head hits its stop at track 1. The head starts on track 18 (as at power-up),
+   * moves to the track of each effect half a track a step, and the directory (on track 18) needs no seek. As on the Ultimate, one
    * head sound cuts the one before it. Times are seconds from now.
    */
   drive(times: { search: number; load: number; ready: number }, target = 18) {
@@ -197,27 +176,26 @@ export class MechSound {
     const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 40; hp.Q.value = 0.7;
     out.connect(hp); hp.connect(c.destination);
     const nodes: AudioScheduledSourceNode[] = [];
-    const name = bankName();
     let prev: AudioBufferSourceNode | null = null;
     const head = (src: AudioBufferSourceNode, at: number) => { try { prev?.stop(at); } catch {} prev = src; };
     const on = t0 + Math.max(0, times.search - 0.16), off = t0 + times.ready + 0.04;
-    driveHum(c, out, nodes, name, on, off);
+    driveHum(c, out, nodes, on, off);
     // SEARCHING: the head moves from where it was (track 18 at power-up) to the track of the file, one half-track a step. It speeds up
     // and slows down again; a seek to track 1 ends against the stop with a bump. The directory is on track 18, so it needs no seek.
     const from = this.head, steps = Math.round(Math.abs(target - from) * 2), span = Math.max(0.1, times.load - times.search);
     const count = Math.min(steps, Math.floor(span / 0.02)), dir = target < from ? -1 : 1;
     let at = t0 + times.search;
-    if (count === 0) head(driveStep(c, out, nodes, name, at, from, true), at);
+    if (count === 0) head(driveStep(c, out, nodes, at, true), at);
     for (let i = 0; i < count; i++) {
       const track = from + dir * (Math.round(((i + 1) / count) * steps) / 2);
-      head(driveStep(c, out, nodes, name, at, track, dir > 0), at);
+      head(driveStep(c, out, nodes, at, dir > 0), at);
       at += (span / count) * (0.8 + 0.4 * Math.abs(Math.cos((i / count) * Math.PI)));
     }
-    if (target <= 1 && steps > 0) head(driveBump(c, out, nodes, name, at), at);
+    if (target <= 1 && steps > 0) head(driveBump(c, out, nodes, at), at);
     this.head = target;
     // LOADING: as the file is read the head moves on a track now and then.
     let pos = target;
-    for (let dt = 0.14; times.load + dt < times.ready - 0.05; dt += 0.2) { head(driveStep(c, out, nodes, name, t0 + times.load + dt, pos, true), t0 + times.load + dt); pos += 0.5; }
+    for (let dt = 0.14; times.load + dt < times.ready - 0.05; dt += 0.2) { head(driveStep(c, out, nodes, t0 + times.load + dt, true), t0 + times.load + dt); pos += 0.5; }
     this.head = pos;
     this.drv = { out, nodes, timer: window.setTimeout(() => { for (const n of nodes) { try { n.disconnect(); } catch {} } try { hp.disconnect(); out.disconnect(); } catch {} if (this.drv?.out === out) this.drv = null; }, (times.ready + 0.8) * 1000) };
   }

@@ -90,13 +90,19 @@ export const C64_BOOT_ROWS = ['', '    **** CHIPBLASTER 64 BASIC V2 ****', '', '
  * The screen while the next effect "loads from the built-in drive": the LOAD command is typed, the drive searches and loads
  * (the border stripes for a moment), READY. comes back and RUN is typed. `fromBoot` keeps the start-up text above the command.
  */
+/** When the drive starts looking, starts loading and is done, in seconds from the moment the LOAD command begins to be typed. */
+export function loadTimes(name: string): { search: number; load: number; ready: number } {
+  const nm = name.toUpperCase().replace(/[^A-Z0-9 ]/g, '').slice(0, 22);
+  const search = 0.15 + ('LOAD"' + nm + '",8,1').length * 0.03 + 0.2;
+  return { search, load: search + 0.45, ready: search + 1.05 };
+}
 export function loadScreen(t: number, name: string, fromBoot: boolean): { rows: string[]; cx: number; cy: number; load: number; done: boolean } {
   const rows = fromBoot ? C64_BOOT_ROWS.slice(0, 6) : ['READY.'];
   const nm = name.toUpperCase().replace(/[^A-Z0-9 ]/g, '').slice(0, 22);
   const cmd = 'LOAD"' + nm + '",8,1';
   const typeAt = 0.15, per = 0.03;
   const typed = Math.max(0, Math.min(cmd.length, Math.floor((t - typeAt) / per)));
-  const tSearch = typeAt + cmd.length * per + 0.2, tLoad = tSearch + 0.45, tReady = tSearch + 1.05;
+  const { search: tSearch, load: tLoad, ready: tReady } = loadTimes(name);
   rows.push(cmd.slice(0, typed));
   let cx = typed, load = 0;
   if (t >= tSearch) {
@@ -113,11 +119,12 @@ export function loadScreen(t: number, name: string, fromBoot: boolean): { rows: 
   return { rows, cx, cy: rows.length - 1, load, done: t >= tReady + 0.7 };
 }
 /** The start of a scroll through the effects: LOAD"$",8, the drive reads the directory, LIST. */
+export const DIR_TIMES = (() => { const search = 0.05 + 'LOAD"$",8'.length * 0.03 + 0.12; return { search, load: search + 0.15, ready: search + 0.45 }; })();
 export function dirIntro(t: number, fromBoot: boolean): { rows: string[]; cx: number; cy: number; load: number; done: boolean } {
   const rows = fromBoot ? C64_BOOT_ROWS.slice(0, 6) : ['READY.'];
   const cmd = 'LOAD"$",8';
   const typed = Math.max(0, Math.min(cmd.length, Math.floor((t - 0.05) / 0.03)));
-  const tS = 0.05 + cmd.length * 0.03 + 0.12, tL = tS + 0.15, tR = tS + 0.45;
+  const tS = DIR_TIMES.search, tL = DIR_TIMES.load, tR = DIR_TIMES.ready;
   rows.push(cmd.slice(0, typed));
   let cx = typed, load = 0;
   if (t >= tS) {

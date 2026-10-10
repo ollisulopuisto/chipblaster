@@ -2665,14 +2665,17 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell:not(.jp) .console>.controls.transport-controls>button span.c64-legend:not(#k){font-family:'C64 Keyboard','Arial Narrow',Arial,sans-serif!important;font-weight:400!important;font-synthesis:none;letter-spacing:.04em!important}
 
 /* PLAY/PAUSE is a three-position key, like a shift lock: up is stopped, all the way down is playing, halfway up again is paused.
-   The lamp says the same: green while playing, red when stopped, red and slowly pulsing when paused. */
-@keyframes lamp-pulse{0%,100%{--led:1}50%{--led:.3}}
-.c64-shell .console>.controls.transport-controls>button.play-depth:is(.depth-stop,.depth-pause):not(#k){--led-c1:#ffe6df;--led-c2:#ff6c5a;--led-c3:#e0301f;--led-c4:#a01a12;--led-glow:255 64 48}
+   Only a pause has a lamp: red and blinking gently. Stopped and playing leave it dark. */
+@keyframes lamp-blink{0%,100%{opacity:1}50%{opacity:.18}}
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k){--led-c1:#ffe6df;--led-c2:#ff6c5a;--led-c3:#e0301f;--led-c4:#a01a12;--led-glow:255 64 48}
 .c64-shell .console>.controls.transport-controls>button.play-depth:not(#k)::after{content:'';position:absolute;top:4px;right:5px;width:8px;height:8px;border-radius:50%;--led:1;animation:none;
   background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--led-c1) calc(var(--led)*100%),#a9b0aa) 0,color-mix(in srgb,var(--led-c2) calc(var(--led)*100%),#8e9690) 32%,color-mix(in srgb,var(--led-c3) calc(var(--led)*100%),#8e9690) 72%,color-mix(in srgb,var(--led-c4) calc(var(--led)*100%),#7d857f) 100%);
   box-shadow:0 0 2px 1px rgb(var(--led-glow)/calc(.95*var(--led))),0 0 8px 3px rgb(var(--led-glow)/calc(.6*var(--led))),0 0 16px 6px rgb(var(--led-glow)/calc(.28*var(--led))),inset 0 1px 2px rgb(83 96 87/calc(1 - var(--led))),0 1px rgb(224 227 218/calc(1 - var(--led)));
   transition:--led .18s ease-out}
-.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k)::after{animation:lamp-pulse 2.6s ease-in-out infinite}
+.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k)::after{animation:lamp-blink 2.4s ease-in-out infinite}
+/* A slow fade is not movement, so the paused lamp keeps blinking when the system asks for reduced motion (only slower). */
+@media(prefers-reduced-motion:reduce){.c64-shell .console>.controls.transport-controls>button.play-depth.depth-pause:not(#k)::after{animation:lamp-blink 3.6s ease-in-out infinite!important}}
+.c64-shell .console>.controls.transport-controls>button.play-depth:is(.depth-stop,.depth-play):not(#k)::after,
 .c64-shell .console>.controls.transport-controls>button.play-depth:disabled:not(#k)::after{--led:0;animation:none}
 /* C64 finish: the cap travels and the dark skirt under it shrinks as it goes down */
 .c64-shell:not(.jp) .console>.controls.transport-controls>button.play-depth.depth-stop:not(#k){--sk:6px;--cap:linear-gradient(180deg,#e6dfc9,#d5cdb3 55%,#c5bda1);transform:translateY(0)!important;box-shadow:inset 0 1px 0 #fffbe8,0 2px 0 #1b160f,0 3px 4px #0008!important}

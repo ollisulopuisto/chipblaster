@@ -2748,3 +2748,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed="false"] span{background:#2c3830;color:#7f7448}
 .c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed="true"] span{background:#e8c378;color:#2c2a1f;box-shadow:0 0 7px #e8c378aa,inset 0 1px 0 #fff8}
 @media(prefers-reduced-motion:reduce){.c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed] span{transition:none}}
+
+/* The walnut cheeks run the full height of the case. The shell used to be cut away on both sides of the screen (the clip-path with --cut-w), so
+   the wood stopped at the ledge and the screen module stood in the air. A negative cut puts the cut outside the shell: the clip-path stays, nothing is cut. */
+.c64-shell{--cut-w:-200px}
+@media(max-width:700px){.c64-shell{--cut-w:-200px}}

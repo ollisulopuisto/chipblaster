@@ -2781,3 +2781,12 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 /* The screen module is clearly narrower than the case around it, as a part that slides up inside a shell has to be: 24 px to the wood on each side on a phone (it was 12). */
 @media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:24px}}
+
+/* Title display with a fixed row of cells (see SegmentMarquee in App.tsx): the cutouts are always there, the text moves one cell at a time. The cutouts
+   are the outer eight segments of each cell, much dimmer than a lit one. */
+.c64-shell .title-scroll-window{mask-image:none}
+.c64-shell .seg-marquee{--cw:10px;--cg:1px;display:flex;justify-content:center;gap:var(--cg);width:100%;overflow:hidden}
+.c64-shell .seg-marquee svg{display:block;flex:none;width:var(--cw);height:calc(var(--cw)*1.9);overflow:visible}
+.c64-shell .seg-marquee line{stroke-width:2.05;stroke-linecap:square}
+@media(min-width:701px){.c64-shell .seg-marquee{--cw:13px;--cg:2px}}
+.c64-shell .segment-ghost{opacity:.11}

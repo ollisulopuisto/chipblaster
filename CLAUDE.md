@@ -3,7 +3,7 @@
 ## Interface rules
 
 - Button labels never change. A key keeps the same text in every state. Put changing values such as counts, levels or names in the tooltip.
-- A key with two states (on and off) shows its state by being pushed in when on. It has no lamp. The exception is FAVORITE: it springs back after each press and a green lamp shows that the tune is saved.
+- A key with two states (on and off) shows its state by being pushed in when on, and the push must be deep enough to read at a glance: the cap sits 5 px lower, is darker and has lost its skirt. The round badge on the keys of the control hatch (HQ, dB, fm) lights up brass when the key is on and stays dark when it is off. It has no lamp. The exception is FAVORITE: it springs back after each press and a green lamp shows that the tune is saved.
 - A control with three settings is a slide selector with the positions printed on the panel (CLICK: OFF, SOFT, FULL), not a key. The exception is the play key, which has three heights like a shift lock: up is stopped, halfway down is playing, all the way down is paused. Only a pause has a lamp: red, blinking gently (also with reduced motion, only slower). Green means active, red means paused or stopped.
 - Keys have mass. A pressed key starts slowly, gathers speed and rebounds a little at the bottom; a released key springs up past rest and settles (`--heft-up` and `--heft-down` in `src/style.css`). Do not give a key its own timing. Sounds follow the CLICK level: the disk drive that loads a visual effect is as quiet as a key click and is silent on SOFT while music plays.
 - Feature names follow the 1980s Japanese hi-fi style (see `FN` in `src/App.tsx`); each gets a tooltip and a line in the manual.

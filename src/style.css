@@ -2290,7 +2290,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell.folded .display-window,.c64-shell .display-window{height:350px}}
 @media(max-width:700px){.c64-shell.folded .meters-row .spectrum{height:126px!important;min-height:126px!important;max-height:126px!important}}
 /* The case top is 27 px taller when open on phones; it follows --rise instead of snapping with the class, so nothing jumps while the screen starts to move. */
-@media(max-width:700px){.c64-shell.folded .boombox-top,.c64-shell.unfolded .boombox-top{min-height:calc(28px + 27px * clamp(0, var(--rise,1), 1));padding:calc(2px * clamp(0, var(--rise,1), 1)) 8px calc(6px * clamp(0, var(--rise,1), 1))}}
+@media(max-width:700px){.c64-shell.folded .boombox-top,.c64-shell.unfolded .boombox-top{min-height:calc(36px + 19px * clamp(0, var(--rise,1), 1));padding:calc(2px * clamp(0, var(--rise,1), 1)) 8px calc(6px * clamp(0, var(--rise,1), 1))}}
 
 /* Phones: a few pixels of the page show on both sides of the case, so it reads as an object and not as the screen edge. */
 @media(max-width:700px){.device-stage{padding-left:6px;padding-right:6px;box-sizing:border-box}}
@@ -2714,6 +2714,16 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j):is([aria-pressed="true"],.pressed,.favorite-active,.lit,:active:not(:disabled)){transition:transform .13s var(--heft-down),border-bottom-width .13s var(--heft-down),box-shadow .13s var(--heft-down),--sk .13s var(--heft-down)!important}
 @media(prefers-reduced-motion:reduce){.c64-shell :is(.console .transport-controls>button,.sid-model-keys button,button[aria-label="Stereo enhance"],button[aria-label="Level match"],.sub-key,.manual-key,.flip-back .hvsc .selector-button-block button,.flip-back .hvsc .loader-pagination button,.eject-fixed,.flip-back .hvsc .add-all-queue):not(#k):not(#j){transition:none!important}}
 
+/* The brand row is centred on the whole case top and ignores the LOAD key, so on narrow phones the key covered the STEREO lamp.
+   Below 375 px the row moves right of the key and the colour stripe shrinks to make room (it goes at 340 px and less). */
+@media(max-width:374px){
+  .c64-shell:not(.jp) .boombox-brand{transform:translateX(10px)}
+  .c64-shell:not(.jp) .boombox-brand .c64-badge::before{width:20px}
+}
+@media(max-width:340px){
+  .c64-shell:not(.jp) .boombox-brand{transform:translateX(14px)}
+  .c64-shell:not(.jp) .boombox-brand .c64-badge::before{display:none}
+}
 /* The readout under each VU meter is one height whatever it shows: with a two-SID tune the waveform strips were 27 px and the OUTPUT strip
    stayed 22 px, so the bottom edges of the four meters did not line up. */
 .c64-shell .waveform-readout,.c64-shell .waveform-readout.dual-waveforms{min-height:27px;height:27px;box-sizing:border-box}

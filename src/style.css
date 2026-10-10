@@ -2759,8 +2759,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   .c64-shell .eject-fixed{top:28.6px}
 }
 
-/* The title display shows its unlit segments very faintly, as a vacuum fluorescent display does: only the outer eight (the box), no diagonals and no
-   middle bar. The full set read as asterisks on phones. */
+/* The title display shows its unlit segments very faintly, as a vacuum fluorescent display does: all sixteen segments, drawn dimly. */
 .c64-shell .segment-ghost{stroke:#5ed4f5;opacity:.2}
 .c64-shell .segment-ghost line{stroke-width:1.6}
 /* Tune browser header, third try. On a phone it is one row of five keys: eject, dice and saved on the left, the playlist key and INFINITE PLAY
@@ -2783,7 +2782,7 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 @media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:24px}}
 
 /* Title display with a fixed row of cells (see SegmentMarquee in App.tsx): the cutouts are always there, the text moves one cell at a time. The cutouts
-   are the outer eight segments of each cell, much dimmer than a lit one. */
+   are all sixteen segments of each cell, much dimmer than a lit one. */
 .c64-shell .title-scroll-window{mask-image:none}
 .c64-shell .seg-marquee{--cw:10px;--cg:1px;display:flex;justify-content:center;gap:var(--cg);width:100%;overflow:hidden}
 .c64-shell .seg-marquee svg{display:block;flex:none;width:var(--cw);height:calc(var(--cw)*1.9);overflow:visible}

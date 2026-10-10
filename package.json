@@ -2,6 +2,7 @@
   "name": "sid-player",
   "version": "1.0.0",
   "private": true,
+  "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",

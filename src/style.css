@@ -2791,3 +2791,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* The tray has walnut sides of its own, narrower than the cheeks of the case and set in from them, so the two woods never line up. */
 .c64-shell .screen-carriage{--tray-wood:10px;padding-inline:var(--tray-wood);box-sizing:border-box;background-image:var(--wood),var(--wood);background-repeat:repeat-y,repeat-y;background-position:left top,right top;background-size:var(--tray-wood) 420px,var(--tray-wood) 420px}
 @media(max-width:700px){.c64-shell .screen-carriage{--tray-wood:7px}}
+
+/* The meter's outer box had square corners while the dial inside is round at the top: the glow box-shadow followed the box, so it showed square. */
+.c64-shell .vu-unit{border-radius:6px}

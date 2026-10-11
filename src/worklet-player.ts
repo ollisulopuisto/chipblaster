@@ -95,6 +95,7 @@ export class WorkletPlayer {
   setChipSpread(value: number) { this.send({ type: 'spread', value }); }
   /** Fade to silence over the last `seconds` before tune time `end`; null clears the plan. */
   setFadePlan(end: number | null, seconds: number) { this.send({ type: 'fade', end, seconds }); }
+  setVoice(index: number, on: boolean) { this.send({ type: 'voice', index, on }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
   start(subtune: number) { this.cancelSeeks(); this.time = 0; this.core.start(subtune); this.send({ type: 'start', subtune }); }
   stop() { this.cancelSeeks(); this.time = 0; this.core.stop(); this.send({ type: 'stop' }); }

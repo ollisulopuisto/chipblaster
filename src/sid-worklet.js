@@ -21,6 +21,8 @@ class SidProcessor extends AudioWorkletProcessor {
     this.audioMs = 0;
     this.load = 0;
     this.peak = 0;
+    // Voice mutes: the host sets the target, and the gain eases towards it once per block so a mute never clicks.
+    this.voiceTarget = [1, 1, 1, 1, 1, 1];
     this.port.onmessage = e => this.onMessage(e.data);
   }
   state() {
@@ -37,6 +39,7 @@ class SidProcessor extends AudioWorkletProcessor {
       case 'start': this.seek = null; this.gain = 1; this.fadeFired = false; c.start(m.subtune); break;
       case 'models': c.setSIDModels(m.primary, m.secondary); break;
       case 'tape': c.tapeRate = m.rate; break;
+      case 'voice': this.voiceTarget[m.index] = m.on ? 1 : 0; break;
       case 'fade': this.fade = m.end === null ? null : { end: m.end, len: Math.max(0.1, m.seconds) }; this.fadeFired = false; if (!this.fade) this.gain = 1; break;
       case 'spread': this.spread = Math.max(0, Math.min(1, m.value)); break;
       case 'seek': this.seek = { id: m.id, target: m.seconds, remaining: null }; break;
@@ -46,6 +49,7 @@ class SidProcessor extends AudioWorkletProcessor {
   }
   process(inputs, outputs) {
     const t0 = Date.now();
+    for (let i = 0; i < 6; i++) this.core.voiceGains[i] += (this.voiceTarget[i] - this.core.voiceGains[i]) * 0.25;
     const keep = this.render(inputs, outputs);
     this.busy += Date.now() - t0;
     this.audioMs += outputs[0][0].length / sampleRate * 1000;

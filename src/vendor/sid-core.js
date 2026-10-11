@@ -20,6 +20,9 @@ function SidCore(samplerate, background_noise)
     this.voiceWaveforms = [0, 0, 0, 0, 0, 0];
     // The 16-bit frequency register of each voice (SID 1 voices 0-2, SID 2 voices 3-5).
     this.voiceFreqs = [0, 0, 0, 0, 0, 0];
+    // Per-voice gain (1 = on, 0 = muted), set by the host so a voice can be muted without changing the others. Muted voices still run and still meter as silent.
+    this.voiceGains = [1, 1, 1, 1, 1, 1];
+    var gainTaps = this.voiceGains;
     var waveformTaps = this.voiceWaveforms;
     var freqTaps = this.voiceFreqs;
     var meterLevels = this.voiceLevels;
@@ -1241,7 +1244,7 @@ function SidCore(samplerate, background_noise)
             // SID 1 and SID 2 voice taps, before routing through each chip's filter.
             // SID 2 is still processed while muted; don't show energy for inaudible voices.
             if (num === 0 || (num === 1 && secondary_SID_model)) {
-                var voiceSample = (wfout - 0x8000) * (envcnt[channel] / 256) / OUTPUT_SCALEDOWN * (memory[SIDaddr + 0x18] & 0xF) * volume;
+                var voiceSample = (wfout - 0x8000) * (envcnt[channel] / 256) / OUTPUT_SCALEDOWN * (memory[SIDaddr + 0x18] & 0xF) * volume * gainTaps[channel];
                 var meterIndex = num === 0 ? channel : channel + 1; // index 3 is MASTER
                 meterEnergy[meterIndex] += voiceSample * voiceSample;
             }
@@ -1250,12 +1253,12 @@ function SidCore(samplerate, background_noise)
             // The weight glides so a voice changing role does not click.
             centreWeight[channel] += ((wf === 0x80 || (wf !== 0 && (memory[chnadd] | (memory[chnadd + 1] << 8)) < 2555) ? 1 : 0) - centreWeight[channel]) * 0.02;
             if (memory[SIDaddr + 0x17] & FILTSW[channel]) {
-                filtin += (wfout - 0x8000) * (envcnt[channel] / 256);
-                filtinC += (wfout - 0x8000) * (envcnt[channel] / 256) * centreWeight[channel];
+                filtin += (wfout - 0x8000) * (envcnt[channel] / 256) * gainTaps[channel];
+                filtinC += (wfout - 0x8000) * (envcnt[channel] / 256) * gainTaps[channel] * centreWeight[channel];
             }
             else if ((channel % SID_CHANNEL_AMOUNT) != 2 || !(memory[SIDaddr + 0x18] & OFF3_BITMASK)) {
-                output += (wfout - 0x8000) * (envcnt[channel] / 256);
-                outputC += (wfout - 0x8000) * (envcnt[channel] / 256) * centreWeight[channel];
+                output += (wfout - 0x8000) * (envcnt[channel] / 256) * gainTaps[channel];
+                outputC += (wfout - 0x8000) * (envcnt[channel] / 256) * gainTaps[channel] * centreWeight[channel];
             }
         }
 

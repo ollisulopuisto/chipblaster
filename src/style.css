@@ -2794,3 +2794,8 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 
 /* The meter's outer box had square corners while the dial inside is round at the top: the glow box-shadow followed the box, so it showed square. */
 .c64-shell .vu-unit{border-radius:6px}
+
+/* A VU meter is a switch while its voice can be muted: the face goes dark, the needle drops to zero, and the cursor says it can be clicked. */
+.c64-shell .vu-unit .vu-face.is-muted{filter:brightness(.5) saturate(.45)!important}
+.c64-shell .vu-unit .vu[role="switch"]{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.c64-shell .vu-unit .vu[role="switch"]:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}

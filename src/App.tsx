@@ -139,13 +139,13 @@ function VUMeter({player,active,side,chipSource,position,label,master,calibratio
       // sits above and left of centre, and the light falls off towards the scale edges. The breathing is under 1 %, too slow to read as flicker.
       lampState+=((s.player&&s.active?1:0)-lampState)*(1-Math.exp(-dt/.35));
       const warm=Math.min(1,level)*lampState,breath=(1+.006*Math.sin(now/6500))*bias,hx=cx-R*.12,hy=cy-R*.62;
-      const glow=ctx.createRadialGradient(hx,hy,4,cx,cy-R*.35,R*1.3);
+      const glow=ctx.createRadialGradient(hx,hy,0,hx,hy,R*1.3);
       glow.addColorStop(0,`rgba(255,${183-38*warm|0},${77-28*warm|0},${(.34*lampState*breath).toFixed(3)})`);glow.addColorStop(.55,`rgba(120,70,20,${(.18*lampState*breath).toFixed(3)})`);glow.addColorStop(1,'rgba(0,0,0,0)');
       const idle=ctx.createRadialGradient(cx,cy-R*.55,4,cx,cy-R*.35,R*1.25);idle.addColorStop(0,`rgba(140,110,70,${(.12*(1-lampState)).toFixed(3)})`);idle.addColorStop(1,'rgba(0,0,0,0)');
       ctx.fillStyle='#14100a';ctx.beginPath();ctx.arc(cx,cy,R*1.02,Math.PI,0);ctx.lineTo(cx+R*1.02,cy);ctx.lineTo(cx-R*1.02,cy);ctx.closePath();ctx.fill();
       ctx.fillStyle=idle;ctx.fill();
       ctx.fillStyle=glow;ctx.fill();
-      const fall=ctx.createRadialGradient(hx,hy,R*.15,cx,cy-R*.35,R*1.2);fall.addColorStop(0,'rgba(0,0,0,0)');fall.addColorStop(.6,'rgba(0,0,0,.08)');fall.addColorStop(1,'rgba(0,0,0,.42)');
+      const fall=ctx.createRadialGradient(hx,hy,R*.15,hx,hy,R*1.2);fall.addColorStop(0,'rgba(0,0,0,0)');fall.addColorStop(.6,'rgba(0,0,0,.08)');fall.addColorStop(1,'rgba(0,0,0,.42)');
       ctx.fillStyle=fall;ctx.fill();
       if(grainPattern){ctx.globalAlpha=.9;ctx.fillStyle=grainPattern;ctx.fill();ctx.globalAlpha=1}
       ctx.strokeStyle='rgba(255,190,110,.25)';ctx.lineWidth=1*dpr;ctx.beginPath();ctx.arc(cx,cy,R*1.02,Math.PI,0);ctx.stroke();

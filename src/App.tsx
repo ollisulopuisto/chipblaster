@@ -117,7 +117,13 @@ function DeckIcon({name}:{name:DeckIconName}){const common={fill:'currentColor',
 function VUMeter({player,active,side,chipSource,position,label,master,calibrationTick,sidCount,sidSecondary}:{player:Player|null,active:boolean,side:number,chipSource:ChipSource,position:number,label:string,master:boolean,calibrationTick:number,sidCount:number,sidSecondary:SecondSIDModel}){
   const ref=useRef<HTMLCanvasElement>(null);const st=useRef({player,active,side,chipSource,position,label,master,sidCount,sidSecondary});st.current={player,active,side,chipSource,position,label,master,sidCount,sidSecondary};const calibrationAt=useRef(performance.now());useEffect(()=>{calibrationAt.current=performance.now()},[calibrationTick]);const [waves,setWaves]=useState([0,0]);useEffect(()=>{if(chipSource!=='SID'||master)return;const id=setInterval(()=>{const a=player?.voiceWaveforms?.[side]||0,b=player?.voiceWaveforms?.[side+3]||0;setWaves(prev=>prev[0]===a&&prev[1]===b?prev:[a,b])},100);return()=>clearInterval(id)},[player,side,chipSource,master]);
   useEffect(()=>{const canvas=ref.current!;const ctx=canvas.getContext('2d');if(!ctx)return;
-    let raf=0,tid=0,level=0,level2=0,velocity=0,velocity2=0,last=performance.now(),clipUntil=0;let sampleBuffer=new Float32Array(1024);
+    let raf=0,tid=0,level=0,level2=0,velocity=0,velocity2=0,last=performance.now(),clipUntil=0;let sampleBuffer=new Float32Array(1024);let lampState=0;
+    // Each meter has its own lamp and its own paper: a faint mottle, fixed for the life of the meter, so no two faces are quite alike.
+    const grain=document.createElement('canvas');grain.width=grain.height=128;const gc=grain.getContext('2d');
+    if(gc){const img=gc.createImageData(128,128);for(let p=0;p<img.data.length;p+=4){const v=Math.random()*255;img.data[p]=img.data[p+1]=img.data[p+2]=v>128?255:0;img.data[p+3]=Math.random()*12}gc.putImageData(img,0,0);for(let b=0;b<12;b++){const x=Math.random()*128,y=Math.random()*128,r=14+Math.random()*34,c=Math.random()<.5?'0,0,0':'255,236,190';const g=gc.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(${c},.08)`);g.addColorStop(1,`rgba(${c},0)`);gc.fillStyle=g;for(const dx of[-128,0,128])for(const dy of[-128,0,128])gc.fillRect(x-r+dx,y-r+dy,2*r,2*r)}}
+    const grainPattern=gc?ctx.createPattern(grain,'repeat'):null;
+    // Lamp bias: the two outer lamps run a touch dimmer than the centre pair, so the bank is not perfectly even.
+    const bias=[1,.93,1.05,.97][side%4];
     const marks=[[-20,'-20'],[-10,'-10'],[-7,'-7'],[-5,'-5'],[-3,'-3'],[0,'0'],[3,'+3']] as [number,string][];
     // A VU meter deflects in proportion to voltage: 0 VU sits at 71 % of the arc and +3 dB at full scale, so the dB marks crowd towards the top.
     const ang=(db:number)=>(-62+Math.pow(10,(db-3)/20)*124)*Math.PI/180;const cal=[1,.965,1.03,.99][side%4];
@@ -129,10 +135,19 @@ function VUMeter({player,active,side,chipSource,position,label,master,calibratio
       const age=now-calibrationAt.current;if(age<1150){const phase=Math.min(1,age/1150);db=Math.sin(phase*Math.PI)*.88;if(showSecond)db2=db}const target=db,target2=showSecond?db2:0;const steps=Math.max(1,Math.ceil(dt/.004)),hStep=dt/steps;for(let j=0;j<steps;j++){const w=13.3,zt=.8;velocity+=((target-level)*w*w-2*zt*w*velocity)*hStep;level+=velocity*hStep;velocity2+=((target2-level2)*w*w-2*zt*w*velocity2)*hStep;level2+=velocity2*hStep;if(level>1){level=1;velocity=-Math.abs(velocity)*.32}else if(level<0){level=0;velocity=Math.abs(velocity)*.2}if(level2>1){level2=1;velocity2=-Math.abs(velocity2)*.32}else if(level2<0){level2=0;velocity2=Math.abs(velocity2)*.2}}canvas.dataset.level2=level2.toFixed(3);canvas.dataset.level=level.toFixed(3);canvas.dataset.rms=(s.player?.voiceLevels?.[s.side]||0).toFixed(5);
       const cx=w/2,cy=h*.91,R=Math.min(w*.46,h*.82);
       ctx.clearRect(0,0,w,h);
-      const glow=ctx.createRadialGradient(cx,cy-R*.55,4,cx,cy-R*.35,R*1.25);
-      if(s.player&&s.active){glow.addColorStop(0,'rgba(255,183,77,.34)');glow.addColorStop(.55,'rgba(120,70,20,.18)');glow.addColorStop(1,'rgba(0,0,0,0)')}else{glow.addColorStop(0,'rgba(140,110,70,.12)');glow.addColorStop(1,'rgba(0,0,0,0)')}
+      // The lamp warms up and cools down over a third of a second rather than switching, it gets a little warmer as the needle rises, its hot spot
+      // sits above and left of centre, and the light falls off towards the scale edges. The breathing is under 1 %, too slow to read as flicker.
+      lampState+=((s.player&&s.active?1:0)-lampState)*(1-Math.exp(-dt/.35));
+      const warm=Math.min(1,level)*lampState,breath=(1+.006*Math.sin(now/6500))*bias,hx=cx-R*.12,hy=cy-R*.62;
+      const glow=ctx.createRadialGradient(hx,hy,4,cx,cy-R*.35,R*1.3);
+      glow.addColorStop(0,`rgba(255,${183-38*warm|0},${77-28*warm|0},${(.34*lampState*breath).toFixed(3)})`);glow.addColorStop(.55,`rgba(120,70,20,${(.18*lampState*breath).toFixed(3)})`);glow.addColorStop(1,'rgba(0,0,0,0)');
+      const idle=ctx.createRadialGradient(cx,cy-R*.55,4,cx,cy-R*.35,R*1.25);idle.addColorStop(0,`rgba(140,110,70,${(.12*(1-lampState)).toFixed(3)})`);idle.addColorStop(1,'rgba(0,0,0,0)');
       ctx.fillStyle='#14100a';ctx.beginPath();ctx.arc(cx,cy,R*1.02,Math.PI,0);ctx.lineTo(cx+R*1.02,cy);ctx.lineTo(cx-R*1.02,cy);ctx.closePath();ctx.fill();
+      ctx.fillStyle=idle;ctx.fill();
       ctx.fillStyle=glow;ctx.fill();
+      const fall=ctx.createRadialGradient(hx,hy,R*.15,cx,cy-R*.35,R*1.2);fall.addColorStop(0,'rgba(0,0,0,0)');fall.addColorStop(.6,'rgba(0,0,0,.08)');fall.addColorStop(1,'rgba(0,0,0,.42)');
+      ctx.fillStyle=fall;ctx.fill();
+      if(grainPattern){ctx.globalAlpha=.9;ctx.fillStyle=grainPattern;ctx.fill();ctx.globalAlpha=1}
       ctx.strokeStyle='rgba(255,190,110,.25)';ctx.lineWidth=1*dpr;ctx.beginPath();ctx.arc(cx,cy,R*1.02,Math.PI,0);ctx.stroke();
       ctx.strokeStyle='#e5484d';ctx.lineWidth=2.4*dpr;ctx.beginPath();ctx.arc(cx,cy,R*.96,ang(0)-Math.PI/2,ang(3)-Math.PI/2);ctx.stroke();
       ctx.textAlign='center';ctx.textBaseline='middle';

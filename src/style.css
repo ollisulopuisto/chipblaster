@@ -2749,10 +2749,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed="true"] span{background:#e8c378;color:#2c2a1f;box-shadow:0 0 7px #e8c378aa,inset 0 1px 0 #fff8}
 @media(prefers-reduced-motion:reduce){.c64-shell .setup-hatch .base-keys>.manual-key[aria-pressed] span{transition:none}}
 
-/* The walnut cheeks run the full height of the case. The shell used to be cut away on both sides of the screen (the clip-path with --cut-w), so
-   the wood stopped at the ledge and the screen module stood in the air. A negative cut puts the cut outside the shell: the clip-path stays, nothing is cut. */
-.c64-shell{--cut-w:-200px}
-@media(max-width:700px){.c64-shell{--cut-w:-200px}}
 /* Phones: the case top has the same proportions folded as open. Folded, it was 19 px shorter and the LOAD key sat close under the display. */
 @media(max-width:700px){
   .c64-shell.folded .boombox-top,.c64-shell.unfolded .boombox-top{min-height:55px;padding:2px 8px 6px}
@@ -2779,8 +2775,6 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
   .c64-shell .flip-stage.flipped .flip-back .hvsc .selector-button-block>.playlist-mode-key.is-active:not(#k):not(#j){transform:translateY(2px)!important;border-bottom-width:1px!important;background:linear-gradient(#b4bcb1,#c4c9c0)!important;box-shadow:inset 0 3px 5px #26332b88,inset 0 0 0 1px #8a968b!important}
 }
 
-/* The screen module is clearly narrower than the case around it, as a part that slides up inside a shell has to be: 24 px to the wood on each side on a phone (it was 12). */
-@media(max-width:700px){.c64-shell .screen-carriage{--screen-inset:24px}}
 
 /* Title display with a fixed row of cells (see SegmentMarquee in App.tsx): the cutouts are always there, the text moves one cell at a time. The cutouts
    are the outer eight segments of each cell, much dimmer than a lit one. */
@@ -2790,10 +2784,11 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .seg-marquee line{stroke-width:2.05;stroke-linecap:square}
 @media(min-width:701px){.c64-shell .seg-marquee{--cw:13px;--cg:2px}}
 .c64-shell .segment-ghost{opacity:.11}
-/* The cream plate no longer runs unbroken from wood to wood beside the screen module: that read as the module being as wide as the case. Around the
-   module the case is now a dark cavity (a slot the module slides up in), so the module is plainly the narrower part inside it. The slot is as tall as
-   the module is risen (--neck-h), so it opens and closes with it. */
-.c64-shell .flip-stage::before{content:'';position:absolute;left:0;right:0;top:0;height:var(--neck-h,0px);z-index:0;pointer-events:none;background:linear-gradient(90deg,#0d0d0c,#1b1b19 12%,#1b1b19 88%,#0d0d0c);box-shadow:inset 0 10px 12px -4px #000c,inset 10px 0 10px -6px #000,inset -10px 0 10px -6px #000,inset 0 -6px 8px -4px #0008}
 
-/* On a wide screen too the module is clearly narrower than the case: it was 1.25% from the wood, which looked like the full width. */
-@media(min-width:701px){.c64-shell .screen-carriage{--screen-inset:4.5%}}
+
+/* The screen section is a tray that slides out of the middle of the case: head and base keep the full width, the section between them is 70% of it
+   (15% cut away on each side, measured in App.tsx as --cut-w and --tray-inset), and the page shows beside it. The tray fills the gap exactly. */
+.c64-shell .screen-carriage{--screen-inset:var(--tray-inset,15%)}
+/* The tray has walnut sides of its own, narrower than the cheeks of the case and set in from them, so the two woods never line up. */
+.c64-shell .screen-carriage{--tray-wood:10px;padding-inline:var(--tray-wood);box-sizing:border-box;background-image:var(--wood),var(--wood);background-repeat:repeat-y,repeat-y;background-position:left top,right top;background-size:var(--tray-wood) 420px,var(--tray-wood) 420px}
+@media(max-width:700px){.c64-shell .screen-carriage{--tray-wood:7px}}

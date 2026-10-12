@@ -139,6 +139,8 @@ export class FpPlayer {
   /** STEREO ENHANCE amount (0..1): the side signal made by the analysis core is mixed in at this level. */
   setChipSpread(value: number) { this.send({ type: 'spread', value }); }
   setFadePlan(end: number | null, seconds: number) { this.send({ type: 'fade', end, seconds }); }
+  // Index 0-2 is voice 1-3 of SID 1, 3-5 is voice 1-3 of SID 2. The mute is held in the worker, so it survives a reload.
+  setVoice(index: number, on: boolean) { this.send({ type: 'voice', index, on }); }
   setSIDModels(primary: number, secondary: number) { this.core.setSIDModels(primary, secondary); this.send({ type: 'models', primary, secondary }); }
   start(subtune: number) { this.cancelSeeks(); this.playingSince = performance.now(); this.underruns = []; this.core.start(subtune); this.restart({ type: 'start', subtune }); }
   /** Back to the start and silent, like the jsSID engine: the sink must be paused first, or it plays the rewound tune. */

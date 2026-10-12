@@ -14,6 +14,7 @@ type Cmd =
   | { type: 'start'; subtune: number; gen: number }
   | { type: 'stop'; gen: number }
   | { type: 'models'; primary: number; secondary: number }
+  | { type: 'voice'; index: number; on: boolean }
   | { type: 'seek'; id: number; seconds: number; gen: number }
   | { type: 'cancelSeek' };
 
@@ -21,6 +22,14 @@ let engine: SidAudioEngine | null = null;
 // A jsSID core plays the same tune alongside, only to feed what libsidplayfp cannot: per-voice meters and the side signal for STEREO ENHANCE.
 let analysis: any = null;
 let models: [number, number] = [6581, 6581];
+// Voice mutes for the six SID voices (0-2 SID 1, 3-5 SID 2). Re-applied after every reload, since reloading makes a new engine.
+let voiceOn = [true, true, true, true, true, true];
+const applyVoices = () => {
+  voiceOn.forEach((on, i) => {
+    if (analysis) analysis.voiceGains[i] = on ? 1 : 0; // the meters follow the mute too
+    try { engine?.mute(i < 3 ? 0 : 1, i % 3, !on); } catch { /* a one-chip tune has no second SID */ }
+  });
+};
 const tmpL = new Float32Array(BLOCK), tmpR = new Float32Array(BLOCK);
 let sink: MessagePort;
 let sampleRate = 44100;
@@ -50,6 +59,7 @@ async function reload(song: number) {
   analysis.setSIDModels(models[0], models[1]);
   analysis.loadbuffer(bytes, song);
   analysis.playcont();
+  applyVoices();
   subtune = song;
 }
 
@@ -117,6 +127,9 @@ async function handle(m: Cmd) {
       gen = m.gen; wanted = 0; await reload(m.subtune); sink.postMessage({ type: 'loaded', gen });
     } else if (m.type === 'stop') {
       gen = m.gen; wanted = 0; await reload(subtune); sink.postMessage({ type: 'loaded', gen });
+    } else if (m.type === 'voice') {
+      voiceOn[m.index] = m.on;
+      applyVoices();
     } else if (m.type === 'models') {
       sidModel = m.primary === 8580 ? 'MOS8580' : 'MOS6581';
       models = [m.primary, m.secondary];

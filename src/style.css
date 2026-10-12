@@ -2799,8 +2799,14 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .vu-unit .vu-strip{display:flex;align-items:flex-start;gap:4px;margin-top:3px;min-width:0}
 .c64-shell .vu-unit .vu-strip .waveform-readout{flex:1 1 auto;min-width:0;margin-top:0}
 .c64-shell .vu-unit .vu-strip .waveform-readout svg{flex:0 1 20px;min-width:11px;max-height:20px}
-/* Cream cap like the transport keys, with a skirt. Pushed in (channel sounds): the cap sits 5 px lower, is darker and has lost its skirt. */
-.c64-shell .vu-switch{flex:0 0 30px;height:27px;margin:0;padding:0;border:0;border-radius:3px;background:linear-gradient(180deg,#e6dfc9,#d5cdb3 55%,#c5bda1);color:#2a2620;font:800 11px/1 "Arial Narrow",Arial,sans-serif;box-shadow:inset 0 1px 0 #fffc,0 3px 0 #6f6553;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:margin-top .08s,box-shadow .08s,background .08s}
-.c64-shell .vu-switch.is-on{margin-top:5px;height:22px;background:linear-gradient(180deg,#b9b197,#aaa283 55%,#9c9476);box-shadow:inset 0 3px 5px #0000004d}
-.c64-shell .vu-switch:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
-@media(max-width:700px){.c64-shell .vu-unit .vu-strip .waveform-readout{height:23px}.c64-shell .vu-switch{height:23px}.c64-shell .vu-switch.is-on{height:18px;margin-top:5px}}
+/* A physical toggle: a slot in the panel with an aluminium lever. Up = the voice sounds, down = muted. The number above it is printed on the panel and never changes. */
+.c64-shell .vu-toggle-wrap{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:3px;height:27px}
+.c64-shell .vu-toggle-legend{font:700 9px/1 Arial,sans-serif;letter-spacing:.06em;color:#4a4236}
+.c64-shell .vu-toggle{all:unset;box-sizing:border-box;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;width:14px;height:27px;display:block;position:relative}
+.c64-shell .vu-toggle-slot{position:absolute;left:50%;top:0;bottom:0;width:8px;transform:translateX(-50%);border-radius:5px;background:linear-gradient(90deg,#0d0c0a,#262520 50%,#0d0c0a);box-shadow:inset 0 2px 3px #000c,0 1px 0 #fff6;}
+.c64-shell .vu-toggle-lever{position:absolute;left:50%;top:13px;width:12px;height:12px;margin-left:-6px;border-radius:2px;background:linear-gradient(90deg,#8d8b84,#f2f1ec 45%,#b4b2aa 70%,#7d7b74);border:1px solid #4a4840;box-shadow:0 2px 2px #0007,inset 0 1px 0 #fff;transition:top .12s ease-out}
+.c64-shell .vu-toggle-lever:after{content:"";position:absolute;left:2px;right:2px;top:4px;height:4px;background:repeating-linear-gradient(90deg,#0000 0 2px,#4a4840aa 2px 3px)}
+.c64-shell .vu-toggle.is-on .vu-toggle-lever{top:1px}
+.c64-shell .vu-toggle:focus-visible{outline:2px solid #f5cd80;outline-offset:2px;border-radius:3px}
+.c64-shell .vu-unit .vu-strip{align-items:stretch}
+@media(max-width:700px){.c64-shell .vu-toggle-wrap{height:23px}.c64-shell .vu-toggle{height:23px}.c64-shell .vu-toggle-lever{top:11px;width:10px;height:10px;margin-left:-5px}.c64-shell .vu-toggle.is-on .vu-toggle-lever{top:1px}}

@@ -2795,7 +2795,11 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 /* The meter's outer box had square corners while the dial inside is round at the top: the glow box-shadow followed the box, so it showed square. */
 .c64-shell .vu-unit{border-radius:6px}
 
-/* A VU meter is a switch while its voice can be muted: the face goes dark, the needle drops to zero, and the cursor says it can be clicked. */
-.c64-shell .vu-unit .vu-face.is-muted{filter:brightness(.5) saturate(.45)!important}
-.c64-shell .vu-unit .vu[role="switch"]{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.c64-shell .vu-unit .vu[role="switch"]:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
+/* Each SID voice has a two-state key beside its waveform strip: pushed in while the voice sounds, up while it is muted. The label never changes. */
+.c64-shell .vu-unit .vu-strip{display:flex;align-items:flex-start;gap:4px;margin-top:3px;min-width:0}
+.c64-shell .vu-unit .vu-strip .waveform-readout{flex:1 1 auto;min-width:0;margin-top:0}
+.c64-shell .vu-unit .vu-strip .waveform-readout svg{flex:0 1 20px;min-width:11px;max-height:20px}
+.c64-shell .vu-switch{flex:0 0 30px;height:27px;margin:0;padding:0;border:1px solid #222;border-radius:3px;background:linear-gradient(#2a2a28,#161615);color:#c9c4b5;font:700 11px Arial,sans-serif;box-shadow:0 2px 0 #0007;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:margin-top .08s,box-shadow .08s,background .08s}
+.c64-shell .vu-switch.is-on{margin-top:5px;height:22px;background:linear-gradient(#0e0e0d,#1e1e1c);box-shadow:inset 0 3px 4px #000c;color:#f0c46a}
+.c64-shell .vu-switch:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
+@media(max-width:700px){.c64-shell .vu-unit .vu-strip .waveform-readout{height:23px}.c64-shell .vu-switch{height:23px}.c64-shell .vu-switch.is-on{height:18px}}

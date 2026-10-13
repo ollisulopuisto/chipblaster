@@ -256,6 +256,11 @@ float vmv(float j){
   j=mod(floor(j+.5),6.);
   if(j<.5)return vm[0];if(j<1.5)return vm[1];if(j<2.5)return vm[2];if(j<3.5)return vm[3];if(j<4.5)return vm[4];return vm[5];
 }
+// How strongly voice k (1, 2 or 3, of both chips together) drives its part of an effect: 0 when it is muted, otherwise from .4 (quiet) to 1.6 (loud).
+// The bass stands in for the level when there are no voice levels (the other chips).
+float vc3(float k,float b){
+  return vmv(k)>.5?0.:.4+1.2*max(max(vlv(k),vlv(k+3.)),b*.4);
+}
 // The shape of a sprite follows the voice's waveform: round without data, diamond for triangle, wedge for saw, square for pulse, dithered disc for noise.
 float shapeIn(vec2 q,float w,vec2 pix){
   if(w<.5)return step(length(q),1.);
@@ -351,7 +356,8 @@ float dancer(vec2 pp,float lv,float wv,float t,float fj,float pn){
 }
 float plasmaIdx(vec2 c,float t,float b,float m){
   vec2 cell=floor(c/8.),loc=mod(c,8.);
-  float v=sin(cell.x*.33+t*1.2)+sin(cell.y*.45-t*.9)+sin((cell.x+cell.y)*.21+t*.7)+sin(length(cell-vec2(20.,12.))*.5-t*1.5-b*5.);
+  // Three of the four waves are the SID voices 1, 2 and 3 (both chips together): a voice's level strengthens its wave and a muted voice has none.
+  float v=vc3(0.,b)*sin(cell.x*.33+t*1.2)+vc3(1.,b)*sin(cell.y*.45-t*.9)+vc3(2.,b)*sin((cell.x+cell.y)*.21+t*.7)+sin(length(cell-vec2(20.,12.))*.5-t*1.5-b*5.);
   v=v*.125+.5+b*.18+m*.1;
   float L=floor(clamp(v,0.,.999)*5.);
   float odd_x=step(1.,mod(loc.x,2.)),odd_y=step(1.,mod(loc.y,2.));
@@ -548,7 +554,8 @@ float scene(vec2 p){
     vec2 u=R*pm*zoom+vec2(t*.25,t*.17);
     float tex=.5+.5*sin(u.x*6.28)*sin(u.y*6.28);
     float chk=mod(floor(u.x)+floor(u.y),2.);
-    float v=tex*.62+chk*.34+m*.14;
+    // The texture is voice 1, the chessboard voice 2 and a diagonal wave voice 3 (both chips together); a muted voice takes its part away.
+    float v=tex*.62*vc3(0.,b)+chk*.34*vc3(1.,b)+m*.14+.16*vc3(2.,b)*(.5+.5*sin((u.x+u.y)*3.14159));
     vec2 cell=floor(c/16.);
     idx=rampIdx(cell.x+cell.y*2.,v*(.6+h*.5)+.08);
   }else if(md==5){
@@ -715,7 +722,8 @@ float scene(vec2 p){
   }else if(md==14){
     // AFLI plasma (Edge of Disgrace): a double-sine plasma in hires with a new colour pair every few raster lines.
     bidx=6.;
-    float v=(sin(c.x*.045+sin(c.y*.05+t*1.1)*2.)+sin(c.y*.07+sin(c.x*.03-t)*2.)+sin((c.x+c.y)*.03+t*.7))/6.+.5+b*.15;
+    // The three waves are the SID voices 1, 2 and 3 (both chips together): a voice's level strengthens its wave and a muted voice has none.
+    float v=(vc3(0.,b)*sin(c.x*.045+sin(c.y*.05+t*1.1)*2.)+vc3(1.,b)*sin(c.y*.07+sin(c.x*.03-t)*2.)+vc3(2.,b)*sin((c.x+c.y)*.03+t*.7))/6.+.5+b*.15;
     v+=(bayer(c)-.5)*.3;
     idx=rampIdx(mod(floor(c.y/4.)+floor(c.x/80.),4.),v);
   }else if(md==15){

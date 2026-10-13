@@ -1131,15 +1131,13 @@ float scene(vec2 p){
     }
   }
   if(canFlash&&flash>.5)bidx=flashCol(floor(time*14.));
-  // The border carries a small meter per voice: bars grow from the middle of the bottom and top borders in the voice's colour.
+  // The bottom border carries one meter, the output level: a bar that grows from the middle. It follows the sum of the voices (so a muted voice
+  // lowers it) and the band energies when there are no voice levels, as with the other chips.
   if(!inside&&!openAll&&md!=8&&md!=40){
-    float bd=c.y>=200.?c.y-200.:(c.y<0.?c.y+20.:-1.);
-    if(bd>=0.&&c.x>=0.&&c.x<320.){
-      float row=floor(bd/6.);
-      if(row<3.&&mod(bd,6.)>=1.&&mod(bd,6.)<5.){
-        float lvb=vlv(row);
-        if(abs(c.x-160.)<2.+lvb*154.)bidx=spriteCol(row*2.+1.);
-      }
+    float bd=c.y>=200.?c.y-200.:-1.;
+    if(bd>=7.&&bd<13.&&c.x>=0.&&c.x<320.){
+      float outLv=clamp(max((vl[0]+vl[1]+vl[2]+vl[3]+vl[4]+vl[5])*.55,(bass+mids+treble)*.5),0.,1.);
+      if(abs(c.x-160.)<2.+outLv*154.)bidx=1.;
     }
   }
   return (inside||openAll)?idx:bidx;

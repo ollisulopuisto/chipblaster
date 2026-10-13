@@ -770,22 +770,23 @@ float scene(vec2 p){
     }
   }else if(md==18){
     // Rotating raster bars (Uncensored): bars that turn through 360 degrees, across the border as well. The turn hesitates and
-    // reverses, the bars fan out and fold together again, their number, width and swing keep changing, and their colours shift.
+    // reverses, the bars fan out and fold together again, their width and swing keep changing, and their colours shift. There are six bars, one per
+    // SID voice: the voice's level widens the bar and swings it further, and a muted voice has no bar. Without voice levels the bass stands in.
     openAll=true;canFlash=false;
     vec2 pp=vec2(x,y)-res*.5;
     float rot=t*.4+sin(t*.29)*1.4+sin(t*.11)*.8;
     float fan=(.5+.5*sin(t*.21))*.5;
-    float cnt=4.+floor(4.*vn(t*.1+3.));
     float swing=res.y*(.22+.14*sin(t*.13)),space=.9+.5*sin(t*.07);
     float o=0.,depth=-9.;
-    for(int i=0;i<8;i++){
+    for(int i=0;i<6;i++){
       float fi=float(i);
-      if(fi>=cnt)continue;
-      float ai=rot+(fi-3.5)*fan;
+      if(vmv(fi)>.5)continue;
+      float lv=max(vlv(fi),b*.4);
+      float ai=rot+(fi-2.5)*fan;
       vec2 nrm=vec2(cos(ai),sin(ai));
       float ph=t*.8+fi*space;
-      float off=sin(ph)*swing,zz=cos(ph);
-      float hh=(7.+b*6.+4.*sin(t*.5+fi*1.3))*(.7+.6*vn(t*.2+fi*3.7));
+      float off=sin(ph)*swing*(.7+.6*lv),zz=cos(ph);
+      float hh=(6.+lv*12.+4.*sin(t*.5+fi*1.3))*(.7+.6*vn(t*.2+fi*3.7));
       float d=abs(dot(pp,nrm)-off)/hh;
       if(d<1.&&zz>depth){depth=zz;o=rampIdx(fi+floor(t*.05),(1.-d)*1.12);}
     }

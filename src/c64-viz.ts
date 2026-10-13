@@ -581,7 +581,10 @@ float scene(vec2 p){
     if(pat>.5&&pat<1.5)stripe=mod(floor(fz)+floor(fa),2.);
     else if(pat>1.5)stripe=step(.5,fract(fz));
     float fog=smoothstep(.04,.45,r);
-    idx=rampIdx(floor(fa*4./ab)+sg,(v*.8+stripe*.2)*fog+b*.1);
+    // The wall is cut into six wedges, one per SID voice: the voice's level lights its wedge, and the wedge of a muted voice is dark.
+    float wedge=mod(floor(fa*6./ab),6.);
+    float lvw=max(vlv(wedge),b*.4);
+    idx=vmv(wedge)>.5?0.:rampIdx(floor(fa*4./ab)+sg,(v*.8+stripe*.2)*fog*(.55+.9*lvw)+b*.1);
   }else if(md==6){
     bidx=14.;
     idx=6.;
@@ -838,8 +841,11 @@ float scene(vec2 p){
     float zoom=3.2+3.8*tens(t,17.)+b*.35;
     float pos=tw(t,17.,-.35)*2.4;
     float wx=pp.x/zoom+pos*8.;
-    float wy=pp.y/zoom+4.+sin(t*.6)*1.4;
     float n=floor(wx/8.);
+    // Letter n belongs to SID voice n mod 6: the letter jumps with its voice's level, and the letters of a muted voice stay on the line.
+    float vo=mod(n,6.);
+    float jump=vmv(vo)>.5?0.:floor(max(vlv(vo),b*.4)*3.);
+    float wy=pp.y/zoom+4.+sin(t*.6)*1.4+jump;
     idx=rampIdx(0.,.08+.1*mod(floor(y/4.),2.));
     float g=msgGlyph(n);
     float gx=floor(mod(wx,8.)),gy=floor(wy);
@@ -905,10 +911,14 @@ float scene(vec2 p){
     vec2 pp=c-vec2(160.,100.);
     float r=length(pp),ang=atan(pp.y,pp.x)+t*.45;
     float R0=51.6;
-    if(r>=R0&&r<R0+16.){
-      float sc=mod(ang,6.2831853)*R0;
-      float n=floor(sc/12.)+floor(t*2.);
-      float gx=floor(mod(sc,12.)/1.5),gy=floor((R0+16.-r)/2.);
+    // Letter n belongs to SID voice n mod 6: the letter rises with its voice's level, and the letters of a muted voice stay on the circle.
+    float sc=mod(ang,6.2831853)*R0;
+    float n=floor(sc/12.)+floor(t*2.);
+    float vo=mod(n,6.);
+    float lift=vmv(vo)>.5?0.:floor(max(vlv(vo),b*.4)*8.);
+    float rr=r-lift;
+    if(rr>=R0&&rr<R0+16.){
+      float gx=floor(mod(sc,12.)/1.5),gy=floor((R0+16.-rr)/2.);
       if(glyphBit(msgGlyph(n),gx,gy)>.5)idx=rampIdx(floor(ang*1.3+t),.55+.4*sin(ang*3.));
     }
     // The inside changes its pattern every ten seconds: it shrinks away and the next one grows out of the middle.

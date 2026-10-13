@@ -434,11 +434,12 @@ bool inQuad(vec2 p,vec2 a,vec2 b,vec2 c,vec2 d){
   return (s0>=0.&&s1>=0.&&s2>=0.&&s3>=0.)||(s0<=0.&&s1<=0.&&s2<=0.&&s3<=0.);
 }
 // Outrun: the ground rises and falls with distance (outHeight) and the road winds sideways (outBend).
-float outHeight(float z,float t,float sp){
-  return (sin(z*.55-sp*1.7)*.42+sin(z*.23-sp*.8)*.6)*smoothstep(.5,3.,z)*.92*(.55+.55*tens(t,29.));
+// The three SID voices drive three parts: voice 1 the sun, voice 2 the hills (k scales their height) and voice 3 the bends (k scales the winding).
+float outHeight(float z,float t,float sp,float k){
+  return (sin(z*.55-sp*1.7)*.42+sin(z*.23-sp*.8)*.6)*smoothstep(.5,3.,z)*.92*(.55+.55*tens(t,29.))*k;
 }
-float outBend(float z,float t){
-  return (sin(z*.09-t*.32)*.9+sin(z*.23+t*.19)*.55)*z*z*1.5/(1.+z*.08);
+float outBend(float z,float t,float k){
+  return (sin(z*.09-t*.32)*.9+sin(z*.23+t*.19)*.55)*z*z*1.5/(1.+z*.08)*k;
 }
 // Big sprites: one 96x42 picture of a SID chip, cut into eight 24x21 sprite tiles (4 across, 2 down). Returns a palette index, or -1 where the picture is clear.
 float chipBit(float u,float v,float t){
@@ -1099,12 +1100,16 @@ float scene(vec2 p){
     // Outrun: the sun over the horizon and a road that winds left and right and rolls over hills, with striped kerbs and grass.
     bidx=0.;
     float hor=104.;
+    // Voices 1, 2 and 3 of both chips together; a muted voice takes its part away (no sun, flat ground, a straight road). Without voice levels the
+    // bass stands in.
+    float O1=max(max(vlv(0.),vlv(3.)),b*.4),O2=max(max(vlv(1.),vlv(4.)),b*.4),O3=max(max(vlv(2.),vlv(5.)),b*.4);
+    float hillK=vmv(1.)>.5?.12:.5+1.1*O2,bendK=vmv(2.)>.5?0.:.5+1.1*O3;
     if(c.y<hor){
       float v=pow(c.y/hor,1.25);
       idx=rampIdx(3.,v);
-      vec2 sp=vec2(c.x-160.,c.y-(hor-34.-b*4.));
-      float sr=40.+b*8.;
-      if(length(sp)<sr){
+      vec2 sp=vec2(c.x-160.,c.y-(hor-34.-O1*10.));
+      float sr=40.+O1*14.;
+      if(vmv(0.)<.5&&length(sp)<sr){
         float vv=(sp.y+sr)/(2.*sr);
         float cut=sp.y>2.?step(mod(sp.y-floor(t*4.),8.),(sp.y/sr)*7.):0.;
         if(cut<.5)idx=vv<.4?7.:(vv<.7?10.:2.);
@@ -1116,12 +1121,12 @@ float scene(vec2 p){
       float D=sp*3.2;
       idx=1.;
       float clip=200.,z0=.5;
-      float yb=hor+(1.-outHeight(z0,t,sp))*48./z0;
+      float yb=hor+(1.-outHeight(z0,t,sp,hillK))*48./z0;
       for(int i=0;i<34;i++){
         float zi=.5*pow(1.1,float(i)),zn=zi*1.1;
-        float yn=hor+(1.-outHeight(zn,t,sp))*48./zn;
+        float yn=hor+(1.-outHeight(zn,t,sp,hillK))*48./zn;
         if(c.y>=yn&&c.y<min(yb,clip)){
-          float cx=160.+outBend(zi,t)*12./zi;
+          float cx=160.+outBend(zi,t,bendK)*12./zi;
           float ar=abs(c.x-cx);
           float par=mod(floor((zi+D)*.9),2.);
           float hw=27.6/zi;

@@ -681,7 +681,8 @@ float scene(vec2 p){
     float cx=floor(pp.x/2.)*2.+1.;
     float r=length(vec2(cx,pp.y)*vec2(1.,1.2));
     float a=atan(pp.y,cx);
-    float v=.5+.5*sin(r*.075-t*2.2+sin(a*5.+t)*1.4)+b*.25;
+    // The rings are voice 1, their wobble round the middle voice 2 and the glow voice 3 (both chips together); a muted voice takes its part away.
+    float v=.5+.5*.8*vc3(0.,b)*sin(r*.075-t*2.2+vc3(1.,b)*.9*sin(a*5.+t)*1.4)+.25*vc3(2.,b)*max(b,.3);
     float set=floor(mod(y,8.)*.5+floor(r/40.)+floor(t*.8));
     idx=rampIdx(set,v*.95);
   }else if(md==12){
@@ -762,10 +763,13 @@ float scene(vec2 p){
     float tp=tw(t,19.,.9);
     if(c.y<hor){
       idx=rampIdx(2.,.1+.55*pow(c.y/hor,1.2));
+      // The three nearer hill layers are SID voices 1, 2 and 3 (both chips together): the level raises a layer's hills and a muted voice's layer is gone.
       for(int l=0;l<4;l++){
         float fl=float(l);
+        float hl=l<3?vc3(fl,b):1.;
+        if(l<3&&vmv(fl)>.5)continue;
         float xs=c.x+tp*(8.+fl*14.);
-        float hh=hor-18.-fl*10.-(sin(xs*.026*(1.+fl*.35)+fl*2.)*(9.+fl*3.)+sin(xs*.011+fl)*8.);
+        float hh=hor-18.-fl*10.-(sin(xs*.026*(1.+fl*.35)+fl*2.)*(9.+fl*3.)*(.5+.5*hl)+sin(xs*.011+fl)*8.*(.5+.5*hl));
         if(c.y>hh)idx=fl<.5?14.:(fl<1.5?6.:(fl<2.5?4.:11.));
       }
     }else{

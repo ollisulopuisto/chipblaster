@@ -268,14 +268,23 @@ float bayer(vec2 p){vec2 q=mod(floor(p),4.);return (bay2(mod(q.x,2.),mod(q.y,2.)
 vec3 rotY(vec3 v,float a){float c=cos(a),s=sin(a);return vec3(c*v.x+s*v.z,v.y,-s*v.x+c*v.z);}
 vec3 rotX(vec3 v,float a){float c=cos(a),s=sin(a);return vec3(v.x,c*v.y-s*v.z,s*v.y+c*v.z);}
 float dseg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}
-// Scope: one trace per voice, in the voice's own waveform.
-float scopeW(float x,float wv,float fv,float t){
-  float p=x*(.012+.085*vpv(fv))+t*(.9+.37*fv);
+// Scope: one trace per voice, in the voice's own waveform. The shape is separate from the pitch so the legend mark at the left of each row can
+// draw the same shape at a fixed size: p is the phase in cycles, d the pulse width, n a noise seed.
+float scopeShape(float p,float wv,float d,float n){
   if(wv<.5)return sin(p*6.2831853);
   if(wv<1.5)return abs(fract(p)*4.-2.)-1.;
   if(wv<2.5)return fract(p)*2.-1.;
-  if(wv<3.5)return fract(p)<.5+.25*sin(t*.8+fv)?1.:-1.;
-  return hash(floor(x/2.)+floor(t*40.)*7.13+fv*31.)*2.-1.;
+  if(wv<3.5)return fract(p)<d?1.:-1.;
+  return hash(n)*2.-1.;
+}
+// The pitch is capped at about 22 pixels a cycle: faster than that a cycle is too few pixels to tell a triangle from a sawtooth.
+float scopeW(float x,float wv,float fv,float t){
+  float p=x*(.012+.035*vpv(fv))+t*(.9+.37*fv);
+  return scopeShape(p,wv,.5+.25*sin(t*.8+fv),floor(x/2.)+floor(t*40.)*7.13+fv*31.);
+}
+// One colour per waveform, so the four shapes never share a colour: no data light blue, triangle cyan, sawtooth yellow, pulse light green, noise light red.
+float scopeCol(float wv){
+  if(wv<.5)return 14.;if(wv<1.5)return 3.;if(wv<2.5)return 7.;if(wv<3.5)return 13.;return 10.;
 }
 // Tension and release: a cycle of L seconds in which the energy builds slowly (0 to 1) and drops back at once.
 float tens(float t,float L){
@@ -575,14 +584,24 @@ float scene(vec2 p){
       float fv=float(v);
       float lv=vlv(fv),wv=vwv(fv);
       if(v>=3&&lv<.04)continue;
-      float amp=5.+lv*24.;
+      float amp=8.+lv*22.;
       float cy=36.+mod(fv,3.)*64.;
+      float wc=scopeCol(wv);
       float y0=-scopeW(c.x-1.,wv,fv,t)*amp,y1=-scopeW(c.x,wv,fv,t)*amp,y2=-scopeW(c.x+1.,wv,fv,t)*amp;
       float lo=min(y0,min(y1,y2)),hi=max(y0,max(y1,y2));
       float yy=c.y-cy;
-      float vc=v<3?spriteCol(fv*2.+1.):spriteDark(fv*2.+1.);
-      if(yy>=lo-.5&&yy<=hi+.5)idx=v<3?1.:vc;
-      else if(yy>=lo-2.5&&yy<=hi+2.5&&mod(c.x+c.y,2.)<1.)idx=vc;
+      // SID 1 is a solid line, SID 2 a dashed one on the same row; the line is two pixels thick so the corners read.
+      bool dash=v>=3&&mod(floor(c.x/3.),2.)>.5;
+      if(yy>=lo-1.&&yy<=hi+1.&&!dash)idx=wc;
+      else if(yy>=lo-2.5&&yy<=hi+2.5&&mod(c.x+c.y,2.)<1.&&v<3)idx=wc;
+      // The legend mark at the left of the row: the voice's waveform in one cycle, 16 pixels wide, in a black box.
+      if(v<3&&c.x<22.){
+        float yl=c.y-cy;
+        if(abs(yl)<=11.&&c.x>=1.)idx=0.;
+        float ym=-scopeShape((c.x-3.)/16.,wv,.5,floor((c.x-3.)/2.)+fv*31.)*7.;
+        float ym1=-scopeShape((c.x-2.)/16.,wv,.5,floor((c.x-2.)/2.)+fv*31.)*7.;
+        if(c.x>=3.&&c.x<19.&&yl>=min(ym,ym1)-.5&&yl<=max(ym,ym1)+.5)idx=wc;
+      }
     }
   }else if(md==8){
     // Open borders: the top, bottom and side borders are hacked away. Sprites fly through the border, the side
@@ -1147,15 +1166,13 @@ float scene(vec2 p){
     }
   }
   if(canFlash&&flash>.5)bidx=flashCol(floor(time*14.));
-  // The border carries a small meter per voice: bars grow from the middle of the bottom and top borders in the voice's colour.
+  // The bottom border carries one meter, the output level: a bar that grows from the middle. It follows the sum of the voices (so a muted voice
+  // lowers it) and the band energies when there are no voice levels, as with the other chips.
   if(!inside&&!openAll&&md!=8&&md!=40){
-    float bd=c.y>=200.?c.y-200.:(c.y<0.?c.y+20.:-1.);
-    if(bd>=0.&&c.x>=0.&&c.x<320.){
-      float row=floor(bd/6.);
-      if(row<3.&&mod(bd,6.)>=1.&&mod(bd,6.)<5.){
-        float lvb=vlv(row);
-        if(abs(c.x-160.)<2.+lvb*154.)bidx=spriteCol(row*2.+1.);
-      }
+    float bd=c.y>=200.?c.y-200.:-1.;
+    if(bd>=7.&&bd<13.&&c.x>=0.&&c.x<320.){
+      float outLv=clamp(max((vl[0]+vl[1]+vl[2]+vl[3]+vl[4]+vl[5])*.55,(bass+mids+treble)*.5),0.,1.);
+      if(abs(c.x-160.)<2.+outLv*154.)bidx=1.;
     }
   }
   return (inside||openAll)?idx:bidx;

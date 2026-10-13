@@ -1005,6 +1005,7 @@ function SidCore(samplerate, background_noise)
       , sourceMSB = [0, 0, 0];
     var noise_LFSR = [0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8, 0x7FFFF8];
     var prevwfout = [0, 0, 0, 0, 0, 0, 0, 0, 0], prevwavdata = [0, 0, 0, 0, 0, 0, 0, 0, 0], combiwf;
+    var denormalFlip = 1;
     var centreWeight = [0, 0, 0, 0, 0, 0, 0, 0, 0], prevbandC = [0, 0, 0], prevlowC = [0, 0, 0], lastCentre = 0, filtinC, outputC;
     var prevlowpass = [0, 0, 0]
       , prevbandpass = [0, 0, 0]
@@ -1028,9 +1029,12 @@ function SidCore(samplerate, background_noise)
 
     function SID(num, SIDaddr) //the SID emulation itself ('num' is the number of SID to iterate (0..2)
     {
-        filtin = 0;
+        // A tiny alternating offset keeps the filter states from decaying into denormal floats when every voice is silent (all muted): on x86
+        // denormal arithmetic is many times slower and the whole emulation would crawl. The offset is about -200 dB, far below the noise.
+        denormalFlip = -denormalFlip;
+        filtin = denormalFlip * 1e-9;
         output = 0;
-        filtinC = 0;
+        filtinC = denormalFlip * 1e-9;
         outputC = 0;
         active_SID_model = num === 0 ? SID_model : (secondary_SID_model || SID_model);
 
@@ -1252,6 +1256,7 @@ function SidCore(samplerate, background_noise)
             // Voices that belong in the middle of the mix: noise waveform (drums, hats) and anything below about 150 Hz (bass, kicks).
             // The weight glides so a voice changing role does not click.
             centreWeight[channel] += ((wf === 0x80 || (wf !== 0 && (memory[chnadd] | (memory[chnadd + 1] << 8)) < 2555) ? 1 : 0) - centreWeight[channel]) * 0.02;
+            if (centreWeight[channel] < 1e-9) centreWeight[channel] = 0; // an exact zero, not a denormal
             if (memory[SIDaddr + 0x17] & FILTSW[channel]) {
                 filtin += (wfout - 0x8000) * (envcnt[channel] / 256) * gainTaps[channel];
                 filtinC += (wfout - 0x8000) * (envcnt[channel] / 256) * gainTaps[channel] * centreWeight[channel];

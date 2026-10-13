@@ -772,7 +772,8 @@ float scene(vec2 p){
   }else if(md==17){
     // Shadow cube (Coma Light 13), the way a C64 would draw it: a small cube turning about its vertical axis, filled flat in three shades (top, lit
     // side, dark side), with a hard shadow on a chessboard floor. The turn speeds up and lets go, the cube drifts about and hops with the bass, and
-    // the shadow moves with it. The floor is a fixed picture; the picture is redrawn at 17 frames a second.
+    // the shadow moves with it. The floor is a fixed picture; the picture is redrawn at 17 frames a second. The six faces are the six SID voices (face f
+    // is voice f): a muted voice's face is missing, so the cube is open there and the floor shows through.
     bidx=6.;
     float ang=tw(t,19.,1.1)*.8;
     float cs=cos(ang),sn=sin(ang);
@@ -783,12 +784,14 @@ float scene(vec2 p){
     idx=chk>.5?12.:11.;
     for(int f=0;f<6;f++){
       float ff=float(f);
+      if(vmv(ff)>.5)continue;
       vec3 a0=cubeShadow(cubeCorner(ff,0.,hh,cs,sn,at)),a1=cubeShadow(cubeCorner(ff,1.,hh,cs,sn,at)),a2=cubeShadow(cubeCorner(ff,2.,hh,cs,sn,at)),a3=cubeShadow(cubeCorner(ff,3.,hh,cs,sn,at));
       if(inQuad(c,cubeProj(a0),cubeProj(a1),cubeProj(a2),cubeProj(a3)))idx=chk>.5?11.:0.;
     }
     vec3 L=normalize(vec3(-.7,1.,-.4));
     for(int f=0;f<6;f++){
       float ff=float(f);
+      if(vmv(ff)>.5)continue;
       float ax=floor(ff/2.),sg=mod(ff,2.)*2.-1.;
       vec3 nl=ax<.5?vec3(sg,0.,0.):(ax<1.5?vec3(0.,sg,0.):vec3(0.,0.,sg));
       vec3 nw=vec3(nl.x*cs+nl.z*sn,nl.y,-nl.x*sn+nl.z*cs);

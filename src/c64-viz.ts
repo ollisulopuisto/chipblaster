@@ -620,7 +620,9 @@ float scene(vec2 p){
     if(spr>=0.)idx=spr;
   }else if(md==9){
     // DYCP: every character column of the scroller has its own vertical position; letters take their colour from the raster line.
-    // The scroll speeds up and slows down so there is time to read, and the wave changes its shape every ten seconds or so.
+    // The scroll speeds up and slows down so there is time to read, and the wave changes its shape every ten seconds or so. Column n belongs to SID
+    // voice n mod 6: the voice's level sets how far its letters swing, and the letters of a muted voice lie flat on the baseline. Without voice
+    // levels the bass stands in.
     bidx=0.;
     idx=mod(floor(c.y/6.),2.)<1.?rampIdx(0.,.1):0.;
     float sxo=25.5*t-41.35*cos(t*.37)-77.3*cos(t*.11+1.3);
@@ -629,7 +631,9 @@ float scene(vec2 p){
     float ph=t*.1,k0=floor(ph),fm=smoothstep(.88,1.,fract(ph));
     float kA=floor(hash(k0+seed.z*9.)*4.),kB=floor(hash(k0+1.+seed.z*9.)*4.);
     float swell=.75+.25*sin(t*.23)+b*.25;
-    float dy=floor(mix(dycpWave(n,t,kA),dycpWave(n,t,kB),fm)*swell);
+    float vn6=mod(n,6.);
+    float vamp=vmv(vn6)>.5?0.:(.35+.9*max(vlv(vn6),b*.4));
+    float dy=floor(mix(dycpWave(n,t,kA),dycpWave(n,t,kB),fm)*swell*vamp);
     float py=floor((c.y-(78.+dy))/3.),gx=floor(mod(sx,24.)/3.);
     if(py>=0.&&py<8.&&glyphBit(msgGlyph(n),gx,py)>.5)idx=rampIdx(floor(c.y/36.+t*.6),.45+.5*fract(c.y/36.));
   }else if(md==10){

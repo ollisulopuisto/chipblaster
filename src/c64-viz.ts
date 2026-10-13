@@ -256,6 +256,11 @@ float vmv(float j){
   j=mod(floor(j+.5),6.);
   if(j<.5)return vm[0];if(j<1.5)return vm[1];if(j<2.5)return vm[2];if(j<3.5)return vm[3];if(j<4.5)return vm[4];return vm[5];
 }
+// How strongly voice k (1, 2 or 3, of both chips together) drives its part of an effect: 0 when it is muted, otherwise from .4 (quiet) to 1.6 (loud).
+// The bass stands in for the level when there are no voice levels (the other chips).
+float vc3(float k,float b){
+  return vmv(k)>.5?0.:.4+1.2*max(max(vlv(k),vlv(k+3.)),b*.4);
+}
 // The shape of a sprite follows the voice's waveform: round without data, diamond for triangle, wedge for saw, square for pulse, dithered disc for noise.
 float shapeIn(vec2 q,float w,vec2 pix){
   if(w<.5)return step(length(q),1.);
@@ -351,7 +356,8 @@ float dancer(vec2 pp,float lv,float wv,float t,float fj,float pn){
 }
 float plasmaIdx(vec2 c,float t,float b,float m){
   vec2 cell=floor(c/8.),loc=mod(c,8.);
-  float v=sin(cell.x*.33+t*1.2)+sin(cell.y*.45-t*.9)+sin((cell.x+cell.y)*.21+t*.7)+sin(length(cell-vec2(20.,12.))*.5-t*1.5-b*5.);
+  // Three of the four waves are the SID voices 1, 2 and 3 (both chips together): a voice's level strengthens its wave and a muted voice has none.
+  float v=vc3(0.,b)*sin(cell.x*.33+t*1.2)+vc3(1.,b)*sin(cell.y*.45-t*.9)+vc3(2.,b)*sin((cell.x+cell.y)*.21+t*.7)+sin(length(cell-vec2(20.,12.))*.5-t*1.5-b*5.);
   v=v*.125+.5+b*.18+m*.1;
   float L=floor(clamp(v,0.,.999)*5.);
   float odd_x=step(1.,mod(loc.x,2.)),odd_y=step(1.,mod(loc.y,2.));
@@ -548,7 +554,8 @@ float scene(vec2 p){
     vec2 u=R*pm*zoom+vec2(t*.25,t*.17);
     float tex=.5+.5*sin(u.x*6.28)*sin(u.y*6.28);
     float chk=mod(floor(u.x)+floor(u.y),2.);
-    float v=tex*.62+chk*.34+m*.14;
+    // The texture is voice 1, the chessboard voice 2 and a diagonal wave voice 3 (both chips together); a muted voice takes its part away.
+    float v=tex*.62*vc3(0.,b)+chk*.34*vc3(1.,b)+m*.14+.16*vc3(2.,b)*(.5+.5*sin((u.x+u.y)*3.14159));
     vec2 cell=floor(c/16.);
     idx=rampIdx(cell.x+cell.y*2.,v*(.6+h*.5)+.08);
   }else if(md==5){
@@ -574,7 +581,10 @@ float scene(vec2 p){
     if(pat>.5&&pat<1.5)stripe=mod(floor(fz)+floor(fa),2.);
     else if(pat>1.5)stripe=step(.5,fract(fz));
     float fog=smoothstep(.04,.45,r);
-    idx=rampIdx(floor(fa*4./ab)+sg,(v*.8+stripe*.2)*fog+b*.1);
+    // The wall is cut into six wedges, one per SID voice: the voice's level lights its wedge, and the wedge of a muted voice is dark.
+    float wedge=mod(floor(fa*6./ab),6.);
+    float lvw=max(vlv(wedge),b*.4);
+    idx=vmv(wedge)>.5?0.:rampIdx(floor(fa*4./ab)+sg,(v*.8+stripe*.2)*fog*(.55+.9*lvw)+b*.1);
   }else if(md==6){
     bidx=14.;
     idx=6.;
@@ -671,7 +681,8 @@ float scene(vec2 p){
     float cx=floor(pp.x/2.)*2.+1.;
     float r=length(vec2(cx,pp.y)*vec2(1.,1.2));
     float a=atan(pp.y,cx);
-    float v=.5+.5*sin(r*.075-t*2.2+sin(a*5.+t)*1.4)+b*.25;
+    // The rings are voice 1, their wobble round the middle voice 2 and the glow voice 3 (both chips together); a muted voice takes its part away.
+    float v=.5+.5*.8*vc3(0.,b)*sin(r*.075-t*2.2+vc3(1.,b)*.9*sin(a*5.+t)*1.4)+.25*vc3(2.,b)*max(b,.3);
     float set=floor(mod(y,8.)*.5+floor(r/40.)+floor(t*.8));
     idx=rampIdx(set,v*.95);
   }else if(md==12){
@@ -715,7 +726,8 @@ float scene(vec2 p){
   }else if(md==14){
     // AFLI plasma (Edge of Disgrace): a double-sine plasma in hires with a new colour pair every few raster lines.
     bidx=6.;
-    float v=(sin(c.x*.045+sin(c.y*.05+t*1.1)*2.)+sin(c.y*.07+sin(c.x*.03-t)*2.)+sin((c.x+c.y)*.03+t*.7))/6.+.5+b*.15;
+    // The three waves are the SID voices 1, 2 and 3 (both chips together): a voice's level strengthens its wave and a muted voice has none.
+    float v=(vc3(0.,b)*sin(c.x*.045+sin(c.y*.05+t*1.1)*2.)+vc3(1.,b)*sin(c.y*.07+sin(c.x*.03-t)*2.)+vc3(2.,b)*sin((c.x+c.y)*.03+t*.7))/6.+.5+b*.15;
     v+=(bayer(c)-.5)*.3;
     idx=rampIdx(mod(floor(c.y/4.)+floor(c.x/80.),4.),v);
   }else if(md==15){
@@ -751,10 +763,13 @@ float scene(vec2 p){
     float tp=tw(t,19.,.9);
     if(c.y<hor){
       idx=rampIdx(2.,.1+.55*pow(c.y/hor,1.2));
+      // The three nearer hill layers are SID voices 1, 2 and 3 (both chips together): the level raises a layer's hills and a muted voice's layer is gone.
       for(int l=0;l<4;l++){
         float fl=float(l);
+        float hl=l<3?vc3(fl,b):1.;
+        if(l<3&&vmv(fl)>.5)continue;
         float xs=c.x+tp*(8.+fl*14.);
-        float hh=hor-18.-fl*10.-(sin(xs*.026*(1.+fl*.35)+fl*2.)*(9.+fl*3.)+sin(xs*.011+fl)*8.);
+        float hh=hor-18.-fl*10.-(sin(xs*.026*(1.+fl*.35)+fl*2.)*(9.+fl*3.)*(.5+.5*hl)+sin(xs*.011+fl)*8.*(.5+.5*hl));
         if(c.y>hh)idx=fl<.5?14.:(fl<1.5?6.:(fl<2.5?4.:11.));
       }
     }else{
@@ -772,7 +787,8 @@ float scene(vec2 p){
   }else if(md==17){
     // Shadow cube (Coma Light 13), the way a C64 would draw it: a small cube turning about its vertical axis, filled flat in three shades (top, lit
     // side, dark side), with a hard shadow on a chessboard floor. The turn speeds up and lets go, the cube drifts about and hops with the bass, and
-    // the shadow moves with it. The floor is a fixed picture; the picture is redrawn at 17 frames a second.
+    // the shadow moves with it. The floor is a fixed picture; the picture is redrawn at 17 frames a second. The six faces are the six SID voices (face f
+    // is voice f): a muted voice's face is missing, so the cube is open there and the floor shows through.
     bidx=6.;
     float ang=tw(t,19.,1.1)*.8;
     float cs=cos(ang),sn=sin(ang);
@@ -783,12 +799,14 @@ float scene(vec2 p){
     idx=chk>.5?12.:11.;
     for(int f=0;f<6;f++){
       float ff=float(f);
+      if(vmv(ff)>.5)continue;
       vec3 a0=cubeShadow(cubeCorner(ff,0.,hh,cs,sn,at)),a1=cubeShadow(cubeCorner(ff,1.,hh,cs,sn,at)),a2=cubeShadow(cubeCorner(ff,2.,hh,cs,sn,at)),a3=cubeShadow(cubeCorner(ff,3.,hh,cs,sn,at));
       if(inQuad(c,cubeProj(a0),cubeProj(a1),cubeProj(a2),cubeProj(a3)))idx=chk>.5?11.:0.;
     }
     vec3 L=normalize(vec3(-.7,1.,-.4));
     for(int f=0;f<6;f++){
       float ff=float(f);
+      if(vmv(ff)>.5)continue;
       float ax=floor(ff/2.),sg=mod(ff,2.)*2.-1.;
       vec3 nl=ax<.5?vec3(sg,0.,0.):(ax<1.5?vec3(0.,sg,0.):vec3(0.,0.,sg));
       vec3 nw=vec3(nl.x*cs+nl.z*sn,nl.y,-nl.x*sn+nl.z*cs);
@@ -827,8 +845,11 @@ float scene(vec2 p){
     float zoom=3.2+3.8*tens(t,17.)+b*.35;
     float pos=tw(t,17.,-.35)*2.4;
     float wx=pp.x/zoom+pos*8.;
-    float wy=pp.y/zoom+4.+sin(t*.6)*1.4;
     float n=floor(wx/8.);
+    // Letter n belongs to SID voice n mod 6: the letter jumps with its voice's level, and the letters of a muted voice stay on the line.
+    float vo=mod(n,6.);
+    float jump=vmv(vo)>.5?0.:floor(max(vlv(vo),b*.4)*3.);
+    float wy=pp.y/zoom+4.+sin(t*.6)*1.4+jump;
     idx=rampIdx(0.,.08+.1*mod(floor(y/4.),2.));
     float g=msgGlyph(n);
     float gx=floor(mod(wx,8.)),gy=floor(wy);
@@ -894,10 +915,14 @@ float scene(vec2 p){
     vec2 pp=c-vec2(160.,100.);
     float r=length(pp),ang=atan(pp.y,pp.x)+t*.45;
     float R0=51.6;
-    if(r>=R0&&r<R0+16.){
-      float sc=mod(ang,6.2831853)*R0;
-      float n=floor(sc/12.)+floor(t*2.);
-      float gx=floor(mod(sc,12.)/1.5),gy=floor((R0+16.-r)/2.);
+    // Letter n belongs to SID voice n mod 6: the letter rises with its voice's level, and the letters of a muted voice stay on the circle.
+    float sc=mod(ang,6.2831853)*R0;
+    float n=floor(sc/12.)+floor(t*2.);
+    float vo=mod(n,6.);
+    float lift=vmv(vo)>.5?0.:floor(max(vlv(vo),b*.4)*8.);
+    float rr=r-lift;
+    if(rr>=R0&&rr<R0+16.){
+      float gx=floor(mod(sc,12.)/1.5),gy=floor((R0+16.-rr)/2.);
       if(glyphBit(msgGlyph(n),gx,gy)>.5)idx=rampIdx(floor(ang*1.3+t),.55+.4*sin(ang*3.));
     }
     // The inside changes its pattern every ten seconds: it shrinks away and the next one grows out of the middle.

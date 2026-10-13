@@ -37,6 +37,8 @@ export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SI
 export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll', 'ghostbytes', 'marchers', 'phyllotaxis', 'big-sprites'];
 // What a PAL C64 could manage: 50 frames a second for raster and sprite work, every second frame for full-screen
 // bitmap and char effects, every third frame for the chunky rotozoomer and tunnel.
+// Per voice (0-2 SID 1, 3-5 SID 2): 1 while the voice is muted. The player's mute switch sets it; the shader reads it as vm[].
+export const voiceMuted = new Float32Array(6);
 export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50, 50, 50, 50, 25, 50];
 
 // The C64 character ROM shapes (uppercase set) that the scrollers draw, as an 8-pixel-high atlas texture, plus the text as a
@@ -178,6 +180,7 @@ uniform float peaks[40];
 uniform float vl[6];
 uniform float vw[6];
 uniform float vp[6];
+uniform float vm[6];
 uniform sampler2D hist;
 uniform float histHead;
 uniform sampler2D scrTex;
@@ -247,6 +250,11 @@ float vpv(float j){
   float p;
   if(j<.5)p=vp[0];else if(j<1.5)p=vp[1];else if(j<2.5)p=vp[2];else if(j<3.5)p=vp[3];else if(j<4.5)p=vp[4];else p=vp[5];
   return p;
+}
+// 1 when the voice is muted with its VOICE MUTING SWITCH (both chips): an effect skips what belongs to that voice, so the mute removes it.
+float vmv(float j){
+  j=mod(floor(j+.5),6.);
+  if(j<.5)return vm[0];if(j<1.5)return vm[1];if(j<2.5)return vm[2];if(j<3.5)return vm[3];if(j<4.5)return vm[4];return vm[5];
 }
 // The shape of a sprite follows the voice's waveform: round without data, diamond for triangle, wedge for saw, square for pulse, dithered disc for noise.
 float shapeIn(vec2 q,float w,vec2 pix){
@@ -435,11 +443,12 @@ bool inQuad(vec2 p,vec2 a,vec2 b,vec2 c,vec2 d){
   return (s0>=0.&&s1>=0.&&s2>=0.&&s3>=0.)||(s0<=0.&&s1<=0.&&s2<=0.&&s3<=0.);
 }
 // Outrun: the ground rises and falls with distance (outHeight) and the road winds sideways (outBend).
-float outHeight(float z,float t,float sp){
-  return (sin(z*.55-sp*1.7)*.42+sin(z*.23-sp*.8)*.6)*smoothstep(.5,3.,z)*.92*(.55+.55*tens(t,29.));
+// The three SID voices drive three parts: voice 1 the sun, voice 2 the hills (k scales their height) and voice 3 the bends (k scales the winding).
+float outHeight(float z,float t,float sp,float k){
+  return (sin(z*.55-sp*1.7)*.42+sin(z*.23-sp*.8)*.6)*smoothstep(.5,3.,z)*.92*(.55+.55*tens(t,29.))*k;
 }
-float outBend(float z,float t){
-  return (sin(z*.09-t*.32)*.9+sin(z*.23+t*.19)*.55)*z*z*1.5/(1.+z*.08);
+float outBend(float z,float t,float k){
+  return (sin(z*.09-t*.32)*.9+sin(z*.23+t*.19)*.55)*z*z*1.5/(1.+z*.08)*k;
 }
 // Big sprites: one 96x42 picture of a SID chip, cut into eight 24x21 sprite tiles (4 across, 2 down). Returns a palette index, or -1 where the picture is clear.
 float chipBit(float u,float v,float t){
@@ -485,11 +494,15 @@ float scene(vec2 p){
   int md=int(floor(mode+.5));
   if(md==0){
     float o=0.,depth=-9.;
-    for(int i=0;i<8;i++){
+    // Six bars, one per SID voice (SID 1 voices 1-3 and SID 2 voices 1-3): the voice's level sets the bar's thickness and how far it swings, and
+    // a muted voice has no bar. Without voice levels (the other chips) the bass stands in for them.
+    for(int i=0;i<6;i++){
       float fi=float(i);
-      float ph=t*(.8+fi*.11)+fi*.8;
-      float cy=res.y*.5+sin(ph)*(res.y*.22+b*res.y*.2)+sin(t*.5+fi*1.7)*res.y*.065;
-      float hh=9.+b*7.+m*3.;
+      if(vmv(fi)>.5)continue;
+      float lv=max(vlv(fi),b*.4);
+      float ph=t*(.8+fi*.14)+fi*1.05;
+      float cy=res.y*.5+sin(ph)*(res.y*.22+lv*res.y*.2)+sin(t*.5+fi*1.7)*res.y*.065;
+      float hh=8.+lv*16.+m*3.;
       float d=abs(y-cy)/hh;
       if(d<1.){float z=cos(ph);if(z>depth){depth=z;o=rampIdx(fi,(1.-d)*1.12);}}
     }
@@ -503,6 +516,7 @@ float scene(vec2 p){
       float band=floor(fi/8.);
       float k=mod(fi,8.);
       float vo=mod(fi,6.);
+      if(vmv(vo)>.5)continue;
       float lv=.2+.8*vlv(vo),wv=vwv(vo);
       float ph=t*(.7+.09*k)+k*.85+band*2.1;
       float sz=floor(12.+lv*22.);
@@ -569,6 +583,7 @@ float scene(vec2 p){
     for(int v=0;v<6;v++){
       float fv=float(v);
       float lv=vlv(fv),wv=vwv(fv);
+      if(vmv(fv)>.5)continue;
       if(v>=3&&lv<.04)continue;
       float amp=8.+lv*22.;
       float cy=36.+mod(fv,3.)*64.;
@@ -626,7 +641,9 @@ float scene(vec2 p){
     if(spr>=0.)idx=spr;
   }else if(md==9){
     // DYCP: every character column of the scroller has its own vertical position; letters take their colour from the raster line.
-    // The scroll speeds up and slows down so there is time to read, and the wave changes its shape every ten seconds or so.
+    // The scroll speeds up and slows down so there is time to read, and the wave changes its shape every ten seconds or so. Column n belongs to SID
+    // voice n mod 6: the voice's level sets how far its letters swing, and the letters of a muted voice lie flat on the baseline. Without voice
+    // levels the bass stands in.
     bidx=0.;
     idx=mod(floor(c.y/6.),2.)<1.?rampIdx(0.,.1):0.;
     float sxo=25.5*t-41.35*cos(t*.37)-77.3*cos(t*.11+1.3);
@@ -635,7 +652,9 @@ float scene(vec2 p){
     float ph=t*.1,k0=floor(ph),fm=smoothstep(.88,1.,fract(ph));
     float kA=floor(hash(k0+seed.z*9.)*4.),kB=floor(hash(k0+1.+seed.z*9.)*4.);
     float swell=.75+.25*sin(t*.23)+b*.25;
-    float dy=floor(mix(dycpWave(n,t,kA),dycpWave(n,t,kB),fm)*swell);
+    float vn6=mod(n,6.);
+    float vamp=vmv(vn6)>.5?0.:(.35+.9*max(vlv(vn6),b*.4));
+    float dy=floor(mix(dycpWave(n,t,kA),dycpWave(n,t,kB),fm)*swell*vamp);
     float py=floor((c.y-(78.+dy))/3.),gx=floor(mod(sx,24.)/3.);
     if(py>=0.&&py<8.&&glyphBit(msgGlyph(n),gx,py)>.5)idx=rampIdx(floor(c.y/36.+t*.6),.45+.5*fract(c.y/36.));
   }else if(md==10){
@@ -663,7 +682,8 @@ float scene(vec2 p){
   }else if(md==13){
     // Chess zoomer (Edge of Disgrace): a chunky 4x4 board zooming in or out, with sprites waving over it, each stretched by its own
     // zoom. Every cycle is different: the board is made of squares, diamonds, long tiles or rings, turns at its own rate, zooms
-    // in or out, as deep and as fast as it likes, and the sprites change shape and path.
+    // in or out, as deep and as fast as it likes, and the sprites change shape and path. There are six sprites, one per SID voice: the voice's level
+    // sets the sprite's zoom, and a muted voice has no sprite. Without voice levels the bass stands in.
     bidx=6.;
     float xm4=floor(c.x/4.)*4.+2.,ym4=floor(c.y/4.)*4.+2.;
     vec2 p4=vec2(xm4-160.,ym4-100.)/100.;
@@ -681,9 +701,11 @@ float scene(vec2 p){
     float cs=floor(hash(n+11.)*4.);
     idx=chk>.5?rampIdx(cs,.6+.25*b):rampIdx(cs,.22+.1*hash(n+4.));
     float spr=-1.;
-    for(int i=0;i<8;i++){
+    for(int i=0;i<6;i++){
       float k=float(i);
-      float sx=36.+k*34.,sy=100.+sin(t*(2.2+k*.17)+k*.75+sin(t*.31+k)*1.4)*(14.+54.*vn(t*.11+k*7.)),sz=1.+(.35+.5*vn(t*.09+k*3.))*sin(t*(1.6+k*.2)+k*.9);
+      if(vmv(k)>.5)continue;
+      float lvk=max(vlv(k),b*.4);
+      float sx=36.+k*49.,sy=100.+sin(t*(2.2+k*.17)+k*.75+sin(t*.31+k)*1.4)*(14.+54.*vn(t*.11+k*7.)),sz=(1.+(.35+.5*vn(t*.09+k*3.))*sin(t*(1.6+k*.2)+k*.9))*(.55+.9*lvk);
       vec2 d=vec2(c.x-sx,c.y-sy);
       float shp=mod(k+n,3.);
       float e=shp<.5?length(d)/(11.*sz):(shp<1.5?(abs(d.x)+abs(d.y))/(14.*sz):max(abs(d.x),abs(d.y))/(10.*sz));
@@ -711,6 +733,7 @@ float scene(vec2 p){
       float fi=float(i),u=(fi+.5)/96.;
       vec3 pos=rotX(rotY(mix(dotShape(kA,fi,u,t),dotShape(kB,fi,u,t),f),a1),a2);
       float vo=mod(fi,3.);
+      if(vmv(vo)>.5)continue;
       float lv=vlv(vo),wv=vwv(vo);
       float sc=1.+lv*.3;
       if(wv>2.5&&wv<3.5)sc=1.+step(.45,lv)*.3;
@@ -775,22 +798,23 @@ float scene(vec2 p){
     }
   }else if(md==18){
     // Rotating raster bars (Uncensored): bars that turn through 360 degrees, across the border as well. The turn hesitates and
-    // reverses, the bars fan out and fold together again, their number, width and swing keep changing, and their colours shift.
+    // reverses, the bars fan out and fold together again, their width and swing keep changing, and their colours shift. There are six bars, one per
+    // SID voice: the voice's level widens the bar and swings it further, and a muted voice has no bar. Without voice levels the bass stands in.
     openAll=true;canFlash=false;
     vec2 pp=vec2(x,y)-res*.5;
     float rot=t*.4+sin(t*.29)*1.4+sin(t*.11)*.8;
     float fan=(.5+.5*sin(t*.21))*.5;
-    float cnt=4.+floor(4.*vn(t*.1+3.));
     float swing=res.y*(.22+.14*sin(t*.13)),space=.9+.5*sin(t*.07);
     float o=0.,depth=-9.;
-    for(int i=0;i<8;i++){
+    for(int i=0;i<6;i++){
       float fi=float(i);
-      if(fi>=cnt)continue;
-      float ai=rot+(fi-3.5)*fan;
+      if(vmv(fi)>.5)continue;
+      float lv=max(vlv(fi),b*.4);
+      float ai=rot+(fi-2.5)*fan;
       vec2 nrm=vec2(cos(ai),sin(ai));
       float ph=t*.8+fi*space;
-      float off=sin(ph)*swing,zz=cos(ph);
-      float hh=(7.+b*6.+4.*sin(t*.5+fi*1.3))*(.7+.6*vn(t*.2+fi*3.7));
+      float off=sin(ph)*swing*(.7+.6*lv),zz=cos(ph);
+      float hh=(6.+lv*12.+4.*sin(t*.5+fi*1.3))*(.7+.6*vn(t*.2+fi*3.7));
       float d=abs(dot(pp,nrm)-off)/hh;
       if(d<1.&&zz>depth){depth=zz;o=rampIdx(fi+floor(t*.05),(1.-d)*1.12);}
     }
@@ -819,6 +843,7 @@ float scene(vec2 p){
     float bestd=99.,who=0.;
     for(int j=0;j<3;j++){
       float fj=float(j);
+      if(vmv(fj)>.5)continue;
       float lv=vlv(fj),wv=vwv(fj);
       float zm=(.62+lv*.16)*(fj>.5&&fj<1.5?1.08:.94);
       vec2 pp=vec2(c.x-160.-(fj-1.)*104.,112.-c.y)/zm;
@@ -833,7 +858,8 @@ float scene(vec2 p){
     idx=hash2(floor(c)+7.)<prog?specIdx(c):plasmaIdx(c,t,b,m);
   }else if(md==22){
     // Chips DNA (Viva Las Vegas): a double helix with cross rungs, shaded by depth. The twist, the width, the sway and the rung spacing
-    // drift on their own, a third strand fades in and out, and the colours change with every cycle.
+    // drift on their own, a third strand fades in and out, and the colours change with every cycle. Each strand is a SID voice (voice 1, 2 and 3 of both
+    // chips together): its level swings the strand wider, and a muted voice has no strand and no rungs. Without voice levels the bass stands in.
     bidx=0.;idx=0.;
     float tp=tw(t,21.,.9);
     float kx=.028+.034*vn(t*.06+2.);
@@ -841,24 +867,26 @@ float scene(vec2 p){
     float cy=100.+sin(c.x*.011+t*.4)*26.*vn(t*.05+11.);
     float ph=c.x*kx+tp*2.;
     float s1=sin(ph),s2=-s1,s3=sin(ph+1.57);
-    float y1=cy+s1*amp,y2=cy+s2*amp,y3=cy+s3*amp*.8;
+    float L1=max(max(vlv(0.),vlv(3.)),b*.4),L2=max(max(vlv(1.),vlv(4.)),b*.4),L3=max(max(vlv(2.),vlv(5.)),b*.4);
+    bool mu1=vmv(0.)>.5,mu2=vmv(1.)>.5,mu3=vmv(2.)>.5;
+    float y1=cy+s1*amp*(.6+.8*L1),y2=cy+s2*amp*(.6+.8*L2),y3=cy+s3*amp*.8*(.6+.8*L3);
     float z1=cos(ph),z3=cos(ph+1.57);
     float sp=8.+8.*vn(t*.04+3.);
     float set=floor(t/21.);
     float w3=smoothstep(.5,.65,vn(t*.07+9.));
-    if(w3>.01){
+    if(w3>.01&&!mu3){
       float th3=(2.4+z3*1.2)*w3;
       if(abs(c.y-y3)<th3)idx=rampIdx(set+2.,.4+z3*.2);
     }
-    if(mod(c.x,sp)<2.&&c.y>min(y1,y2)&&c.y<max(y1,y2))idx=rampIdx(set+2.,.35+.15*mod(floor(c.x/sp),3.));
+    if(!mu1&&!mu2&&mod(c.x,sp)<2.&&c.y>min(y1,y2)&&c.y<max(y1,y2))idx=rampIdx(set+2.,.35+.15*mod(floor(c.x/sp),3.));
     float d1=abs(c.y-y1),d2=abs(c.y-y2);
     float th1=3.+z1*1.6,th2=3.-z1*1.6;
     if(z1>0.){
-      if(d2<th2)idx=rampIdx(set,.6-z1*.25);
-      if(d1<th1)idx=rampIdx(set+1.,.6+z1*.3);
+      if(!mu2&&d2<th2)idx=rampIdx(set,.6-z1*.25);
+      if(!mu1&&d1<th1)idx=rampIdx(set+1.,.6+z1*.3);
     }else{
-      if(d1<th1)idx=rampIdx(set+1.,.6+z1*.3);
-      if(d2<th2)idx=rampIdx(set,.6-z1*.25);
+      if(!mu1&&d1<th1)idx=rampIdx(set+1.,.6+z1*.3);
+      if(!mu2&&d2<th2)idx=rampIdx(set,.6-z1*.25);
     }
   }else if(md==23){
     // Circle scroll (Viva Las Vegas): the scroll text runs round a circle.
@@ -895,6 +923,7 @@ float scene(vec2 p){
       float k=float(i);
       float hs=hash(k+1.);
       float vo=mod(k,6.);
+      if(vmv(vo)>.5)continue;
       float lv=vlv(vo),wv=vwv(vo);
       float bx=24.+hash(k+40.)*272.+sin(t*(.6+hs)+k)*10.;
       float by=mod(260.-(t*(14.+hs*26.)+hash(k+80.)*260.),260.)-30.-lv*14.;
@@ -936,6 +965,7 @@ float scene(vec2 p){
     idx=mod(floor(y/2.),2.)<1.?0.:rampIdx(0.,.05);
     for(int j=0;j<6;j++){
       float vo=float(j);
+      if(vmv(vo)>.5)continue;
       float lv=vlv(vo),wv=vwv(vo),pv=vpv(vo);
       float yc=res.y*(.14+.72*fract(vo*.38197+.11))+sin(t*(.35+.13*vo)+vo*2.1)*(14.+34.*lv);
       float hh=12.+30.*lv;
@@ -979,6 +1009,7 @@ float scene(vec2 p){
       }
       for(int j=0;j<6;j++){
         float vo=float(j);
+        if(vmv(vo)>.5)continue;
         float lv=vlv(vo);
         float x0=14.+vo*52.;
         float wc=floor((x0+8.+scr)/8.);
@@ -1017,6 +1048,7 @@ float scene(vec2 p){
       float rr=c0*sqrt(n),ph=n*ga+rot;
       vec2 sp=rr*vec2(cos(ph),sin(ph));
       float vo=mod(n,6.);
+      if(vmv(vo)>.5)continue;
       float lv=vo<.5?L0:(vo<1.5?L1:(vo<2.5?L2:(vo<3.5?L3:(vo<4.5?L4:L5))));
       float wv=vo<.5?W0:(vo<1.5?W1:(vo<2.5?W2:(vo<3.5?W3:(vo<4.5?W4:W5))));
       float dr=2.6+1.4*lv+sl*1.5;
@@ -1088,12 +1120,16 @@ float scene(vec2 p){
     // Outrun: the sun over the horizon and a road that winds left and right and rolls over hills, with striped kerbs and grass.
     bidx=0.;
     float hor=104.;
+    // Voices 1, 2 and 3 of both chips together; a muted voice takes its part away (no sun, flat ground, a straight road). Without voice levels the
+    // bass stands in.
+    float O1=max(max(vlv(0.),vlv(3.)),b*.4),O2=max(max(vlv(1.),vlv(4.)),b*.4),O3=max(max(vlv(2.),vlv(5.)),b*.4);
+    float hillK=vmv(1.)>.5?.12:.5+1.1*O2,bendK=vmv(2.)>.5?0.:.5+1.1*O3;
     if(c.y<hor){
       float v=pow(c.y/hor,1.25);
       idx=rampIdx(3.,v);
-      vec2 sp=vec2(c.x-160.,c.y-(hor-34.-b*4.));
-      float sr=40.+b*8.;
-      if(length(sp)<sr){
+      vec2 sp=vec2(c.x-160.,c.y-(hor-34.-O1*10.));
+      float sr=40.+O1*14.;
+      if(vmv(0.)<.5&&length(sp)<sr){
         float vv=(sp.y+sr)/(2.*sr);
         float cut=sp.y>2.?step(mod(sp.y-floor(t*4.),8.),(sp.y/sr)*7.):0.;
         if(cut<.5)idx=vv<.4?7.:(vv<.7?10.:2.);
@@ -1105,12 +1141,12 @@ float scene(vec2 p){
       float D=sp*3.2;
       idx=1.;
       float clip=200.,z0=.5;
-      float yb=hor+(1.-outHeight(z0,t,sp))*48./z0;
+      float yb=hor+(1.-outHeight(z0,t,sp,hillK))*48./z0;
       for(int i=0;i<34;i++){
         float zi=.5*pow(1.1,float(i)),zn=zi*1.1;
-        float yn=hor+(1.-outHeight(zn,t,sp))*48./zn;
+        float yn=hor+(1.-outHeight(zn,t,sp,hillK))*48./zn;
         if(c.y>=yn&&c.y<min(yb,clip)){
-          float cx=160.+outBend(zi,t)*12./zi;
+          float cx=160.+outBend(zi,t,bendK)*12./zi;
           float ar=abs(c.x-cx);
           float par=mod(floor((zi+D)*.9),2.);
           float hw=27.6/zi;

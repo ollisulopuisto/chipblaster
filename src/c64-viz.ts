@@ -37,6 +37,8 @@ export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SI
 export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll', 'ghostbytes', 'marchers', 'phyllotaxis', 'big-sprites'];
 // What a PAL C64 could manage: 50 frames a second for raster and sprite work, every second frame for full-screen
 // bitmap and char effects, every third frame for the chunky rotozoomer and tunnel.
+// Per voice (0-2 SID 1, 3-5 SID 2): 1 while the voice is muted. The player's mute switch sets it; the shader reads it as vm[].
+export const voiceMuted = new Float32Array(6);
 export const C64_FPS = [50, 50, 25, 50, 16.7, 16.7, 25, 25, 50, 50, 50, 25, 50, 25, 25, 25, 50, 16.7, 50, 50, 25, 25, 50, 25, 50, 50, 50, 50, 25, 50];
 
 // The C64 character ROM shapes (uppercase set) that the scrollers draw, as an 8-pixel-high atlas texture, plus the text as a
@@ -178,6 +180,7 @@ uniform float peaks[40];
 uniform float vl[6];
 uniform float vw[6];
 uniform float vp[6];
+uniform float vm[6];
 uniform sampler2D hist;
 uniform float histHead;
 uniform sampler2D scrTex;
@@ -247,6 +250,11 @@ float vpv(float j){
   float p;
   if(j<.5)p=vp[0];else if(j<1.5)p=vp[1];else if(j<2.5)p=vp[2];else if(j<3.5)p=vp[3];else if(j<4.5)p=vp[4];else p=vp[5];
   return p;
+}
+// 1 when the voice is muted with its VOICE MUTING SWITCH (both chips): an effect skips what belongs to that voice, so the mute removes it.
+float vmv(float j){
+  j=mod(floor(j+.5),6.);
+  if(j<.5)return vm[0];if(j<1.5)return vm[1];if(j<2.5)return vm[2];if(j<3.5)return vm[3];if(j<4.5)return vm[4];return vm[5];
 }
 // The shape of a sprite follows the voice's waveform: round without data, diamond for triangle, wedge for saw, square for pulse, dithered disc for noise.
 float shapeIn(vec2 q,float w,vec2 pix){
@@ -494,6 +502,7 @@ float scene(vec2 p){
       float band=floor(fi/8.);
       float k=mod(fi,8.);
       float vo=mod(fi,6.);
+      if(vmv(vo)>.5)continue;
       float lv=.2+.8*vlv(vo),wv=vwv(vo);
       float ph=t*(.7+.09*k)+k*.85+band*2.1;
       float sz=floor(12.+lv*22.);
@@ -692,6 +701,7 @@ float scene(vec2 p){
       float fi=float(i),u=(fi+.5)/96.;
       vec3 pos=rotX(rotY(mix(dotShape(kA,fi,u,t),dotShape(kB,fi,u,t),f),a1),a2);
       float vo=mod(fi,3.);
+      if(vmv(vo)>.5)continue;
       float lv=vlv(vo),wv=vwv(vo);
       float sc=1.+lv*.3;
       if(wv>2.5&&wv<3.5)sc=1.+step(.45,lv)*.3;
@@ -800,6 +810,7 @@ float scene(vec2 p){
     float bestd=99.,who=0.;
     for(int j=0;j<3;j++){
       float fj=float(j);
+      if(vmv(fj)>.5)continue;
       float lv=vlv(fj),wv=vwv(fj);
       float zm=(.62+lv*.16)*(fj>.5&&fj<1.5?1.08:.94);
       vec2 pp=vec2(c.x-160.-(fj-1.)*104.,112.-c.y)/zm;
@@ -876,6 +887,7 @@ float scene(vec2 p){
       float k=float(i);
       float hs=hash(k+1.);
       float vo=mod(k,6.);
+      if(vmv(vo)>.5)continue;
       float lv=vlv(vo),wv=vwv(vo);
       float bx=24.+hash(k+40.)*272.+sin(t*(.6+hs)+k)*10.;
       float by=mod(260.-(t*(14.+hs*26.)+hash(k+80.)*260.),260.)-30.-lv*14.;
@@ -917,6 +929,7 @@ float scene(vec2 p){
     idx=mod(floor(y/2.),2.)<1.?0.:rampIdx(0.,.05);
     for(int j=0;j<6;j++){
       float vo=float(j);
+      if(vmv(vo)>.5)continue;
       float lv=vlv(vo),wv=vwv(vo),pv=vpv(vo);
       float yc=res.y*(.14+.72*fract(vo*.38197+.11))+sin(t*(.35+.13*vo)+vo*2.1)*(14.+34.*lv);
       float hh=12.+30.*lv;
@@ -960,6 +973,7 @@ float scene(vec2 p){
       }
       for(int j=0;j<6;j++){
         float vo=float(j);
+        if(vmv(vo)>.5)continue;
         float lv=vlv(vo);
         float x0=14.+vo*52.;
         float wc=floor((x0+8.+scr)/8.);
@@ -998,6 +1012,7 @@ float scene(vec2 p){
       float rr=c0*sqrt(n),ph=n*ga+rot;
       vec2 sp=rr*vec2(cos(ph),sin(ph));
       float vo=mod(n,6.);
+      if(vmv(vo)>.5)continue;
       float lv=vo<.5?L0:(vo<1.5?L1:(vo<2.5?L2:(vo<3.5?L3:(vo<4.5?L4:L5))));
       float wv=vo<.5?W0:(vo<1.5?W1:(vo<2.5?W2:(vo<3.5?W3:(vo<4.5?W4:W5))));
       float dr=2.6+1.4*lv+sl*1.5;

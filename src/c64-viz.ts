@@ -493,11 +493,15 @@ float scene(vec2 p){
   int md=int(floor(mode+.5));
   if(md==0){
     float o=0.,depth=-9.;
-    for(int i=0;i<8;i++){
+    // Six bars, one per SID voice (SID 1 voices 1-3 and SID 2 voices 1-3): the voice's level sets the bar's thickness and how far it swings, and
+    // a muted voice has no bar. Without voice levels (the other chips) the bass stands in for them.
+    for(int i=0;i<6;i++){
       float fi=float(i);
-      float ph=t*(.8+fi*.11)+fi*.8;
-      float cy=res.y*.5+sin(ph)*(res.y*.22+b*res.y*.2)+sin(t*.5+fi*1.7)*res.y*.065;
-      float hh=9.+b*7.+m*3.;
+      if(vmv(fi)>.5)continue;
+      float lv=max(vlv(fi),b*.4);
+      float ph=t*(.8+fi*.14)+fi*1.05;
+      float cy=res.y*.5+sin(ph)*(res.y*.22+lv*res.y*.2)+sin(t*.5+fi*1.7)*res.y*.065;
+      float hh=8.+lv*16.+m*3.;
       float d=abs(y-cy)/hh;
       if(d<1.){float z=cos(ph);if(z>depth){depth=z;o=rampIdx(fi,(1.-d)*1.12);}}
     }

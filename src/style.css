@@ -2799,11 +2799,11 @@ html,body,#root{margin:0;min-height:100%}body{background:var(--ds-page)}
 .c64-shell .vu-unit .vu-strip{display:flex;align-items:flex-start;gap:4px;margin-top:3px;min-width:0}
 .c64-shell .vu-unit .vu-strip .waveform-readout{flex:1 1 auto;min-width:0;margin-top:0}
 .c64-shell .vu-unit .vu-strip .waveform-readout svg{flex:0 1 20px;min-width:11px;max-height:20px}
-/* After the Datassette's counter reset button: a round plastic button in a recessed bezel, the number printed on the cap. Pushed in (the voice sounds) the cap sits 4 px lower, is darker and has lost its skirt; up, it stands proud with a dark skirt. Both caps are the same matt beige apart from that: nothing lights up. The bezel clips the cap's shadow, so it stays inside its own ring, with room around it. */
+/* After the Datassette's counter reset button: a round plastic button in a recessed bezel, the number printed on the cap. Pushed in (the voice is cut) the cap sits 4 px lower, is darker and has lost its skirt; up, it stands proud with a dark skirt. Both caps are the same matt beige apart from that: nothing lights up. The bezel clips the cap's shadow, so it stays inside its own ring, with room around it. */
 .c64-shell .vu-toggle-wrap{flex:0 0 auto;display:flex;align-items:center;justify-content:center;height:36px;width:40px}
 .c64-shell .vu-toggle{all:unset;box-sizing:border-box;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:block;position:relative;overflow:hidden;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#0d0c0a,#26241f 70%,#3a372f);box-shadow:inset 0 3px 5px #000d,0 1px 0 #fff5}
 .c64-shell .vu-toggle-cap{position:absolute;left:4px;top:2px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 11px/1 "Arial Narrow",Arial,sans-serif;color:#3a342a;background:radial-gradient(circle at 40% 32%,#d9d1b8,#c4bba0 60%,#b0a78c);box-shadow:0 3px 0 #5f5644,inset 0 1px 0 #fff4;transition:transform .08s,box-shadow .08s,background .08s}
-.c64-shell .vu-toggle.is-on .vu-toggle-cap{transform:translateY(4px);background:radial-gradient(circle at 40% 32%,#b8b095,#a39b80 60%,#928a70);box-shadow:inset 0 2px 4px #0006}
+.c64-shell .vu-toggle.is-in .vu-toggle-cap{transform:translateY(4px);background:radial-gradient(circle at 40% 32%,#b8b095,#a39b80 60%,#928a70);box-shadow:inset 0 2px 4px #0006}
 .c64-shell .vu-toggle:focus-visible{outline:2px solid #f5cd80;outline-offset:2px}
 .c64-shell .vu-unit .vu-strip{align-items:stretch}
 .c64-shell .vu-unit .vu-strip .waveform-readout{height:36px}

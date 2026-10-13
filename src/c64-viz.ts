@@ -583,6 +583,7 @@ float scene(vec2 p){
     for(int v=0;v<6;v++){
       float fv=float(v);
       float lv=vlv(fv),wv=vwv(fv);
+      if(vmv(fv)>.5)continue;
       if(v>=3&&lv<.04)continue;
       float amp=8.+lv*22.;
       float cy=36.+mod(fv,3.)*64.;

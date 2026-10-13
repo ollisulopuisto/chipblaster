@@ -657,7 +657,8 @@ float scene(vec2 p){
   }else if(md==13){
     // Chess zoomer (Edge of Disgrace): a chunky 4x4 board zooming in or out, with sprites waving over it, each stretched by its own
     // zoom. Every cycle is different: the board is made of squares, diamonds, long tiles or rings, turns at its own rate, zooms
-    // in or out, as deep and as fast as it likes, and the sprites change shape and path.
+    // in or out, as deep and as fast as it likes, and the sprites change shape and path. There are six sprites, one per SID voice: the voice's level
+    // sets the sprite's zoom, and a muted voice has no sprite. Without voice levels the bass stands in.
     bidx=6.;
     float xm4=floor(c.x/4.)*4.+2.,ym4=floor(c.y/4.)*4.+2.;
     vec2 p4=vec2(xm4-160.,ym4-100.)/100.;
@@ -675,9 +676,11 @@ float scene(vec2 p){
     float cs=floor(hash(n+11.)*4.);
     idx=chk>.5?rampIdx(cs,.6+.25*b):rampIdx(cs,.22+.1*hash(n+4.));
     float spr=-1.;
-    for(int i=0;i<8;i++){
+    for(int i=0;i<6;i++){
       float k=float(i);
-      float sx=36.+k*34.,sy=100.+sin(t*(2.2+k*.17)+k*.75+sin(t*.31+k)*1.4)*(14.+54.*vn(t*.11+k*7.)),sz=1.+(.35+.5*vn(t*.09+k*3.))*sin(t*(1.6+k*.2)+k*.9);
+      if(vmv(k)>.5)continue;
+      float lvk=max(vlv(k),b*.4);
+      float sx=36.+k*49.,sy=100.+sin(t*(2.2+k*.17)+k*.75+sin(t*.31+k)*1.4)*(14.+54.*vn(t*.11+k*7.)),sz=(1.+(.35+.5*vn(t*.09+k*3.))*sin(t*(1.6+k*.2)+k*.9))*(.55+.9*lvk);
       vec2 d=vec2(c.x-sx,c.y-sy);
       float shp=mod(k+n,3.);
       float e=shp<.5?length(d)/(11.*sz):(shp<1.5?(abs(d.x)+abs(d.y))/(14.*sz):max(abs(d.x),abs(d.y))/(10.*sz));

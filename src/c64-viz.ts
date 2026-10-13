@@ -849,7 +849,8 @@ float scene(vec2 p){
     idx=hash2(floor(c)+7.)<prog?specIdx(c):plasmaIdx(c,t,b,m);
   }else if(md==22){
     // Chips DNA (Viva Las Vegas): a double helix with cross rungs, shaded by depth. The twist, the width, the sway and the rung spacing
-    // drift on their own, a third strand fades in and out, and the colours change with every cycle.
+    // drift on their own, a third strand fades in and out, and the colours change with every cycle. Each strand is a SID voice (voice 1, 2 and 3 of both
+    // chips together): its level swings the strand wider, and a muted voice has no strand and no rungs. Without voice levels the bass stands in.
     bidx=0.;idx=0.;
     float tp=tw(t,21.,.9);
     float kx=.028+.034*vn(t*.06+2.);
@@ -857,24 +858,26 @@ float scene(vec2 p){
     float cy=100.+sin(c.x*.011+t*.4)*26.*vn(t*.05+11.);
     float ph=c.x*kx+tp*2.;
     float s1=sin(ph),s2=-s1,s3=sin(ph+1.57);
-    float y1=cy+s1*amp,y2=cy+s2*amp,y3=cy+s3*amp*.8;
+    float L1=max(max(vlv(0.),vlv(3.)),b*.4),L2=max(max(vlv(1.),vlv(4.)),b*.4),L3=max(max(vlv(2.),vlv(5.)),b*.4);
+    bool mu1=vmv(0.)>.5,mu2=vmv(1.)>.5,mu3=vmv(2.)>.5;
+    float y1=cy+s1*amp*(.6+.8*L1),y2=cy+s2*amp*(.6+.8*L2),y3=cy+s3*amp*.8*(.6+.8*L3);
     float z1=cos(ph),z3=cos(ph+1.57);
     float sp=8.+8.*vn(t*.04+3.);
     float set=floor(t/21.);
     float w3=smoothstep(.5,.65,vn(t*.07+9.));
-    if(w3>.01){
+    if(w3>.01&&!mu3){
       float th3=(2.4+z3*1.2)*w3;
       if(abs(c.y-y3)<th3)idx=rampIdx(set+2.,.4+z3*.2);
     }
-    if(mod(c.x,sp)<2.&&c.y>min(y1,y2)&&c.y<max(y1,y2))idx=rampIdx(set+2.,.35+.15*mod(floor(c.x/sp),3.));
+    if(!mu1&&!mu2&&mod(c.x,sp)<2.&&c.y>min(y1,y2)&&c.y<max(y1,y2))idx=rampIdx(set+2.,.35+.15*mod(floor(c.x/sp),3.));
     float d1=abs(c.y-y1),d2=abs(c.y-y2);
     float th1=3.+z1*1.6,th2=3.-z1*1.6;
     if(z1>0.){
-      if(d2<th2)idx=rampIdx(set,.6-z1*.25);
-      if(d1<th1)idx=rampIdx(set+1.,.6+z1*.3);
+      if(!mu2&&d2<th2)idx=rampIdx(set,.6-z1*.25);
+      if(!mu1&&d1<th1)idx=rampIdx(set+1.,.6+z1*.3);
     }else{
-      if(d1<th1)idx=rampIdx(set+1.,.6+z1*.3);
-      if(d2<th2)idx=rampIdx(set,.6-z1*.25);
+      if(!mu1&&d1<th1)idx=rampIdx(set+1.,.6+z1*.3);
+      if(!mu2&&d2<th2)idx=rampIdx(set,.6-z1*.25);
     }
   }else if(md==23){
     // Circle scroll (Viva Las Vegas): the scroll text runs round a circle.

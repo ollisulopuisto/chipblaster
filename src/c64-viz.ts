@@ -33,8 +33,8 @@ void main(){
 }`;
 export const C64_BANDS = 40;
 
-export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'SID spectrum', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons', 'Piano roll', 'Ghostbytes', 'Marchers', 'Phyllotaxis', 'Big sprites'];
-export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'sid-spectrum', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll', 'ghostbytes', 'marchers', 'phyllotaxis', 'big-sprites'];
+export const c64Presets = ['Raster bars', 'Sprite multiplex', 'Char plasma', 'Voice ring', 'Rotozoom', 'Tunnel', 'Scope', 'Outrun', 'Open borders', 'DYCP scroller', 'FLD plasma', 'FLI picture', 'Linecrunch', 'Chess zoomer', 'AFLI plasma', 'Dot plotter', 'Parallax floor', 'Shadow cube', 'Rotating bars', 'Zoomscroll', 'Stick dancer', 'Noisefader', 'Chips DNA', 'Circle scroll', 'Balloons', 'Piano roll', 'Ghostbytes', 'Marchers', 'Phyllotaxis', 'Big sprites'];
+export const c64PresetKeys = ['raster-bars', 'sprite-multiplex', 'char-plasma', 'voice-ring', 'rotozoom', 'tunnel', 'scope', 'outrun', 'open-borders', 'dycp', 'fld', 'fli', 'linecrunch', 'chess-zoomer', 'afli-plasma', 'dot-plotter', 'parallax-floor', 'shadow-cube', 'rotating-bars', 'zoomscroll', 'stick-dancer', 'noisefader', 'chips-dna', 'circle-scroll', 'balloons', 'piano-roll', 'ghostbytes', 'marchers', 'phyllotaxis', 'big-sprites'];
 // What a PAL C64 could manage: 50 frames a second for raster and sprite work, every second frame for full-screen
 // bitmap and char effects, every third frame for the chunky rotozoomer and tunnel.
 // Per voice (0-2 SID 1, 3-5 SID 2): 1 while the voice is muted. The player's mute switch sets it; the shader reads it as vm[].
@@ -544,8 +544,23 @@ float scene(vec2 p){
     bidx=6.;
     idx=plasmaIdx(c,t,b,m);
   }else if(md==3){
-    bidx=11.;
-    idx=specIdx(c);
+    // Voice ring: each voice is a spoke from the middle of a ring. Its pitch sets the angle (higher notes lie further round), its level sets the length
+    // and the tip shines. The ring turns slowly. A muted voice has no spoke; without voice levels the bass stands in for them.
+    bidx=0.;
+    if(abs(length(pm)-.56)<.01)idx=11.;
+    float best=1e3;
+    for(int i=0;i<6;i++){
+      float fi=float(i);
+      if(vmv(fi)>.5)continue;
+      float lv=max(vlv(fi),b*.4);
+      float a=vpv(fi)*6.2831853+.15*sin(t*.4+fi*1.3);
+      vec2 dir=vec2(cos(a),sin(a));
+      vec2 tip=dir*(.22+lv*.6);
+      float d=dseg(pm,dir*.08,tip)-(.03+.02*lv);
+      if(d<0.&&d<best){best=d;idx=rampIdx(fi,.4+.6*lv);}
+      float td=length(pm-tip)-(.04+.02*lv);
+      if(td<0.&&td<best){best=td;idx=1.;}
+    }
   }else if(md==4){
     bidx=0.;
     float q=tw(t,19.,1.)*.45+sin(t*.3)*.8;

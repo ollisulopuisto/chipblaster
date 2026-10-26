@@ -27,5 +27,5 @@ test('index.html has description, canonical and crawlable text', () => {
 test('llms.txt describes the site for language models', () => {
   const llms = read('public/llms.txt');
   assert.match(llms, /^# CHIPBLASTER\n\n> .+/);
-  assert.ok(llms.includes(SITE));
+  assert.ok(llms.includes(`- Site: ${SITE}`));
 });

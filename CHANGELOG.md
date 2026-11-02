@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- The second needle of each voice meter is now always on the dial. It rests faintly at zero, comes to life when a two-SID tune plays, and settles back to rest when playback stops, like the second movement of a real dual-needle meter instead of a needle that appears from nowhere.
+
 ## [v26.10.05.2] - 2026-10-05
 
 - `llms.txt` describes the player for AI assistants and AI search.

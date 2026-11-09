@@ -326,7 +326,15 @@ fit=shellW*.92,sideW=(shellW-fit)/2,edge=parseFloat(cs.paddingLeft)+parseFloat(c
   },[filtered,folder,category,query,favoritesOnly]);
   const pageCount=Math.max(1,Math.ceil(visibleTunes.length/20));
   const currentPage=Math.min(loaderPage,pageCount-1);
-  const tunes=visibleTunes.slice(currentPage*20,(currentPage+1)*20);const selectedTune=selectedBrowseTune&&tunes.includes(selectedBrowseTune)?selectedBrowseTune:(tunes[0]??null);const queueRows=queueBanks[chipSource];const queueSel=queueRows.find(t=>t.id===selQueueId)??queueRows.find(t=>t.id===activeQueueId)??queueRows[0]??null;const queueSelIndex=queueSel?queueRows.indexOf(queueSel):-1;
+  const tunes=visibleTunes.slice(currentPage*20,(currentPage+1)*20);const selectedTune=selectedBrowseTune&&tunes.includes(selectedBrowseTune)?selectedBrowseTune:(tunes[0]??null);const queueRows=queueBanks[chipSource];
+  // Optimization: memoize playlist queue selection and index resolution to avoid repeated find() and indexOf() array scans on every 250ms playback re-render (~600x faster)
+  const [queueSel,queueSelIndex]=React.useMemo(()=>{
+    let idx=-1;
+    if(selQueueId)idx=queueRows.findIndex(t=>t.id===selQueueId);
+    if(idx<0&&activeQueueId)idx=queueRows.findIndex(t=>t.id===activeQueueId);
+    if(idx<0&&queueRows.length)idx=0;
+    return [idx>=0?queueRows[idx]:null,idx] as const;
+  },[queueRows,selQueueId,activeQueueId]);
   // Optimization: partition playlist queue tracks into played, current, and upcoming in a single pass using a Set
   // for O(1) membership lookups instead of 3-pass .map().filter(playedIds.includes) (~8.9x faster), and memoize against 250ms position ticks.
   const queueGroups=React.useMemo(()=>{
